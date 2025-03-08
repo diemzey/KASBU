@@ -1,0 +1,9 @@
+export { FacebookCard } from './FacebookCard';
+export { InstagramCard } from './InstagramCard';
+export { TikTokCard } from './TikTokCard';
+export { YouTubeCard } from './YouTubeCard';
+export { CustomCard } from './CustomCard';
+export { CodeCard } from './CodeCard';
+export { QRCard } from './QRCard';
+export { MapCard } from './MapCard';
+export { TVCard } from './TVCard'; 
