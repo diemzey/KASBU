@@ -35,6 +35,9 @@ const getUrlType = (url: string) => {
     if (hostname.includes('instagram.com')) return 'instagram';
     if (hostname.includes('linkedin.com')) return 'linkedin';
     if (hostname.includes('youtube.com')) return 'youtube';
+    if (hostname.includes('twitch.tv')) return 'twitch';
+    if (hostname.includes('discord.gg') || hostname.includes('discord.com')) return 'discord';
+    if (hostname.includes('spotify.com')) return 'spotify';
     return 'default';
   } catch {
     return 'default';
@@ -44,17 +47,23 @@ const getUrlType = (url: string) => {
 const getIconBackground = (type: string) => {
   switch (type) {
     case 'github':
-      return 'bg-[#24292e]';
+      return 'bg-slate-100';
     case 'twitter':
-      return 'bg-[#1da1f2]';
+      return 'bg-sky-100';
     case 'facebook':
-      return 'bg-[#1877f2]';
+      return 'bg-blue-100';
     case 'instagram':
-      return 'bg-gradient-to-br from-[#405de6] via-[#e1306c] to-[#ffdc80]';
+      return 'bg-gradient-to-br from-fuchsia-100 via-pink-100 to-orange-100';
     case 'linkedin':
-      return 'bg-[#0a66c2]';
+      return 'bg-indigo-100';
     case 'youtube':
-      return 'bg-[#ff0000]';
+      return 'bg-rose-100';
+    case 'spotify':
+      return 'bg-green-100';
+    case 'twitch':
+      return 'bg-purple-100';
+    case 'discord':
+      return 'bg-violet-100';
     default:
       return 'bg-gray-100';
   }
