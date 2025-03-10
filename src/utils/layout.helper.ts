@@ -1,22 +1,13 @@
 export const keys = [
-	"a", // Facebook
-	"b", // Instagram
 	"c", // TikTok
-	"d", // YouTube
 ];
 
 export const HomeLayouts = {
 	lg: [
-		{ i: "a", x: 0, y: 0, w: 1, h: 1, isResizable: false }, // Facebook
-		{ i: "b", x: 1, y: 0, w: 1, h: 1, isResizable: false }, // Instagram
-		{ i: "c", x: 2, y: 0, w: 1, h: 1, isResizable: false }, // TikTok
-		{ i: "d", x: 0, y: 1, w: 2, h: 1, isResizable: false }, // YouTube
+		{ i: "c", x: 0, y: 0, w: 1, h: 1, isResizable: false }, // TikTok
 	],
 	xs: [
-		{ i: "a", x: 0, y: 0, w: 1, h: 1, static: true }, // Facebook
-		{ i: "b", x: 0, y: 1, w: 1, h: 1, static: true }, // Instagram
-		{ i: "c", x: 0, y: 2, w: 1, h: 1, static: true }, // TikTok
-		{ i: "d", x: 0, y: 3, w: 1, h: 1, static: true }, // YouTube
+		{ i: "c", x: 0, y: 0, w: 1, h: 1, static: true }, // TikTok
 	],
 };
 

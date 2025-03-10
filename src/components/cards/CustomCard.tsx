@@ -1,36 +1,150 @@
-import { BaseSocialCard, BaseSocialCardProps } from './BaseSocialCard';
+import { useState, useRef, useEffect, useCallback, memo } from 'react';
+import { CustomCardProps } from '../../types';
 
-type CustomCardProps = Omit<BaseSocialCardProps, 'className' | 'icon'> & {
-  title?: string;
-  gradient?: 'blue' | 'purple' | 'green' | 'orange' | 'pink';
-};
+interface EditableContentProps {
+  value: string;
+  onBlur: (text: string) => void;
+  placeholder: string;
+  className?: string;
+  isEditing: boolean;
+  setIsEditing: (editing: boolean) => void;
+}
 
-const CustomIcon = () => (
-  <svg className="w-8 h-8 opacity-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 8h10M7 12h10m-10 4h10" />
-  </svg>
-);
+const EditableContent = memo(({ 
+  value, 
+  onBlur, 
+  placeholder, 
+  className = '', 
+  isEditing,
+  setIsEditing
+}: EditableContentProps) => {
+  const ref = useRef<HTMLDivElement>(null);
 
-const gradients = {
-  blue: "bg-gradient-to-br from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800",
-  purple: "bg-gradient-to-br from-purple-500 to-purple-700 hover:from-purple-600 hover:to-purple-800",
-  green: "bg-gradient-to-br from-emerald-500 to-emerald-700 hover:from-emerald-600 hover:to-emerald-800",
-  orange: "bg-gradient-to-br from-orange-500 to-orange-700 hover:from-orange-600 hover:to-orange-800",
-  pink: "bg-gradient-to-br from-pink-500 to-pink-700 hover:from-pink-600 hover:to-pink-800",
-};
+  const handleBlur = useCallback(() => {
+    setIsEditing(false);
+    const newText = ref.current?.innerText || '';
+    onBlur(newText);
+  }, [onBlur, setIsEditing]);
 
-export const CustomCard = ({ children, onDelete, title, gradient = 'blue' }: CustomCardProps) => {
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      ref.current?.blur();
+    }
+  }, []);
+
+  const handleClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    ref.current?.focus();
+  }, []);
+
   return (
-    <BaseSocialCard
-      icon={<CustomIcon />}
-      onDelete={onDelete}
-      className={`${gradients[gradient]}
-        after:absolute after:inset-0 after:rounded-2xl after:opacity-0 after:transition-opacity
-        after:bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1),transparent_70%)]
-        hover:after:opacity-100`}
+    <div
+      ref={ref}
+      contentEditable
+      suppressContentEditableWarning
+      onFocus={() => setIsEditing(true)}
+      onBlur={handleBlur}
+      onKeyDown={handleKeyDown}
+      onClick={handleClick}
+      className={`editable-content empty:before:text-gray-400 empty:before:content-[${placeholder}] ${className}`}
     >
-      {title && <div className="text-lg font-semibold mb-1">{title}</div>}
-      <div className="text-sm opacity-90">{children}</div>
-    </BaseSocialCard>
+      {value}
+    </div>
   );
-}; 
+});
+
+EditableContent.displayName = 'EditableContent';
+
+const DeleteButton = memo(({ onDelete }: { onDelete: () => void }) => (
+  <button
+    onClick={(e) => {
+      e.stopPropagation();
+      onDelete();
+    }}
+    className="absolute top-3 right-3 p-1.5 rounded-full bg-black/5 hover:bg-red-500/90 
+      opacity-0 group-hover:opacity-100 z-50 transition-all duration-200"
+    title="Eliminar"
+  >
+    <svg className="w-3 h-3 text-black/60 hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  </button>
+));
+
+DeleteButton.displayName = 'DeleteButton';
+
+export const CustomCard = memo(({ 
+  text, 
+  children, 
+  onDelete, 
+  onTextChange,
+  onTitleChange,
+  title: initialTitle = 'Tarjeta personalizada'
+}: CustomCardProps) => {
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [isEditingText, setIsEditingText] = useState(false);
+  const [currentTitle, setCurrentTitle] = useState(initialTitle);
+  const [currentText, setCurrentText] = useState(text || children?.toString() || '');
+
+  useEffect(() => {
+    setCurrentTitle(initialTitle);
+  }, [initialTitle]);
+
+  useEffect(() => {
+    setCurrentText(text || children?.toString() || '');
+  }, [text, children]);
+
+  const handleTitleBlur = useCallback((newText: string) => {
+    setCurrentTitle(newText || 'Tarjeta personalizada');
+    onTitleChange?.(newText);
+  }, [onTitleChange]);
+
+  const handleTextBlur = useCallback((newText: string) => {
+    setCurrentText(newText);
+    onTextChange?.(newText);
+  }, [onTextChange]);
+
+  const handleDragStart = useCallback((e: React.MouseEvent) => {
+    if (!isEditingTitle && !isEditingText) {
+      e.preventDefault();
+    }
+  }, [isEditingTitle, isEditingText]);
+
+  return (
+    <div className="relative w-full h-full rounded-2xl bg-[#f7f7f7] shadow-[0_0_0_1px_rgba(0,0,0,0.05),0_1px_2px_rgba(0,0,0,0.1)] 
+      hover:shadow-[0_0_0_1px_rgba(0,0,0,0.05),0_8px_16px_-4px_rgba(0,0,0,0.1)] group overflow-hidden">
+      
+      {/* Área de arrastre */}
+      {onDelete && (
+        <div 
+          className="absolute inset-0 cursor-move" 
+          onMouseDown={handleDragStart}
+        />
+      )}
+      
+      {/* Botón de eliminar */}
+      {onDelete && <DeleteButton onDelete={onDelete} />}
+
+      {/* Contenido */}
+      <div className={`h-full w-full p-6 flex flex-col gap-4 relative z-10 ${onDelete ? 'z-10' : ''}`}>
+        <EditableContent
+          value={currentTitle}
+          onBlur={handleTitleBlur}
+          placeholder="Tarjeta_personalizada"
+          className="text-xl font-semibold text-gray-900"
+          isEditing={isEditingTitle}
+          setIsEditing={setIsEditingTitle}
+        />
+        <EditableContent
+          value={currentText}
+          onBlur={handleTextBlur}
+          placeholder="Escribe_aquí_tu_texto..."
+          className="flex-1 text-base text-gray-600"
+          isEditing={isEditingText}
+          setIsEditing={setIsEditingText}
+        />
+      </div>
+    </div>
+  );
+}); 

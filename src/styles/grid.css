@@ -1,0 +1,38 @@
+@import "react-grid-layout/css/styles.css";
+@import "react-resizable/css/styles.css";
+
+.react-grid-item.react-grid-placeholder {
+  background: rgba(0, 0, 0, 0.438) none repeat scroll 0% 0%;
+  z-index: 2;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+  border-radius: 32px;
+  will-change: transform;
+}
+
+.react-grid-item {
+  transition: box-shadow 300ms ease-out, opacity 300ms ease-out;
+  will-change: transform;
+}
+
+.react-grid-item.react-draggable-dragging {
+  transition: none !important;
+  cursor: grabbing !important;
+  z-index: 100;
+}
+
+.react-grid-item > .react-resizable-handle {
+  transition: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+} 
