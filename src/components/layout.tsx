@@ -274,12 +274,17 @@ export const LayoutContext = createContext<LayoutContextType>({
 
 function Layout() {
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [currentlayout, setCurrentLayout] = useState(() => ({
-    lg: HomeLayouts.lg,
+    lg: HomeLayouts.lg.map(item => ({
+      ...item,
+      isResizable: false as const,
+      static: false as const
+    })),
     xs: HomeLayouts.xs.map(item => ({
       ...item,
-      static: false,
-      isResizable: false,
+      static: false as const,
+      isResizable: false as const,
       w: Math.min(item.w, 2)
     }))
   }));
@@ -296,6 +301,13 @@ function Layout() {
         w: Math.min(item.w, 2)
       }))
     }));
+
+    // Desactivar la animación inicial después de que todas las cards se hayan cargado
+    const timer = setTimeout(() => {
+      setIsInitialLoad(false);
+    }, 2000); // Tiempo suficiente para que todas las animaciones terminen
+
+    return () => clearTimeout(timer);
   }, []);
 
   const [visibleCards, setVisibleCards] = useState<string[]>(keys);
@@ -366,7 +378,6 @@ function Layout() {
     customData?: Partial<Omit<CardData, 'id' | 'platform' | 'w' | 'h'>>
   ) => {
     const newId = Math.random().toString(36).substr(2, 9);
-    console.log('Adding card with customData:', customData); // Para debug
     setCards(prev => [...prev, { 
       id: newId, 
       platform, 
@@ -376,32 +387,41 @@ function Layout() {
     }]);
     setVisibleCards(prev => [...prev, newId]);
     
-    setCurrentLayout(prev => ({
-      ...prev,
-      lg: [
-        ...prev.lg,
-        {
-          i: newId,
-          x: (prev.lg.length * 2) % 3,
-          y: Infinity,
-          w: size.w,
-          h: size.h,
-          isResizable: false,
-        },
-      ],
-      xs: [
-        ...prev.xs,
-        {
-          i: newId,
-          x: 0,
-          y: Infinity,
-          w: Math.min(size.w, 2),
-          h: size.h,
-          static: false,
-          isResizable: false,
-        },
-      ],
-    }));
+    setCurrentLayout(prev => {
+      // Encontrar la posición Y más alta actual
+      const maxY = Math.max(
+        ...prev.lg.map(item => item.y + item.h),
+        0
+      );
+      
+      return {
+        ...prev,
+        lg: [
+          ...prev.lg,
+          {
+            i: newId,
+            x: 0,
+            y: maxY,
+            w: size.w,
+            h: size.h,
+            isResizable: false as const,
+            static: false as const
+          },
+        ],
+        xs: [
+          ...prev.xs,
+          {
+            i: newId,
+            x: 0,
+            y: maxY,
+            w: Math.min(size.w, 2),
+            h: size.h,
+            static: false as const,
+            isResizable: false as const,
+          },
+        ],
+      };
+    });
   }, []);
 
   const handleBackgroundChange = useCallback((type: string, value: string) => {
@@ -498,13 +518,76 @@ function Layout() {
       document.body.style.transition = 'max-width 0.3s ease-in-out';
       // Forzar el modo mobile cuando estamos en preview
       setIsMobile(true);
+      
+      // Sincronizar las posiciones de xs basadas en lg
+      setCurrentLayout(prev => ({
+        ...prev,
+        xs: prev.lg.map(item => ({
+          ...item,
+          static: false as const,
+          isResizable: false as const,
+          w: Math.min(item.w, 2),
+          h: item.h,
+          y: item.y // Mantener la misma posición Y
+        }))
+      }));
     } else {
       document.body.style.maxWidth = 'none';
       document.body.style.margin = '0';
       // Restaurar el modo mobile basado en el ancho de la ventana
       setIsMobile(window.innerWidth < 768);
+      
+      // Sincronizar las posiciones de lg basadas en xs
+      setCurrentLayout(prev => ({
+        ...prev,
+        lg: prev.xs.map(item => ({
+          ...item,
+          static: false as const,
+          isResizable: false as const,
+          w: item.w * 2 <= 4 ? item.w * 2 : item.w, // Ajustar el ancho proporcionalmente
+          h: item.h,
+          y: item.y // Mantener la misma posición Y
+        }))
+      }));
     }
   }, []);
+
+  // Modificar el onLayoutChange para mantener sincronizadas las posiciones
+  const onLayoutChange = useCallback((_, allLayouts) => {
+    if (!allLayouts) return;
+    
+    const newLayout = {
+      lg: allLayouts.lg?.map(item => ({
+        ...item,
+        isResizable: false as const,
+        static: false as const,
+        w: item.w,
+        h: item.h
+      })) || currentlayout.lg,
+      xs: allLayouts.xs?.map(item => ({
+        ...item,
+        static: false as const,
+        isResizable: false as const,
+        w: Math.min(item.w, 2),
+        h: item.h
+      })) || currentlayout.xs
+    };
+
+    // Sincronizar las posiciones entre lg y xs
+    if (isMobile) {
+      newLayout.lg = newLayout.lg.map(item => {
+        const xsItem = newLayout.xs.find(x => x.i === item.i);
+        return xsItem ? { ...item, y: xsItem.y } : item;
+      });
+    } else {
+      newLayout.xs = newLayout.xs.map(item => {
+        const lgItem = newLayout.lg.find(x => x.i === item.i);
+        return lgItem ? { ...item, y: lgItem.y } : item;
+      });
+    }
+
+    setCurrentLayout(newLayout);
+  }, [isMobile, currentlayout]);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -556,7 +639,8 @@ function Layout() {
                     value={title}
                     onChange={(e) => handleTitleChange(e.target.value)}
                     className={`peer ${isMobile ? 'text-4xl' : 'text-4xl sm:text-6xl md:text-8xl'} font-bold text-center bg-transparent border-none outline-none focus:ring-0 bg-gradient-to-r ${titleColor} bg-clip-text text-transparent ${fonts[currentFontIndex].class}
-                      caret-blue-500 selection:bg-blue-500/20 uppercase w-full px-8 sm:px-12 md:px-16 leading-none`}
+                      caret-blue-500 selection:bg-blue-500/20 uppercase w-full px-8 sm:px-12 md:px-16 leading-none
+                      opacity-0 animate-[titleAppear_800ms_cubic-bezier(0.22,1,0.36,1)_forwards]`}
                     placeholder="kasbu"
                   />
                   <ColorMenu 
@@ -595,7 +679,8 @@ function Layout() {
                     value={subtitle}
                     onChange={(e) => handleTitleChange(e.target.value, undefined, true)}
                     className={`peer ${isMobile ? 'text-lg' : 'text-xl sm:text-2xl md:text-3xl'} font-medium text-center bg-transparent border-none outline-none focus:ring-0 bg-gradient-to-r ${subtitleColor} bg-clip-text text-transparent ${fonts[currentSubtitleFontIndex].class}
-                      caret-blue-500 selection:bg-blue-500/20 w-full px-6 sm:px-8 md:px-12 leading-tight resize-none overflow-hidden max-h-[160px]`}
+                      caret-blue-500 selection:bg-blue-500/20 w-full px-6 sm:px-8 md:px-12 leading-tight resize-none overflow-hidden max-h-[160px]
+                      opacity-0 animate-[subtitleAppear_800ms_cubic-bezier(0.22,1,0.36,1)_forwards_200ms]`}
                     placeholder="Subtítulo"
                     rows={1}
                     style={{ height: 'auto' }}
@@ -652,8 +737,16 @@ function Layout() {
             draggableCancel=".no-drag"
             isDraggable={selectedCard ? true : window.innerWidth >= 600}
             draggableHandle={selectedCard ? undefined : ".drag-handle"}
-            compactType="vertical"
             preventCollision={false}
+            compactType={null}
+            verticalCompact={false}
+            isDroppable={true}
+            onDrop={(layout, item, e) => {
+              e.preventDefault();
+              return item;
+            }}
+            allowOverlap={false}
+            onLayoutChange={onLayoutChange}
           >
             {visibleCards.map((key) => (
               <div
@@ -674,7 +767,11 @@ function Layout() {
                   after:absolute after:inset-0 after:bg-gradient-to-br after:from-white/10 after:to-transparent after:opacity-0
                   hover:after:opacity-100
                   before:absolute before:inset-0 before:bg-gradient-to-b before:from-black/[0.01] before:to-black/[0.06]
-                  ${isDragging ? '' : '[transition:box-shadow_300ms_ease-out,transform_300ms_ease-out,opacity_300ms_ease-out]'}`}
+                  ${isDragging ? '' : '[transition:box-shadow_300ms_ease-out,transform_300ms_ease-out]'}
+                  ${isInitialLoad ? 'initial-load' : ''}`}
+                style={{
+                  animationDelay: isInitialLoad ? `${Math.floor((currentlayout[isMobile ? 'xs' : 'lg'].find(item => item.i === key)?.y || 0) * 200 + (currentlayout[isMobile ? 'xs' : 'lg'].find(item => item.i === key)?.x || 0) * 100)}ms` : undefined
+                }}
               >
                 <Block 
                   keyProp={key} 

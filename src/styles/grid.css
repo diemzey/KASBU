@@ -14,8 +14,18 @@
 }
 
 .react-grid-item {
-  transition: box-shadow 300ms ease-out, opacity 300ms ease-out;
+  transition: box-shadow 300ms ease-out;
   will-change: transform;
+}
+
+.initial-load {
+  opacity: 0;
+  transform: translateY(40px);
+  animation: cardAppear 800ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.react-grid-item.react-grid-item {
+  transition: transform 200ms ease-out;
 }
 
 .react-grid-item.react-draggable-dragging {
@@ -24,6 +34,9 @@
   z-index: 100;
   position: fixed;
   pointer-events: auto;
+  animation: none;
+  opacity: 1;
+  transform: none;
 }
 
 .react-grid-item > .react-resizable-handle {
@@ -37,4 +50,37 @@
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+@keyframes cardAppear {
+  0% {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes titleAppear {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes subtitleAppear {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 } 
