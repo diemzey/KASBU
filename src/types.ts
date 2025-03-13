@@ -1,6 +1,10 @@
 import { ReactNode } from 'react';
 
-export type Platform = 'tiktok' | 'instagram' | 'facebook' | 'youtube' | 'linkedin' | 'github' | 'twitch' | 'custom' | 'code' | 'qr' | 'map' | 'tv' | 'url' | 'image';
+export type Platform = 'tiktok' | 'instagram' | 'facebook' | 'youtube' | 'twitter' | 'linkedin' | 'github' | 'twitch' | 'custom' | 'code' | 'qr' | 'map' | 'tv' | 'url' | 'image' | 'video' | 'amazon-product' | 'mercadolibre-product' | 'generic-product';
+
+export type SocialPlatform = 'facebook' | 'instagram' | 'tiktok' | 'youtube' | 'twitter';
+
+export type ShopPlatform = 'amazon' | 'mercadolibre' | 'generic';
 
 export interface CardData {
   id: string;
@@ -27,51 +31,61 @@ export interface BaseSocialCardProps {
   onTextChange?: (text: string) => void;
 }
 
-export type CustomCardProps = {
+export interface SocialCardProps extends Omit<BaseSocialCardProps, 'icon' | 'className'> {
+  platform: SocialPlatform;
+}
+
+export interface CardProps {
   children?: ReactNode;
   onDelete?: () => void;
-  title?: string;
-  text?: string;
-  onTitleChange?: (text: string) => void;
-  onTextChange?: (text: string) => void;
-}
-
-export type URLCardProps = Omit<BaseSocialCardProps, 'className' | 'icon'> & {
-  url?: string;
-  title?: string;
-  onTitleChange?: (text: string) => void;
-}
-
-export type TikTokCardProps = Omit<BaseSocialCardProps, 'className' | 'icon'> & {
   size?: { w: number; h: number };
-  onTitleChange?: (text: string) => void;
-  onUsernameChange?: (text: string) => void;
+  onTextChange?: (text: string) => void;
+  onTitleChange?: (title: string) => void;
   title?: string;
 }
 
-export type CodeCardProps = Omit<BaseSocialCardProps, 'className' | 'icon'> & {
+export interface CustomCardProps extends CardProps {
+  gradient?: 'blue' | 'purple' | 'green' | 'orange' | 'pink';
+}
+
+export interface CodeCardProps extends CardProps {
   command?: string;
 }
 
-export type QRCardProps = Omit<BaseSocialCardProps, 'className' | 'icon'> & {
+export interface QRCardProps extends CardProps {
   url?: string;
-  title?: string;
 }
 
-export type MapCardProps = Omit<BaseSocialCardProps, 'className' | 'icon'> & {
+export interface MapCardProps extends CardProps {
   lat?: number;
   lng?: number;
-  title?: string;
   zoom?: number;
 }
 
-export type TVCardProps = Omit<BaseSocialCardProps, 'className' | 'icon'> & {
+export interface TVCardProps extends CardProps {
   videoId?: string;
-  onTextChange?: (text: string) => void;
   onVideoChange?: (videoId: string) => void;
-};
+}
 
-export type ImageCardProps = Omit<BaseSocialCardProps, 'className' | 'icon'> & {
+export interface URLCardProps extends CardProps {
+  url?: string;
+}
+
+export interface ImageCardProps extends CardProps {
   imageUrl?: string;
   onImageChange?: (imageUrl: string) => void;
-}; 
+}
+
+export interface VideoCardProps extends CardProps {
+  videoUrl?: string;
+  onVideoChange?: (videoUrl: string) => void;
+}
+
+export interface ShopCardProps extends CardProps {
+  productImage?: string;
+  price?: string;
+  rating?: number;
+  reviews?: number;
+  prime?: boolean;
+  variant: ShopPlatform;
+} 

@@ -7,7 +7,7 @@ interface EditableContentProps {
   placeholder: string;
   className?: string;
   isEditing: boolean;
-  setIsEditing: (editing: boolean) => void;
+  setIsEditing: (isEditing: boolean) => void;
 }
 
 const EditableContent = memo(({ 
@@ -55,24 +55,6 @@ const EditableContent = memo(({
 });
 
 EditableContent.displayName = 'EditableContent';
-
-const DeleteButton = memo(({ onDelete }: { onDelete: () => void }) => (
-  <button
-    onClick={(e) => {
-      e.stopPropagation();
-      onDelete();
-    }}
-    className="absolute top-3 right-3 p-1.5 rounded-full bg-black/5 hover:bg-red-500/90 
-      opacity-0 group-hover:opacity-100 z-50 transition-all duration-200"
-    title="Eliminar"
-  >
-    <svg className="w-3 h-3 text-black/60 hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-    </svg>
-  </button>
-));
-
-DeleteButton.displayName = 'DeleteButton';
 
 export const CustomCard = memo(({ 
   text, 
@@ -123,9 +105,6 @@ export const CustomCard = memo(({
         />
       )}
       
-      {/* Botón de eliminar */}
-      {onDelete && <DeleteButton onDelete={onDelete} />}
-
       {/* Contenido */}
       <div className={`h-full w-full p-6 flex flex-col gap-4 relative z-10 ${onDelete ? 'z-10' : ''}`}>
         <EditableContent

@@ -144,52 +144,34 @@ export const URLCard = ({ children, onDelete, url, title, onTitleChange }: URLCa
       shadow-[0_0_0_1px_rgba(0,0,0,0.05),0_1px_2px_rgba(0,0,0,0.1)] hover:shadow-[0_0_0_1px_rgba(0,0,0,0.05),0_8px_16px_-4px_rgba(0,0,0,0.1)]
       cursor-pointer flex flex-col group overflow-hidden">
 
-      {/* Delete Button */}
-      <button
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          onDelete?.();
-        }}
-        onMouseDown={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-        }}
-        className="absolute top-3 right-3 p-1.5 rounded-full bg-black/5 hover:bg-red-500/90 transition-all duration-200 
-          opacity-0 group-hover:opacity-100 z-50"
-        title="Eliminar"
-      >
-        <svg className="w-3 h-3 text-black/60 hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
-
       {/* Content */}
-      <div className="flex flex-col items-start gap-3">
-        <URLIcon url={displayUrl} />
-        <div className="flex flex-col gap-1 min-w-0">
-          <div
-            ref={titleRef}
-            contentEditable
-            suppressContentEditableWarning
-            onBlur={handleTitleBlur}
-            onKeyDown={handleKeyDown}
-            onClick={(e) => {
-              e.stopPropagation();
-              titleRef.current?.focus();
-            }}
-            className="editable-content text-lg font-semibold text-gray-900 line-clamp-1"
+      <div className="flex-1 flex flex-col">
+        <div
+          ref={titleRef}
+          contentEditable
+          suppressContentEditableWarning
+          onBlur={handleTitleBlur}
+          onKeyDown={handleKeyDown}
+          className="text-lg font-semibold text-gray-900 mb-2 outline-none empty:before:content-[Título_del_sitio_web] empty:before:text-gray-400"
+        >
+          {currentTitle}
+        </div>
+
+        <div className="flex items-center gap-2 text-sm text-gray-500">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+          </svg>
+          <a 
+            href={displayUrl.startsWith('http') ? displayUrl : `https://${displayUrl}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-500 hover:text-blue-600 transition-colors truncate"
+            onClick={(e) => e.stopPropagation()}
           >
-            {currentTitle}
-          </div>
-          <div className="text-sm text-gray-500 break-all line-clamp-1">
             {displayUrl}
-          </div>
+          </a>
         </div>
       </div>
-
-      {/* Hover Effect */}
-      <div className="absolute inset-0 bg-gradient-to-b from-white/0 via-white/0 to-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
     </div>
   );
 };

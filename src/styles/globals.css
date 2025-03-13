@@ -61,6 +61,15 @@
   }
 }
 
+@keyframes orbit {
+  from {
+    transform: rotate(0deg) translateX(calc(100% - 1rem)) rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg) translateX(calc(100% - 1rem)) rotate(-360deg);
+  }
+}
+
 @layer utilities {
   .animate-float {
     animation: float 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;

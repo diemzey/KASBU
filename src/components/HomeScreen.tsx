@@ -220,7 +220,7 @@ const FloatingCards = ({ startSequence }: { startSequence: boolean }) => {
   };
 
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none min-w-[1280px] min-h-[800px]">
+    <div className="absolute inset-0 overflow-hidden pointer-events-none min-w-[1280px] min-h-[800px] hidden md:block">
       {CARDS_CONFIG.map((config, index) => renderCard(config, index))}
     </div>
   );

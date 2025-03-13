@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
 import { fonts } from '../utils/constants';
 import MarketModal from './MarketModal';
+import { Platform } from '../types';
 
 interface SidebarProps {
   onAddCard: (
-    platform: 'facebook' | 'instagram' | 'tiktok' | 'youtube' | 'custom' | 'code' | 'qr' | 'map' | 'tv' | 'url',
+    platform: Platform,
     size: { w: number; h: number },
     customData?: { 
       title?: string; 
@@ -17,6 +18,13 @@ interface SidebarProps {
       zoom?: number;
       videoId?: string;
       imageUrl?: string;
+      videoUrl?: string;
+      productImage?: string;
+      price?: string;
+      rating?: number;
+      reviews?: number;
+      prime?: boolean;
+      variant?: 'amazon' | 'mercadolibre' | 'generic';
     }
   ) => void;
   onChangeBackground: (type: string, value: string) => void;
@@ -26,6 +34,8 @@ interface SidebarProps {
   currentTitle: string;
   currentFontIndex: number;
   onSave?: () => void;
+  className?: string;
+  onViewModeChange?: (mode: 'web' | 'desktop') => void;
 }
 
 type MenuType = 'none' | 'background' | 'stickers';
@@ -74,12 +84,21 @@ const platforms = [
   { id: 'instagram', name: 'Instagram' },
   { id: 'tiktok', name: 'TikTok' },
   { id: 'youtube', name: 'YouTube' },
+  { id: 'twitter', name: 'Twitter' },
+  { id: 'linkedin', name: 'LinkedIn' },
+  { id: 'github', name: 'GitHub' },
+  { id: 'twitch', name: 'Twitch' },
   { id: 'custom', name: 'Personalizada' },
   { id: 'code', name: 'Terminal' },
   { id: 'qr', name: 'Código QR' },
   { id: 'map', name: 'Mapa' },
   { id: 'tv', name: 'TV Retro' },
   { id: 'url', name: 'URL' },
+  { id: 'image', name: 'Imagen' },
+  { id: 'video', name: 'Video' },
+  { id: 'amazon-product', name: 'Amazon' },
+  { id: 'mercadolibre-product', name: 'MercadoLibre' },
+  { id: 'generic-product', name: 'Producto' },
 ] as const;
 
 const sizes = [
@@ -135,37 +154,25 @@ const WebIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const Sidebar = ({ onAddCard, onChangeBackground, onAddSticker, onSave }: SidebarProps) => {
+const Sidebar = ({ onAddCard, onChangeBackground, onAddSticker, onSave, className, onViewModeChange }: SidebarProps) => {
   const [activeMenu, setActiveMenu] = useState<MenuType>('none');
+  const [viewMode, setViewMode] = useState<'web' | 'desktop'>('desktop');
   const menuRef = useRef<HTMLDivElement>(null);
-  const [menuPosition, setMenuPosition] = useState<'bottom' | 'top'>('bottom');
   const [selectedBackground, setSelectedBackground] = useState('white');
   const [quickUrl, setQuickUrl] = useState('');
   const [isMarketOpen, setIsMarketOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    const updatePosition = () => {
-      if (menuRef.current) {
-        const menuHeight = menuRef.current.offsetHeight;
-        const windowHeight = window.innerHeight;
-        const menuRect = menuRef.current.getBoundingClientRect();
-        
-        if (menuRect.top < 20) {
-          setMenuPosition('bottom');
-        } else {
-          setMenuPosition('top');
-        }
-      }
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
     };
-
-    if (activeMenu !== 'none') {
-      setTimeout(updatePosition, 10);
-      window.addEventListener('resize', updatePosition);
-    }
-
-    return () => window.removeEventListener('resize', updatePosition);
-  }, [activeMenu]);
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const handleBackgroundChange = (id: string) => {
     setSelectedBackground(id);
@@ -200,6 +207,11 @@ const Sidebar = ({ onAddCard, onChangeBackground, onAddSticker, onSave }: Sideba
     setActiveMenu('none');
   };
 
+  const handleViewModeChange = (mode: 'web' | 'desktop') => {
+    setViewMode(mode);
+    onViewModeChange?.(mode);
+  };
+
   return (
     <>
       <MarketModal 
@@ -208,144 +220,196 @@ const Sidebar = ({ onAddCard, onChangeBackground, onAddSticker, onSave }: Sideba
         onAddCard={onAddCard}
       />
       
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 flex items-end gap-4 z-50">
-        {/* Menús */}
+      <div className={`fixed z-50 transition-all duration-500 ${isMarketOpen ? 'translate-y-[120px]' : 'translate-y-0'}
+        ${isMobile 
+          ? 'bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200 backdrop-blur-[20px]' 
+          : 'bottom-6 left-1/2 -translate-x-1/2'} ${className || ''}`}
+      >
+        {/* Menús flotantes */}
         <div className="relative">
           <div 
             ref={menuRef}
-            className={`absolute left-1/2 -translate-x-1/2 ${
-              menuPosition === 'bottom' 
-                ? 'bottom-16'
-                : 'bottom-full mb-2'
+            className={`absolute ${
+              isMobile 
+                ? 'left-0 right-0 bottom-full mb-4' 
+                : 'left-1/2 -translate-x-1/2 bottom-16'
             } transition-all duration-200`}
           >
             {activeMenu === 'background' && (
-              <div className="bg-white p-4 rounded-xl shadow-lg w-[300px] flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-4 duration-200 max-h-[80vh] overflow-y-auto">
-                <h3 className="text-lg font-semibold text-gray-800">Fondo</h3>
-                
-                <div className="flex flex-col gap-2">
-                  <label className="text-sm text-gray-600">Color</label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {backgrounds.map(bg => (
-                      <button
-                        key={bg.id}
-                        onClick={() => handleBackgroundChange(bg.id)}
-                        className={`h-12 rounded-xl transition-all ${bg.value} border border-black/5
-                          ${selectedBackground === bg.id ? 'ring-2 ring-blue-500 ring-offset-2' : 'hover:ring-2 hover:ring-blue-500/50 hover:ring-offset-2'}`}
-                        title={bg.name}
-                      />
-                    ))}
+              <div className={`bg-white/70 backdrop-blur-md rounded-xl shadow-lg ${isMobile ? 'mx-4' : 'w-[300px]'} 
+                animate-in fade-in slide-in-from-bottom-4 duration-200`}
+              >
+                <div className="p-4 flex flex-col gap-4 max-h-[80vh] overflow-y-auto">
+                  <h3 className="text-lg font-semibold text-gray-800">Fondo</h3>
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm text-gray-600">Color</label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {backgrounds.map(bg => (
+                        <button
+                          key={bg.id}
+                          onClick={() => handleBackgroundChange(bg.id)}
+                          className={`h-12 rounded-xl transition-all ${bg.value} border border-black/5
+                            ${selectedBackground === bg.id ? 'ring-2 ring-blue-500 ring-offset-2' : 'hover:ring-2 hover:ring-blue-500/50 hover:ring-offset-2'}`}
+                          title={bg.name}
+                        />
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
             )}
 
-            {activeMenu === 'stickers' && (
-              <div className="bg-white p-4 rounded-xl shadow-lg w-[300px] flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-4 duration-200 max-h-[80vh] overflow-hidden">
-                <h3 className="text-lg font-semibold text-gray-800">Stickers</h3>
-                
-                <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2">
-                  {emojiCategories.map((category, index) => (
-                    <button
-                      key={category.name}
-                      onClick={() => setSelectedCategory(index)}
-                      className={`px-3 py-1.5 rounded-lg whitespace-nowrap text-sm transition-all
-                        ${selectedCategory === index 
-                          ? 'bg-blue-500 text-white' 
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
-                    >
-                      {category.name}
-                    </button>
-                  ))}
-                </div>
-
-                <div className="grid grid-cols-6 gap-2 overflow-y-auto max-h-[200px] p-1">
-                  {emojiCategories[selectedCategory].emojis.map((emoji) => (
-                    <button
-                      key={emoji}
-                      onClick={() => handleStickerClick(emoji)}
-                      className="h-10 rounded-lg flex items-center justify-center text-2xl hover:bg-gray-100 transition-all"
-                      title="Agregar sticker"
-                    >
-                      {emoji}
-                    </button>
-                  ))}
+            {activeMenu === 'stickers' && !isMobile && (
+              <div className={`bg-white/70 backdrop-blur-md rounded-xl shadow-lg ${isMobile ? 'mx-4' : 'w-[300px]'} 
+                animate-in fade-in slide-in-from-bottom-4 duration-200`}
+              >
+                <div className="p-4 flex flex-col gap-4 max-h-[80vh] overflow-hidden">
+                  <h3 className="text-lg font-semibold text-gray-800">Stickers</h3>
+                  <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2">
+                    {emojiCategories.map((category, index) => (
+                      <button
+                        key={category.name}
+                        onClick={() => setSelectedCategory(index)}
+                        className={`px-3 py-1.5 rounded-lg whitespace-nowrap text-sm transition-all
+                          ${selectedCategory === index 
+                            ? 'bg-blue-500 text-white' 
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                      >
+                        {category.name}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="grid grid-cols-6 gap-2 overflow-y-auto max-h-[200px] p-1">
+                    {emojiCategories[selectedCategory].emojis.map((emoji) => (
+                      <button
+                        key={emoji}
+                        onClick={() => handleStickerClick(emoji)}
+                        className="h-10 rounded-lg flex items-center justify-center text-2xl hover:bg-gray-100 transition-all"
+                        title="Agregar sticker"
+                      >
+                        {emoji}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
           </div>
-        </div>
 
-        {/* Botones de control */}
-        <div className="bg-white rounded-xl shadow-lg border border-black/5 flex flex-row items-center gap-2 p-2">
-          <form onSubmit={handleQuickUrlSubmit} className="flex items-center">
-            <input
-              type="url"
-              value={quickUrl}
-              onChange={(e) => setQuickUrl(e.target.value)}
-              placeholder="Pega una URL aquí"
-              className="w-48 px-3 py-2 text-sm bg-gray-50 border-0 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
-            />
-            <button
-              type="submit"
-              className="ml-2 w-10 h-10 rounded-lg flex items-center justify-center text-gray-700 hover:bg-gray-50 transition-all"
-              title="Agregar URL"
-            >
-              <WebIcon className="w-5 h-5" />
-            </button>
-          </form>
+          {/* Barra principal */}
+          <div className={`${isMobile ? '' : 'bg-white/70 backdrop-blur-md rounded-xl shadow-lg border border-white/20'} flex items-center gap-2 p-2`}>
+            {/* Botones de vista */}
+            {!isMobile && (
+              <div className="flex items-center gap-1 mr-2">
+                <button
+                  onClick={() => handleViewModeChange('web')}
+                  className={`h-[33px] w-[50px] rounded-[6px] flex items-center justify-center transition-all relative group overflow-hidden
+                    ${viewMode === 'web' 
+                      ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-inner' 
+                      : 'text-gray-700 hover:bg-gray-50 border border-gray-200/80 hover:border-blue-200'}`}
+                  title="Vista Móvil"
+                >
+                  <div className={`absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.1)_0%,transparent_60%)] opacity-0 group-hover:opacity-100 transition-opacity`} />
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <rect x="5" y="2" width="14" height="20" rx="2" strokeWidth="2" />
+                    <line x1="12" y1="18" x2="12" y2="18" strokeWidth="2" strokeLinecap="round" />
+                  </svg>
+                </button>
+                <button
+                  onClick={() => handleViewModeChange('desktop')}
+                  className={`h-[33px] w-[50px] rounded-[6px] flex items-center justify-center transition-all relative group overflow-hidden
+                    ${viewMode === 'desktop' 
+                      ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-inner' 
+                      : 'text-gray-700 hover:bg-gray-50 border border-gray-200/80 hover:border-blue-200'}`}
+                  title="Vista Desktop"
+                >
+                  <div className={`absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.1)_0%,transparent_60%)] opacity-0 group-hover:opacity-100 transition-opacity`} />
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <rect x="2" y="4" width="20" height="13" rx="2" strokeWidth="2" />
+                    <path d="M8 20h8" strokeWidth="2" strokeLinecap="round" />
+                    <path d="M12 17v3" strokeWidth="2" strokeLinecap="round" />
+                  </svg>
+                </button>
+              </div>
+            )}
 
-          <div className="w-px h-8 bg-gray-200"></div>
+            {!isMobile && <div className="w-px h-8 bg-gray-200/50" />}
 
-          <button
-            onClick={() => toggleMenu('background')}
-            className={`w-12 h-12 rounded-lg flex items-center justify-center transition-all
-              ${activeMenu === 'background' 
-                ? 'bg-blue-500 text-white shadow-inner' 
-                : 'text-gray-700 hover:bg-gray-50'}`}
-            title="Cambiar fondo"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-            </svg>
-          </button>
+            {/* Input URL */}
+            <div className={`${isMobile ? 'flex-1' : ''}`}>
+              <form onSubmit={handleQuickUrlSubmit} className="flex items-center">
+                <input
+                  type="url"
+                  value={quickUrl}
+                  onChange={(e) => setQuickUrl(e.target.value)}
+                  placeholder="Pega una URL aquí"
+                  className={`${isMobile ? 'w-full max-w-[180px]' : 'w-48'} px-3 py-2 text-sm bg-white/70 backdrop-blur-md border border-white/20 rounded-lg 
+                    focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all placeholder-gray-400`}
+                />
+                <button
+                  type="submit"
+                  className="ml-2 w-10 h-10 rounded-lg flex items-center justify-center text-gray-700 hover:bg-gray-100 transition-all"
+                  title="Agregar URL"
+                >
+                  <WebIcon className="w-5 h-5" />
+                </button>
+              </form>
+            </div>
 
-          <button
-            onClick={() => toggleMenu('stickers')}
-            className={`w-12 h-12 rounded-lg flex items-center justify-center transition-all
-              ${activeMenu === 'stickers'
-                ? 'bg-blue-500 text-white shadow-inner'
-                : 'text-gray-700 hover:bg-gray-50'}`}
-            title="Stickers"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </button>
+            {!isMobile && <div className="w-px h-8 bg-gray-200" />}
 
-          <button
-            onClick={() => setIsMarketOpen(true)}
-            className="w-12 h-12 rounded-lg flex items-center justify-center text-gray-700 hover:bg-gray-50 transition-all"
-            title="Market"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
-            </svg>
-          </button>
+            {/* Botones de acción */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setIsMarketOpen(true)}
+                className="w-10 h-10 rounded-lg flex items-center justify-center text-gray-700 hover:bg-gray-100 transition-all"
+                title="Abrir Market"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
+                </svg>
+              </button>
 
-          <div className="w-px h-8 bg-gray-200"></div>
+              <button
+                onClick={() => toggleMenu('stickers')}
+                className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all
+                  ${activeMenu === 'stickers' 
+                    ? 'bg-blue-500 text-white shadow-inner' 
+                    : 'text-gray-700 hover:bg-gray-100'}
+                  ${isMobile ? 'hidden' : ''}`}
+                title="Agregar sticker"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </button>
 
-          <button
-            onClick={() => {
-              onSave?.();
-            }}
-            className="w-12 h-12 rounded-lg flex items-center justify-center text-gray-700 hover:bg-gray-50 transition-all"
-            title="Guardar"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-            </svg>
-          </button>
+              <button
+                onClick={() => toggleMenu('background')}
+                className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all
+                  ${activeMenu === 'background' 
+                    ? 'bg-blue-500 text-white shadow-inner' 
+                    : 'text-gray-700 hover:bg-gray-100'}`}
+                title="Cambiar fondo"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                </svg>
+              </button>
+
+              {onSave && !isMobile && (
+                <button
+                  onClick={onSave}
+                  className="w-10 h-10 rounded-lg flex items-center justify-center text-gray-700 hover:bg-gray-100 transition-all"
+                  title="Guardar"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                  </svg>
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </>

@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./components/layout";
 import LandingScreen from "./components/LandingScreen";
 import HomeScreen from "./components/HomeScreen";
+import BlackHole from './components/SolarSystem';
 
 function App() {
 	const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -13,6 +14,7 @@ function App() {
 				<Routes>
 					<Route path="/" element={<HomeScreen />} />
 					<Route path="/start" element={<LandingScreen onLogin={() => setIsLoggedIn(true)} />} />
+					<Route path="/solar" element={<BlackHole />} />
 					<Route
 						path="/app"
 						element={

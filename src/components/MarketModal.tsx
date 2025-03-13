@@ -1,20 +1,17 @@
 import { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import { Platform } from '../types';
-import { BaseSocialCard } from './cards/BaseSocialCard';
-import { TikTokCard } from './cards/TikTokCard';
-import { InstagramCard } from './cards/InstagramCard';
-import { FacebookCard } from './cards/FacebookCard';
-import { YouTubeCard } from './cards/YouTubeCard';
-import { CustomCard } from './cards/CustomCard';
-import { CodeCard } from './cards/CodeCard';
-import { QRCard } from './cards/QRCard';
-import { MapCard } from './cards/MapCard';
-import { TVCard } from './cards/TVCard';
-import { URLCard } from './cards/URLCard';
-import { LinkedInCard } from './cards/LinkedInCard';
-import { GitHubCard } from './cards/GitHubCard';
-import { TwitchCard } from './cards/TwitchCard';
-import { ImageCard } from './cards/ImageCard';
+import {
+  SocialCard,
+  CustomCard,
+  CodeCard,
+  QRCard,
+  MapCard,
+  TVCard,
+  URLCard,
+  ImageCard,
+  VideoCard,
+  ProductCard
+} from './cards';
 
 type CardType = {
   id: Platform;
@@ -33,6 +30,16 @@ type CardType = {
     zoom?: number;
     videoId?: string;
     imageUrl?: string;
+    autoplay?: boolean;
+    controls?: boolean;
+    showTitle?: boolean;
+    videoUrl?: string;
+    productImage?: string;
+    price?: string;
+    rating?: number;
+    reviews?: number;
+    prime?: boolean;
+    variant?: 'amazon' | 'mercadolibre' | 'generic';
   };
 };
 
@@ -51,56 +58,42 @@ const cards: CardType[] = [
     id: 'tiktok',
     title: 'TikTok',
     description: 'Comparte tu perfil de TikTok',
-    preview: <TikTokCard>usuario</TikTokCard>,
+    preview: <SocialCard platform="tiktok">usuario</SocialCard>,
     defaultSize: { w: 1, h: 1 }
   },
   {
     id: 'instagram',
     title: 'Instagram',
     description: 'Comparte tu perfil de Instagram',
-    preview: <InstagramCard>usuario</InstagramCard>,
+    preview: <SocialCard platform="instagram">usuario</SocialCard>,
     defaultSize: { w: 1, h: 1 }
   },
   {
     id: 'facebook',
     title: 'Facebook',
     description: 'Comparte tu perfil de Facebook',
-    preview: <FacebookCard>usuario</FacebookCard>,
+    preview: <SocialCard platform="facebook">usuario</SocialCard>,
     defaultSize: { w: 1, h: 1 }
   },
   {
     id: 'youtube',
     title: 'YouTube',
     description: 'Comparte tu canal de YouTube',
-    preview: <YouTubeCard>usuario</YouTubeCard>,
+    preview: <SocialCard platform="youtube">usuario</SocialCard>,
     defaultSize: { w: 1, h: 1 }
   },
   {
-    id: 'linkedin',
-    title: 'LinkedIn',
-    description: 'Comparte tu perfil profesional',
-    preview: <LinkedInCard>usuario</LinkedInCard>,
-    defaultSize: { w: 1, h: 1 }
-  },
-  {
-    id: 'github',
-    title: 'GitHub',
-    description: 'Comparte tu perfil de desarrollador',
-    preview: <GitHubCard>usuario</GitHubCard>,
-    defaultSize: { w: 1, h: 1 }
-  },
-  {
-    id: 'twitch',
-    title: 'Twitch',
-    description: 'Comparte tu canal de streaming',
-    preview: <TwitchCard>usuario</TwitchCard>,
+    id: 'twitter',
+    title: 'Twitter',
+    description: 'Comparte tu perfil de Twitter',
+    preview: <SocialCard platform="twitter">usuario</SocialCard>,
     defaultSize: { w: 1, h: 1 }
   },
   {
     id: 'custom',
-    title: 'Personalizada',
-    description: 'Crea una tarjeta personalizada',
-    preview: <CustomCard title="Tarjeta personalizada">Escribe aquí tu texto...</CustomCard>,
+    title: 'Texto',
+    description: 'Añade una tarjeta con texto personalizado',
+    preview: <CustomCard title="Tarjeta de texto">Escribe aquí tu texto...</CustomCard>,
     defaultSize: { w: 1, h: 1 }
   },
   {
@@ -121,15 +114,27 @@ const cards: CardType[] = [
     id: 'map',
     title: 'Ubicación',
     description: 'Muestra una ubicación con un diseño visual',
-    preview: <MapCard>Mi ubicación</MapCard>,
+    preview: <MapCard icon={
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+    }>Mi ubicación</MapCard>,
     defaultSize: { w: 1, h: 2 }
   },
   {
     id: 'tv',
-    title: 'TV',
-    description: 'Incrusta un video de YouTube',
-    preview: <TVCard videoId="dQw4w9WgXcQ" />,
-    defaultSize: { w: 2, h: 1 }
+    title: 'Video de YouTube',
+    description: 'Añade un video de YouTube',
+    preview: (
+      <TVCard
+        videoId="AD-WDWgTtao"
+      />
+    ),
+    defaultSize: { w: 2, h: 1 },
+    customData: {
+      videoId: 'AD-WDWgTtao'
+    }
   },
   {
     id: 'url',
@@ -142,28 +147,127 @@ const cards: CardType[] = [
     id: 'image',
     title: 'Imagen',
     description: 'Sube y muestra tus propias imágenes',
-    preview: <ImageCard>Sube una imagen</ImageCard>,
+    preview: (
+      <div 
+        className="relative w-full h-full rounded-xl overflow-hidden bg-cover bg-center"
+        style={{
+          backgroundImage: 'url("https://plus.unsplash.com/premium_photo-1666777247416-ee7a95235559?q=80&w=1374&auto=format&fit=crop")'
+        }}
+      />
+    ),
     defaultSize: { w: 1, h: 1 }
+  },
+  {
+    id: 'video',
+    title: 'Video',
+    description: 'Añade un video nativo',
+    preview: (
+      <VideoCard videoUrl="https://videos.pexels.com/video-files/8435441/8435441-hd_1920_1080_25fps.mp4" />
+    ),
+    defaultSize: { w: 2, h: 1 },
+    customData: {
+      videoUrl: 'https://videos.pexels.com/video-files/8435441/8435441-hd_1920_1080_25fps.mp4'
+    }
+  },
+  {
+    id: 'amazon-product',
+    title: 'Amazon',
+    description: 'Producto estilo Amazon con Prime',
+    preview: (
+      <ProductCard
+        variant="amazon"
+        productImage="https://images-na.ssl-images-amazon.com/images/I/71ZXj1QEE0L._AC_SL1500_.jpg"
+        price="299.99"
+        rating={4.8}
+        reviews={2547}
+        prime={true}
+      >
+        Apple AirPods Pro (2da Generación) con Estuche de Carga MagSafe
+      </ProductCard>
+    ),
+    defaultSize: { w: 1, h: 2 },
+    customData: {
+      variant: "amazon",
+      productImage: "https://images-na.ssl-images-amazon.com/images/I/71ZXj1QEE0L._AC_SL1500_.jpg",
+      price: "299.99",
+      rating: 4.8,
+      reviews: 2547,
+      prime: true,
+      text: "Apple AirPods Pro (2da Generación) con Estuche de Carga MagSafe"
+    }
+  },
+  {
+    id: 'mercadolibre-product',
+    title: 'MercadoLibre',
+    description: 'Producto estilo MercadoLibre con FULL',
+    preview: (
+      <ProductCard
+        variant="mercadolibre"
+        productImage="https://http2.mlstatic.com/D_NQ_NP_2X_652335-MLM51559388195_092022-F.webp"
+        price="299.99"
+        rating={4.8}
+        reviews={2547}
+        prime={true}
+      >
+        Apple AirPods Pro (2da Generación) Originales - Blanco
+      </ProductCard>
+    ),
+    defaultSize: { w: 1, h: 2 },
+    customData: {
+      variant: "mercadolibre",
+      productImage: "https://http2.mlstatic.com/D_NQ_NP_2X_652335-MLM51559388195_092022-F.webp",
+      price: "299.99",
+      rating: 4.8,
+      reviews: 2547,
+      prime: true,
+      text: "Apple AirPods Pro (2da Generación) Originales - Blanco"
+    }
+  },
+  {
+    id: 'generic-product',
+    title: 'Producto',
+    description: 'Tarjeta de producto minimalista',
+    preview: (
+      <ProductCard
+        variant="generic"
+        productImage="https://images-na.ssl-images-amazon.com/images/I/71ZXj1QEE0L._AC_SL1500_.jpg"
+        price="299.99"
+        rating={4.8}
+        reviews={2547}
+        prime={true}
+      >
+        Apple AirPods Pro (2da Generación) - Blanco
+      </ProductCard>
+    ),
+    defaultSize: { w: 1, h: 2 },
+    customData: {
+      variant: "generic",
+      productImage: "https://images-na.ssl-images-amazon.com/images/I/71ZXj1QEE0L._AC_SL1500_.jpg",
+      price: "299.99",
+      rating: 4.8,
+      reviews: 2547,
+      prime: true,
+      text: "Apple AirPods Pro (2da Generación) - Blanco"
+    }
   }
 ];
 
 const categories = [
+  {
+    id: 'basic',
+    name: 'Básicos',
+    icon: (
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
+      </svg>
+    )
+  },
   {
     id: 'social',
     name: 'Redes Sociales',
     icon: (
       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
-      </svg>
-    )
-  },
-  {
-    id: 'tools',
-    name: 'Herramientas',
-    icon: (
-      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
       </svg>
     )
   },
@@ -176,13 +280,23 @@ const categories = [
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
     )
+  },
+  {
+    id: 'products',
+    name: 'Productos',
+    icon: (
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+      </svg>
+    )
   }
 ];
 
 const categorizedCards = {
-  social: ['facebook', 'instagram', 'tiktok', 'youtube', 'linkedin', 'github', 'twitch'],
-  tools: ['custom', 'code', 'qr', 'url'],
-  media: ['map', 'tv', 'image']
+  basic: ['custom', 'url', 'image', 'video', 'map'],
+  social: ['facebook', 'instagram', 'tiktok', 'youtube', 'twitter'],
+  media: ['image', 'video', 'tv', 'code', 'qr'],
+  products: ['amazon-product', 'mercadolibre-product', 'generic-product']
 };
 
 const styles = `
@@ -250,15 +364,6 @@ const styles = `
   }
 `;
 
-const getCardCategory = (cardId: string): string => {
-  for (const [category, cardIds] of Object.entries(categorizedCards)) {
-    if (cardIds.includes(cardId)) {
-      return category;
-    }
-  }
-  return 'all';
-};
-
 const CardPreview = memo(({ card, onAdd }: { card: CardType; onAdd: (card: CardType) => void }) => {
   const handleClick = useCallback(() => {
     onAdd(card);
@@ -313,7 +418,7 @@ const CardPreview = memo(({ card, onAdd }: { card: CardType; onAdd: (card: CardT
       onClick={handleClick}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className="relative w-full aspect-square rounded-xl overflow-hidden cursor-pointer group"
+      className="relative w-full aspect-square rounded-[1.5rem] overflow-hidden cursor-pointer group"
       style={{
         transition: 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), filter 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
         transformStyle: 'preserve-3d',
@@ -336,7 +441,7 @@ const CardPreview = memo(({ card, onAdd }: { card: CardType; onAdd: (card: CardT
         </div>
       </div>
       <div className="absolute inset-0 bg-gradient-to-br from-black/60 to-black/40 opacity-0 group-hover:opacity-100 
-        transition-opacity duration-300 rounded-xl flex flex-col items-center justify-center gap-2 backdrop-blur-sm z-50">
+        transition-opacity duration-300 rounded-[1.5rem] flex flex-col items-center justify-center gap-2 backdrop-blur-sm z-50">
         <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-md
           shadow-[0_0_20px_rgba(255,255,255,0.4)] transition-transform duration-300">
           <svg className="w-6 h-6 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -401,8 +506,6 @@ const ConfirmationOverlay = memo(({ card, isVisible, onAnimationEnd }: {
 
 export const MarketModal = memo(({ isOpen, onClose, onAddCard }: MarketModalProps) => {
   const [isClosing, setIsClosing] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [confirmationCard, setConfirmationCard] = useState<CardType | null>(null);
 
@@ -425,23 +528,6 @@ export const MarketModal = memo(({ isOpen, onClose, onAddCard }: MarketModalProp
     handleClose();
   }, [handleClose]);
 
-  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
-  }, []);
-
-  const handleCategoryChange = useCallback((categoryId: string) => {
-    setSelectedCategory(categoryId);
-  }, []);
-
-  const filteredCards = useMemo(() => {
-    const searchTermLower = searchTerm.toLowerCase();
-    return cards.filter(card => {
-      const matchesSearch = card.title.toLowerCase().includes(searchTermLower);
-      const matchesCategory = selectedCategory === 'all' || getCardCategory(card.id) === selectedCategory;
-      return matchesSearch && matchesCategory;
-    });
-  }, [searchTerm, selectedCategory]);
-
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -459,32 +545,17 @@ export const MarketModal = memo(({ isOpen, onClose, onAddCard }: MarketModalProp
     <>
       <style>{styles}</style>
       <div 
-        className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-50 transition-opacity duration-200
+        className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] transition-opacity duration-200 md:block
           ${isClosing ? 'opacity-0' : 'opacity-100'}`}
         onClick={handleClose}
       />
       <div 
-        className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-5xl max-h-[85vh] 
-          bg-white rounded-2xl shadow-2xl z-50 overflow-hidden transition-all duration-300
-          ${isClosing ? 'opacity-0 scale-95 translate-y-[calc(-50%+2rem)]' : 'opacity-100 scale-100 -translate-y-1/2'}`}
+        className={`fixed inset-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 w-full md:w-[90vw] md:max-w-5xl md:max-h-[85vh] 
+          bg-white md:rounded-[1.5rem] shadow-2xl z-[100] overflow-hidden transition-all duration-300 flex flex-col
+          ${isClosing ? 'opacity-0 md:scale-95 translate-y-full md:translate-y-[calc(-50%+2rem)]' : 'opacity-100 md:scale-100 translate-y-0 md:-translate-y-1/2'}`}
       >
-        <div className="p-6 border-b flex items-center justify-between gap-4">
-          <h2 className="text-2xl font-semibold text-gray-900">Market</h2>
-          
-          <div className="flex-1 max-w-md relative">
-            <input
-              type="text"
-              placeholder="Buscar widgets..."
-              value={searchTerm}
-              onChange={handleSearchChange}
-              className="w-full px-4 py-2 rounded-xl bg-gray-100 text-gray-900 placeholder-gray-500
-                focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
-            />
-            <svg className="w-5 h-5 absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </div>
-
+        <div className="p-6 border-b flex items-center justify-between flex-shrink-0">
+          <h2 className="text-2xl font-semibold text-gray-900">Widgets</h2>
           <button
             onClick={handleClose}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -495,39 +566,62 @@ export const MarketModal = memo(({ isOpen, onClose, onAddCard }: MarketModalProp
           </button>
         </div>
 
-        <div className="px-6 border-b">
-          <div className="flex gap-1">
-            {categories.map((category) => (
-              <button
-                key={category.id}
-                onClick={() => handleCategoryChange(category.id)}
-                className={`px-4 py-3 flex items-center gap-2 text-sm font-medium transition-all
-                  ${selectedCategory === category.id 
-                    ? 'text-blue-600 border-b-2 border-blue-600' 
-                    : 'text-gray-500 hover:text-gray-900'}`}
-              >
-                {category.icon}
-                {category.name}
-              </button>
-            ))}
-          </div>
-        </div>
+        <div className="flex-1 overflow-y-auto p-4 md:p-8">
+          <div className="space-y-8 md:space-y-12">
+            {/* Sección Básicos */}
+            <section>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 md:mb-6">Básicos</h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
+                {cards
+                  .filter(card => categorizedCards.basic.includes(card.id))
+                  .map((card) => (
+                    <div key={card.id} className="flex flex-col items-center gap-4">
+                      <CardPreview card={card} onAdd={handleAddCard} />
+                      <div className="flex flex-col items-center text-center">
+                        <h3 className="text-sm font-medium text-gray-900">{card.title}</h3>
+                        <p className="text-xs text-gray-500 mt-1">{card.description}</p>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </section>
 
-        <div className="p-8 overflow-y-auto flex-1 no-scrollbar scroll-smooth overscroll-contain">
-          {filteredCards.length === 0 ? (
-            <div className="text-center py-12">
-              <svg className="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 12h.01M12 12h.01" />
-              </svg>
-              <p className="text-gray-500">No se encontraron widgets que coincidan con tu búsqueda</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-6">
-              {filteredCards.map((card) => (
-                <CardPreview key={card.id} card={card} onAdd={handleAddCard} />
-              ))}
-            </div>
-          )}
+            {/* Sección Multimedia */}
+            <section>
+              <h3 className="text-lg font-semibold text-gray-900 mb-6">Multimedia</h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+                {cards
+                  .filter(card => categorizedCards.media.includes(card.id))
+                  .map((card) => (
+                    <div key={card.id} className="flex flex-col items-center gap-4">
+                      <CardPreview card={card} onAdd={handleAddCard} />
+                      <div className="flex flex-col items-center text-center">
+                        <h3 className="text-sm font-medium text-gray-900">{card.title}</h3>
+                        <p className="text-xs text-gray-500 mt-1">{card.description}</p>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </section>
+
+            {/* Sección Productos */}
+            <section>
+              <h3 className="text-lg font-semibold text-gray-900 mb-6">Productos</h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+                {cards
+                  .filter(card => categorizedCards.products.includes(card.id))
+                  .map((card) => (
+                    <div key={card.id} className="flex flex-col items-center gap-4">
+                      <CardPreview card={card} onAdd={handleAddCard} />
+                      <div className="flex flex-col items-center text-center">
+                        <h3 className="text-sm font-medium text-gray-900">{card.title}</h3>
+                        <p className="text-xs text-gray-500 mt-1">{card.description}</p>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </section>
+          </div>
         </div>
       </div>
       {confirmationCard && (

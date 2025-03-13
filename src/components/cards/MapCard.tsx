@@ -124,11 +124,11 @@ function MapCardComponent({ children, onDelete, onTextChange }: BaseSocialCardPr
       
       {/* Barra de control que se oculta */}
       <div className="absolute inset-x-0 top-0 z-[2] translate-y-[-100%] group-hover:translate-y-0 transition-transform duration-300">
-        <div className="bg-white/90 backdrop-blur-[20px] shadow-lg px-4 py-3 flex items-center justify-center gap-3">
+        <div className="bg-white/90 backdrop-blur-[20px] px-4 py-3 flex items-center justify-center gap-3 border-b border-gray-100 rounded-t-[1.5rem]">
           <div className="flex items-center gap-1">
             <button
               onClick={handleZoomIn}
-              className="w-7 h-7 rounded-lg bg-white hover:bg-gray-50 shadow-[0_0_0_1px_rgba(0,0,0,0.06)] flex items-center justify-center transition-colors"
+              className="w-7 h-7 rounded-lg bg-white hover:bg-gray-50 border border-gray-100 flex items-center justify-center transition-colors"
             >
               <svg className="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v12M6 12h12" />
@@ -136,7 +136,7 @@ function MapCardComponent({ children, onDelete, onTextChange }: BaseSocialCardPr
             </button>
             <button
               onClick={handleZoomOut}
-              className="w-7 h-7 rounded-lg bg-white hover:bg-gray-50 shadow-[0_0_0_1px_rgba(0,0,0,0.06)] flex items-center justify-center transition-colors"
+              className="w-7 h-7 rounded-lg bg-white hover:bg-gray-50 border border-gray-100 flex items-center justify-center transition-colors"
             >
               <svg className="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 12h12" />
@@ -160,7 +160,7 @@ function MapCardComponent({ children, onDelete, onTextChange }: BaseSocialCardPr
                 }
               }}
               onClick={(e) => e.stopPropagation()}
-              className="w-full text-sm font-medium text-gray-900 bg-white px-3 py-1.5 rounded-lg border border-gray-200 outline-none focus:border-blue-500 transition-colors text-center"
+              className="w-full text-sm font-medium text-gray-900 bg-white px-3 py-1.5 rounded-lg border border-gray-100 outline-none focus:border-blue-500 transition-colors text-center"
               placeholder="Buscar ubicación..."
             />
           </div>

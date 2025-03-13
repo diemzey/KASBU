@@ -22,6 +22,8 @@
   transition: none !important;
   cursor: grabbing !important;
   z-index: 100;
+  position: fixed;
+  pointer-events: auto;
 }
 
 .react-grid-item > .react-resizable-handle {

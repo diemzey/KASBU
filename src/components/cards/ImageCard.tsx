@@ -1,46 +1,31 @@
 import { memo, useCallback, useState, useRef, useEffect } from 'react';
 import { ImageCardProps } from '../../types';
 
-const DeleteButton = ({ onClick }: { onClick?: () => void }) => (
-  <button
-    onClick={(e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      onClick?.();
-    }}
-    className="absolute top-3 right-3 p-1.5 rounded-lg bg-black/30 hover:bg-red-500/90 transition-colors
-      opacity-0 group-hover:opacity-100 z-50 no-drag"
-    title="Eliminar"
-  >
-    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-    </svg>
-  </button>
-);
-
 function ImageCardComponent({ children, onDelete, onTextChange, onImageChange, imageUrl: initialImage }: ImageCardProps) {
   const [image, setImage] = useState<string | null>(initialImage || null);
-  const [isDragging, setIsDragging] = useState(false);
   const [caption, setCaption] = useState(children?.toString() || '');
+  const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (initialImage !== undefined) {
-      setImage(initialImage);
-    }
+    setImage(initialImage || null);
   }, [initialImage]);
+
+  useEffect(() => {
+    setCaption(children?.toString() || '');
+  }, [children]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
-    
+
     const file = e.dataTransfer.files[0];
     if (file && file.type.startsWith('image/')) {
       const reader = new FileReader();
-      reader.onload = (event) => {
-        const newImage = event.target?.result as string;
-        setImage(newImage);
-        onImageChange?.(newImage);
+      reader.onload = () => {
+        const result = reader.result as string;
+        setImage(result);
+        onImageChange?.(result);
       };
       reader.readAsDataURL(file);
     }
@@ -55,19 +40,6 @@ function ImageCardComponent({ children, onDelete, onTextChange, onImageChange, i
     e.preventDefault();
     setIsDragging(false);
   }, []);
-
-  const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file && file.type.startsWith('image/')) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const newImage = event.target?.result as string;
-        setImage(newImage);
-        onImageChange?.(newImage);
-      };
-      reader.readAsDataURL(file);
-    }
-  }, [onImageChange]);
 
   const handleCaptionChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const newCaption = e.target.value;
@@ -96,8 +68,6 @@ function ImageCardComponent({ children, onDelete, onTextChange, onImageChange, i
       
       {/* Contenido interactivo */}
       <div className="relative z-10 w-full h-full">
-        {onDelete && <DeleteButton onClick={onDelete} />}
-        
         {image ? (
           <div className="relative w-full h-full">
             <img 
@@ -134,46 +104,37 @@ function ImageCardComponent({ children, onDelete, onTextChange, onImageChange, i
             </div>
           </div>
         ) : (
-          <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
-            <div className="mb-4 pointer-events-none">
-              <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-            </div>
-            <div 
-              className="no-drag"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <label className="cursor-pointer">
-                <span 
-                  className="px-4 py-2 rounded-lg bg-white shadow-sm border border-gray-200 hover:border-blue-500 transition-colors text-sm font-medium text-gray-600 hover:text-blue-500 inline-block"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    fileInputRef.current?.click();
-                  }}
-                >
-                  Seleccionar imagen
-                </span>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  className="hidden"
-                  onClick={(e) => e.stopPropagation()}
-                />
-              </label>
-            </div>
-            <p className="mt-2 text-sm text-gray-500 pointer-events-none">
-              o arrastra y suelta una imagen aquí
+          <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center">
+            <svg className="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <p className="text-gray-500 text-sm mb-2">
+              {isDragging ? 'Suelta la imagen aquí' : 'Arrastra una imagen aquí'}
             </p>
-          </div>
-        )}
-
-        {isDragging && (
-          <div className="absolute inset-0 border-2 border-blue-500 border-dashed rounded-xl bg-blue-50 flex items-center justify-center z-20">
-            <p className="text-blue-500 font-medium">Suelta la imagen aquí</p>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  const reader = new FileReader();
+                  reader.onload = () => {
+                    const result = reader.result as string;
+                    setImage(result);
+                    onImageChange?.(result);
+                  };
+                  reader.readAsDataURL(file);
+                }
+              }}
+              className="hidden"
+            />
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="px-4 py-2 bg-white rounded-lg shadow-sm border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
+            >
+              Seleccionar archivo
+            </button>
           </div>
         )}
       </div>
@@ -181,4 +142,5 @@ function ImageCardComponent({ children, onDelete, onTextChange, onImageChange, i
   );
 }
 
-export const ImageCard = memo(ImageCardComponent); 
+export const ImageCard = memo(ImageCardComponent);
+export default ImageCard; 
