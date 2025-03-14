@@ -1,7 +1,15 @@
 import { memo, useState, useRef } from 'react';
 import { BaseSocialCardProps } from '../../types';
 
-const BaseSocialCardComponent = ({ children, className = '', icon, onDelete, onTextChange }: BaseSocialCardProps) => {
+const BaseSocialCardComponent = ({ 
+  children, 
+  className = '', 
+  icon, 
+  onDelete, 
+  onTextChange,
+  buttonStyle = 'bg-[#4093EF] hover:bg-[#2875CA] active:bg-[#3383DC]',
+  buttonText = 'Follow'
+}: BaseSocialCardProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const textRef = useRef<HTMLDivElement>(null);
 
@@ -20,30 +28,65 @@ const BaseSocialCardComponent = ({ children, className = '', icon, onDelete, onT
 
   return (
     <div 
-      className={`relative w-full h-full rounded-[1.5rem] text-white p-6 transition-all duration-300 ease-out 
-        shadow-[0_0_0_1px_rgba(255,255,255,0.1),0_4px_20px_-4px_rgba(0,0,0,0.1)] backdrop-blur-sm
-        hover:shadow-[0_0_0_1px_rgba(255,255,255,0.2),0_8px_40px_-8px_rgba(0,0,0,0.2),0_0_0_1px_rgba(255,255,255,0.1)_inset]
-        active:shadow-[0_0_0_1px_rgba(255,255,255,0.1),0_2px_10px_-2px_rgba(0,0,0,0.1)]
-        cursor-pointer flex flex-col items-center justify-center gap-4 group ${className}`}
+      className={`relative w-full h-full rounded-[1.5rem] p-4 transition-all duration-300 ease-out 
+        bg-white
+        shadow-[0_2px_3px_-1px_rgba(0,0,0,0.1),0_1px_2px_-1px_rgba(0,0,0,0.1)]
+        hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.1)]
+        active:shadow-[0_1px_2px_0_rgba(0,0,0,0.05)]
+        cursor-pointer flex flex-col gap-3 group ${className}`}
     >
-      <div className="text-3xl mb-1">
-        {icon}
+      <div className="flex flex-col gap-2">
+        <div className="relative w-12 h-12 rounded-xl overflow-hidden">
+          {icon}
+        </div>
+        <div className="flex flex-col">
+          <div
+            ref={textRef}
+            contentEditable
+            suppressContentEditableWarning
+            onFocus={() => setIsEditing(true)}
+            onBlur={handleBlur}
+            onKeyDown={handleKeyDown}
+            onClick={(e) => {
+              e.stopPropagation();
+              textRef.current?.focus();
+            }}
+            className="editable-content text-base tracking-wide text-gray-900"
+          >
+            {children}
+          </div>
+          <div className="text-sm text-gray-500 mt-0.5">
+            {children?.toString().toLowerCase().replace(/\s/g, '')}
+          </div>
+        </div>
       </div>
-      <div
-        ref={textRef}
-        contentEditable
-        suppressContentEditableWarning
-        onFocus={() => setIsEditing(true)}
-        onBlur={handleBlur}
-        onKeyDown={handleKeyDown}
-        onClick={(e) => {
-          e.stopPropagation();
-          textRef.current?.focus();
-        }}
-        className="editable-content text-sm font-medium tracking-wide text-center opacity-90 text-white"
+
+      <button className={`w-full py-1.5 px-4 rounded-lg ${buttonStyle} text-white font-bold text-sm 
+        transition-all duration-300 ease-out
+        shadow-[0_2px_4px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.1)]
+        hover:shadow-[0_4px_8px_rgba(0,0,0,0.2),inset_0_2px_0_rgba(255,255,255,0.1)]
+        hover:scale-[1.02]
+        active:scale-[0.98]
+        active:shadow-[0_1px_2px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.05)]`}
       >
-        {children}
-      </div>
+        {buttonText} <span className="ml-1 font-medium text-white/80">132K</span>
+      </button>
+
+      {!isEditing && (
+        <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete?.();
+            }}
+            className="w-8 h-8 rounded-lg bg-white hover:bg-gray-50 border border-gray-100 flex items-center justify-center transition-colors"
+          >
+            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      )}
     </div>
   );
 };

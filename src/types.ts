@@ -29,6 +29,8 @@ export interface BaseSocialCardProps {
   icon: ReactNode;
   onDelete?: () => void;
   onTextChange?: (text: string) => void;
+  buttonStyle?: string;
+  buttonText?: string;
 }
 
 export interface SocialCardProps extends Omit<BaseSocialCardProps, 'icon' | 'className'> {
