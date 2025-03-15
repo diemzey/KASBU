@@ -1,8 +1,20 @@
 export const keys = [
-	"a",
-	"b",
-	"c",
-	"d",
+	"a", // facebook
+	"b", // instagram
+	"c", // tiktok
+	"d", // youtube
+	"e", // twitter
+	"f", // pinterest
+	"g", // linkedin
+	"h", // github
+	"i", // twitch
+	"j", // discord
+	"k", // spotify
+	"l", // behance
+	"m", // dribbble
+	"n", // medium
+	"o", // dev.to
+	"p", // stackoverflow
 ];
 
 export const HomeLayouts = {
@@ -10,13 +22,37 @@ export const HomeLayouts = {
 		{ i: "a", x: 0, y: 0, w: 1, h: 1, isResizable: false },
 		{ i: "b", x: 1, y: 0, w: 1, h: 1, isResizable: false },
 		{ i: "c", x: 2, y: 0, w: 1, h: 1, isResizable: false },
-		{ i: "d", x: 3, y: 0, w: 2, h: 1, isResizable: false },
+		{ i: "d", x: 3, y: 0, w: 1, h: 1, isResizable: false },
+		{ i: "e", x: 0, y: 1, w: 1, h: 1, isResizable: false },
+		{ i: "f", x: 1, y: 1, w: 1, h: 1, isResizable: false },
+		{ i: "g", x: 2, y: 1, w: 1, h: 1, isResizable: false },
+		{ i: "h", x: 3, y: 1, w: 1, h: 1, isResizable: false },
+		{ i: "i", x: 0, y: 2, w: 1, h: 1, isResizable: false },
+		{ i: "j", x: 1, y: 2, w: 1, h: 1, isResizable: false },
+		{ i: "k", x: 2, y: 2, w: 1, h: 1, isResizable: false },
+		{ i: "l", x: 3, y: 2, w: 1, h: 1, isResizable: false },
+		{ i: "m", x: 0, y: 3, w: 1, h: 1, isResizable: false },
+		{ i: "n", x: 1, y: 3, w: 1, h: 1, isResizable: false },
+		{ i: "o", x: 2, y: 3, w: 1, h: 1, isResizable: false },
+		{ i: "p", x: 3, y: 3, w: 1, h: 1, isResizable: false }
 	],
 	xs: [
-		{ i: "a", x: 0, y: 0, w: 1, h: 1, static: false, isResizable: false },
-		{ i: "b", x: 1, y: 0, w: 1, h: 1, static: false, isResizable: false },
-		{ i: "c", x: 0, y: 1, w: 1, h: 1, static: false, isResizable: false },
-		{ i: "d", x: 0, y: 2, w: 2, h: 1, static: false, isResizable: false },
+		{ i: "a", x: 0, y: 0, w: 1, h: 1, isResizable: false },
+		{ i: "b", x: 1, y: 0, w: 1, h: 1, isResizable: false },
+		{ i: "c", x: 0, y: 1, w: 1, h: 1, isResizable: false },
+		{ i: "d", x: 1, y: 1, w: 1, h: 1, isResizable: false },
+		{ i: "e", x: 0, y: 2, w: 1, h: 1, isResizable: false },
+		{ i: "f", x: 1, y: 2, w: 1, h: 1, isResizable: false },
+		{ i: "g", x: 0, y: 3, w: 1, h: 1, isResizable: false },
+		{ i: "h", x: 1, y: 3, w: 1, h: 1, isResizable: false },
+		{ i: "i", x: 0, y: 4, w: 1, h: 1, isResizable: false },
+		{ i: "j", x: 1, y: 4, w: 1, h: 1, isResizable: false },
+		{ i: "k", x: 0, y: 5, w: 1, h: 1, isResizable: false },
+		{ i: "l", x: 1, y: 5, w: 1, h: 1, isResizable: false },
+		{ i: "m", x: 0, y: 6, w: 1, h: 1, isResizable: false },
+		{ i: "n", x: 1, y: 6, w: 1, h: 1, isResizable: false },
+		{ i: "o", x: 0, y: 7, w: 1, h: 1, isResizable: false },
+		{ i: "p", x: 1, y: 7, w: 1, h: 1, isResizable: false }
 	],
 };
 

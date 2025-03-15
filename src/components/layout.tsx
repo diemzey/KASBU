@@ -147,12 +147,13 @@ const Block = memo(({ keyProp, onDelete, platform }: BlockProps) => {
   if (platform || keyProp in socialPlatforms) {
     const platformToUse = platform || socialPlatforms[keyProp as keyof typeof socialPlatforms].platform;
     
-    if (['facebook', 'instagram', 'tiktok', 'youtube', 'twitter'].includes(platformToUse)) {
+    if (['facebook', 'instagram', 'tiktok', 'youtube', 'twitter', 'pinterest', 'linkedin', 'github', 'twitch', 'discord', 'spotify', 'behance', 'dribbble', 'medium', 'dev', 'stackoverflow'].includes(platformToUse)) {
       return (
         <SocialCard
           platform={platformToUse as any}
           onDelete={onDelete}
           onTextChange={(newText: string) => handleTextChange(keyProp, newText)}
+          size={size}
         >
           {card?.text}
         </SocialCard>
@@ -324,7 +325,19 @@ function Layout() {
     { id: 'a', platform: 'facebook', w: 1, h: 1 },
     { id: 'b', platform: 'instagram', w: 1, h: 1 },
     { id: 'c', platform: 'tiktok', w: 1, h: 1 },
-    { id: 'd', platform: 'youtube', w: 2, h: 1 },
+    { id: 'd', platform: 'youtube', w: 1, h: 1 },
+    { id: 'e', platform: 'twitter', w: 1, h: 1 },
+    { id: 'f', platform: 'pinterest', w: 1, h: 1 },
+    { id: 'g', platform: 'linkedin', w: 1, h: 1 },
+    { id: 'h', platform: 'github', w: 1, h: 1 },
+    { id: 'i', platform: 'twitch', w: 1, h: 1 },
+    { id: 'j', platform: 'discord', w: 1, h: 1 },
+    { id: 'k', platform: 'spotify', w: 1, h: 1 },
+    { id: 'l', platform: 'behance', w: 1, h: 1 },
+    { id: 'm', platform: 'dribbble', w: 1, h: 1 },
+    { id: 'n', platform: 'medium', w: 1, h: 1 },
+    { id: 'o', platform: 'dev', w: 1, h: 1 },
+    { id: 'p', platform: 'stackoverflow', w: 1, h: 1 }
   ]);
   const [stickers, setStickers] = useState<Sticker[]>([]);
   const [isMobile, setIsMobile] = useState(false);

@@ -1,8 +1,8 @@
 import { ReactNode } from 'react';
 
-export type Platform = 'tiktok' | 'instagram' | 'facebook' | 'youtube' | 'twitter' | 'linkedin' | 'github' | 'twitch' | 'custom' | 'code' | 'qr' | 'map' | 'tv' | 'url' | 'image' | 'video' | 'amazon-product' | 'mercadolibre-product' | 'generic-product';
+export type Platform = 'tiktok' | 'instagram' | 'facebook' | 'youtube' | 'twitter' | 'pinterest' | 'linkedin' | 'github' | 'twitch' | 'discord' | 'spotify' | 'behance' | 'dribbble' | 'medium' | 'dev' | 'stackoverflow' | 'custom' | 'code' | 'qr' | 'map' | 'tv' | 'url' | 'image' | 'video' | 'amazon-product' | 'mercadolibre-product' | 'generic-product';
 
-export type SocialPlatform = 'facebook' | 'instagram' | 'tiktok' | 'youtube' | 'twitter';
+export type SocialPlatform = 'facebook' | 'instagram' | 'tiktok' | 'youtube' | 'twitter' | 'pinterest' | 'linkedin' | 'github' | 'twitch' | 'discord' | 'spotify' | 'behance' | 'dribbble' | 'medium' | 'dev' | 'stackoverflow';
 
 export type ShopPlatform = 'amazon' | 'mercadolibre' | 'generic';
 
@@ -31,6 +31,7 @@ export interface BaseSocialCardProps {
   onTextChange?: (text: string) => void;
   buttonStyle?: string;
   buttonText?: string;
+  size?: { w: number; h: number };
 }
 
 export interface SocialCardProps extends Omit<BaseSocialCardProps, 'icon' | 'className'> {

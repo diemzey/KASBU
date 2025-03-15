@@ -90,6 +90,83 @@ const cards: CardType[] = [
     defaultSize: { w: 1, h: 1 }
   },
   {
+    id: 'pinterest',
+    title: 'Pinterest',
+    description: 'Comparte tu perfil de Pinterest',
+    preview: <SocialCard platform="pinterest">usuario</SocialCard>,
+    defaultSize: { w: 1, h: 1 }
+  },
+  {
+    id: 'linkedin',
+    title: 'LinkedIn',
+    description: 'Comparte tu perfil profesional',
+    preview: <SocialCard platform="linkedin">usuario</SocialCard>,
+    defaultSize: { w: 1, h: 1 }
+  },
+  {
+    id: 'github',
+    title: 'GitHub',
+    description: 'Muestra tu perfil de desarrollador',
+    preview: <SocialCard platform="github">usuario</SocialCard>,
+    defaultSize: { w: 1, h: 1 }
+  },
+  {
+    id: 'twitch',
+    title: 'Twitch',
+    description: 'Comparte tu canal de streaming',
+    preview: <SocialCard platform="twitch">usuario</SocialCard>,
+    defaultSize: { w: 1, h: 1 }
+  },
+  {
+    id: 'discord',
+    title: 'Discord',
+    description: 'Invita a tu servidor',
+    preview: <SocialCard platform="discord">usuario</SocialCard>,
+    defaultSize: { w: 1, h: 1 }
+  },
+  {
+    id: 'spotify',
+    title: 'Spotify',
+    description: 'Comparte tu música favorita',
+    preview: <SocialCard platform="spotify">usuario</SocialCard>,
+    defaultSize: { w: 1, h: 1 }
+  },
+  {
+    id: 'behance',
+    title: 'Behance',
+    description: 'Muestra tu portafolio creativo',
+    preview: <SocialCard platform="behance">usuario</SocialCard>,
+    defaultSize: { w: 1, h: 1 }
+  },
+  {
+    id: 'dribbble',
+    title: 'Dribbble',
+    description: 'Comparte tus diseños',
+    preview: <SocialCard platform="dribbble">usuario</SocialCard>,
+    defaultSize: { w: 1, h: 1 }
+  },
+  {
+    id: 'medium',
+    title: 'Medium',
+    description: 'Comparte tus artículos',
+    preview: <SocialCard platform="medium">usuario</SocialCard>,
+    defaultSize: { w: 1, h: 1 }
+  },
+  {
+    id: 'dev',
+    title: 'Dev.to',
+    description: 'Comparte tus publicaciones técnicas',
+    preview: <SocialCard platform="dev">usuario</SocialCard>,
+    defaultSize: { w: 1, h: 1 }
+  },
+  {
+    id: 'stackoverflow',
+    title: 'Stack Overflow',
+    description: 'Muestra tu perfil de desarrollador',
+    preview: <SocialCard platform="stackoverflow">usuario</SocialCard>,
+    defaultSize: { w: 1, h: 1 }
+  },
+  {
     id: 'custom',
     title: 'Texto',
     description: 'Añade una tarjeta con texto personalizado',
@@ -293,9 +370,11 @@ const categories = [
 ];
 
 const categorizedCards = {
-  basic: ['custom', 'url', 'image', 'video', 'map'],
-  social: ['facebook', 'instagram', 'tiktok', 'youtube', 'twitter'],
-  media: ['image', 'video', 'tv', 'code', 'qr'],
+  basic: ['custom', 'code', 'qr'],
+  social: cards
+    .filter(card => card.id.match(/^(facebook|instagram|tiktok|youtube|twitter|pinterest|linkedin|github|twitch|discord|spotify)$/))
+    .map(card => card.id),
+  media: ['image', 'video', 'tv', 'map', 'url'],
   products: ['amazon-product', 'mercadolibre-product', 'generic-product']
 };
 
@@ -568,6 +647,24 @@ export const MarketModal = memo(({ isOpen, onClose, onAddCard }: MarketModalProp
 
         <div className="flex-1 overflow-y-auto p-4 md:p-8">
           <div className="space-y-8 md:space-y-12">
+            {/* Sección Redes Sociales */}
+            <section>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 md:mb-6">Redes Sociales</h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
+                {cards
+                  .filter(card => categorizedCards.social.includes(card.id))
+                  .map((card) => (
+                    <div key={card.id} className="flex flex-col items-center gap-4">
+                      <CardPreview card={card} onAdd={handleAddCard} />
+                      <div className="flex flex-col items-center text-center">
+                        <h3 className="text-sm font-medium text-gray-900">{card.title}</h3>
+                        <p className="text-xs text-gray-500 mt-1">{card.description}</p>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </section>
+
             {/* Sección Básicos */}
             <section>
               <h3 className="text-lg font-semibold text-gray-900 mb-4 md:mb-6">Básicos</h3>
