@@ -1,7 +1,7 @@
 import { createAuthClient } from "better-auth/client";
 import { usernameClient } from "better-auth/client/plugins";
 import { redirect } from "react-router-dom";
-const baseURL = "http://pkk0k4g4kwooc8ccocswo040.98.81.211.244.sslip.io";
+const baseURL = "https://kasbu.batarse.dev";
 export const authClient = createAuthClient({
   baseURL: baseURL,
   plugins: [usernameClient()],
