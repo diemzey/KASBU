@@ -1,18 +1,17 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { emailSignUp, googleSignIn } from "../utils/auth-client";
 
-interface LandingScreenProps {
-  onLogin: () => void;
-}
-
-const LandingScreen = ({ onLogin }: LandingScreenProps) => {
+const LandingScreen = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const initialUsername = (location.state as { username?: string })?.username || '';
+  const initialUsername =
+    (location.state as { username?: string })?.username || "";
   const [username, setUsername] = useState(initialUsername);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [isAvailable, setIsAvailable] = useState<boolean>(false);
   const [showEmailForm, setShowEmailForm] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -25,8 +24,8 @@ const LandingScreen = ({ onLogin }: LandingScreenProps) => {
   }, []);
 
   const handleUsernameChange = (value: string) => {
-    setUsername(value.toLowerCase().replace(/[^a-z0-9-]/g, ''));
-    setIsAvailable(null);
+    setUsername(value.toLowerCase().replace(/[^a-z0-9-]/g, ""));
+    setIsAvailable(false);
   };
 
   const checkAvailability = () => {
@@ -34,17 +33,37 @@ const LandingScreen = ({ onLogin }: LandingScreenProps) => {
     setIsAvailable(username.length >= 3);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const handleGoogleSignIn = async (e: React.MouseEvent) => {
     e.preventDefault();
+    setErrorMessage("");
     if (username && isAvailable) {
-      if (!showEmailForm) {
-        // TODO: Implementar login con Google
-        onLogin();
-        navigate('/');
-      } else if (email && password) {
-        onLogin();
-        navigate('/');
+      try {
+        await googleSignIn(username);
+      } catch (error: unknown) {
+        console.error("Error during Google sign-in:", error);
+        setErrorMessage(
+          error.message || "Error durante el inicio de sesión con Google",
+        );
       }
+    }
+  };
+
+  const handleEmailSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMessage("");
+    if (username && isAvailable && email && password && name) {
+      try {
+        await emailSignUp(email, password, username, name);
+      } catch (error: unknown) {
+        console.error("Error during email sign-up:", error);
+        setErrorMessage(
+          error.message || "Error durante el registro con correo",
+        );
+      }
+    } else if (!name) {
+      setErrorMessage("Por favor ingresa tu nombre completo");
     }
   };
 
@@ -63,12 +82,16 @@ const LandingScreen = ({ onLogin }: LandingScreenProps) => {
             key={i}
             className={`absolute w-64 h-64 rounded-full bg-gradient-to-r from-blue-600/5 to-purple-600/5
               animate-float-slow transform -translate-x-1/2 -translate-y-1/2
-              ${i === 0 ? 'top-1/4 left-1/4 delay-0' : 
-                i === 1 ? 'top-3/4 left-3/4 delay-1000' : 
-                'top-1/2 left-2/3 delay-2000'}`}
+              ${
+                i === 0
+                  ? "top-1/4 left-1/4 delay-0"
+                  : i === 1
+                    ? "top-3/4 left-3/4 delay-1000"
+                    : "top-1/2 left-2/3 delay-2000"
+              }`}
             style={{
               animationDuration: `${20 + i * 5}s`,
-              filter: 'blur(40px)'
+              filter: "blur(40px)",
             }}
           />
         ))}
@@ -80,21 +103,23 @@ const LandingScreen = ({ onLogin }: LandingScreenProps) => {
           <div className="text-center mb-8">
             {/* Logo con efecto de brillo */}
             <div className="relative mb-6 group">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 blur-2xl 
-                group-hover:from-blue-600/30 group-hover:to-purple-600/30 transition-all duration-500" />
-              <h1 className="relative text-[6rem] leading-none font-normal font-['Modernia'] bg-gradient-to-r from-blue-600 to-purple-600 
+              <div
+                className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 blur-2xl 
+                group-hover:from-blue-600/30 group-hover:to-purple-600/30 transition-all duration-500"
+              />
+              <h1
+                className="relative text-[6rem] leading-none font-normal font-['Modernia'] bg-gradient-to-r from-blue-600 to-purple-600 
                 bg-clip-text text-transparent transition-all duration-500
-                hover:from-blue-500 hover:to-purple-500">
+                hover:from-blue-500 hover:to-purple-500"
+              >
                 K
               </h1>
             </div>
-            <p className="text-gray-600">
-              Crea tu espacio digital único
-            </p>
+            <p className="text-gray-600">Crea tu espacio digital único</p>
           </div>
 
           {/* Formulario */}
-          <form onSubmit={handleSubmit} className="bg-white rounded-2xl p-8 shadow-[0_0_0_1px_rgba(0,0,0,0.05),0_8px_32px_-8px_rgba(0,0,0,0.1)]">
+          <form className="bg-white rounded-2xl p-8 shadow-[0_0_0_1px_rgba(0,0,0,0.05),0_8px_32px_-8px_rgba(0,0,0,0.1)]">
             <div className="space-y-6">
               {/* Campo de usuario */}
               <div>
@@ -103,7 +128,9 @@ const LandingScreen = ({ onLogin }: LandingScreenProps) => {
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                    <span className="text-gray-600 font-medium">kasbu.com/</span>
+                    <span className="text-gray-600 font-medium">
+                      kasbu.com/
+                    </span>
                   </div>
                   <input
                     type="text"
@@ -118,23 +145,45 @@ const LandingScreen = ({ onLogin }: LandingScreenProps) => {
                   {isAvailable !== null && (
                     <div className="absolute inset-y-0 right-3 flex items-center">
                       {isAvailable ? (
-                        <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        <svg
+                          className="w-5 h-5 text-green-500"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M5 13l4 4L19 7"
+                          />
                         </svg>
                       ) : (
-                        <svg className="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        <svg
+                          className="w-5 h-5 text-red-500"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M6 18L18 6M6 6l12 12"
+                          />
                         </svg>
                       )}
                     </div>
                   )}
                 </div>
                 <p className="mt-1 text-xs text-gray-500 pl-3">
-                  Esta será tu URL personal. Usa solo letras minúsculas, números y guiones.
+                  Esta será tu URL personal. Usa solo letras minúsculas, números
+                  y guiones.
                 </p>
                 {!isAvailable && username.length > 0 && (
                   <p className="mt-1 text-xs text-red-500 pl-3">
-                    El nombre debe tener al menos 3 caracteres y estar disponible.
+                    El nombre debe tener al menos 3 caracteres y estar
+                    disponible.
                   </p>
                 )}
               </div>
@@ -143,7 +192,8 @@ const LandingScreen = ({ onLogin }: LandingScreenProps) => {
                 <>
                   {/* Botón de Google */}
                   <button
-                    type="submit"
+                    type="button"
+                    onClick={handleGoogleSignIn}
                     className="w-full bg-white text-gray-700 py-3 px-4 rounded-xl font-medium border border-gray-200 hover:bg-gray-50 transition-all duration-300 shadow-sm
                       flex items-center justify-center gap-3 relative group"
                   >
@@ -187,6 +237,21 @@ const LandingScreen = ({ onLogin }: LandingScreenProps) => {
                 </>
               ) : (
                 <>
+                  {/* Campo de nombre */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Nombre completo
+                    </label>
+                    <input
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="block w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                      placeholder="Tu nombre completo"
+                      required
+                    />
+                  </div>
+
                   {/* Campo de correo */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -220,14 +285,17 @@ const LandingScreen = ({ onLogin }: LandingScreenProps) => {
 
                   {/* Botón de registro */}
                   <button
-                    type="submit"
+                    type="button"
+                    onClick={handleEmailSignUp}
                     className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-xl font-medium 
                       hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg shadow-blue-500/25 
                       disabled:opacity-50 disabled:cursor-not-allowed group relative"
-                    disabled={!isAvailable}
+                    disabled={!isAvailable || !email || !password || !name}
                   >
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300
-                      bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1),transparent_50%)] rounded-xl" />
+                    <div
+                      className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300
+                      bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1),transparent_50%)] rounded-xl"
+                    />
                     <span className="relative">Crear mi Kasbu</span>
                   </button>
 
@@ -244,13 +312,33 @@ const LandingScreen = ({ onLogin }: LandingScreenProps) => {
           </form>
         </div>
 
+        {/* Error message */}
+        {errorMessage && (
+          <div className="mt-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm max-w-md">
+            <div className="flex items-center">
+              <svg
+                className="w-5 h-5 mr-2 flex-shrink-0"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              {errorMessage}
+            </div>
+          </div>
+        )}
+
         {/* Footer */}
         <div className="mt-8 text-center text-sm text-gray-500">
-          Al registrarte, aceptas nuestros{' '}
+          Al registrarte, aceptas nuestros{" "}
           <a href="#" className="text-blue-600 hover:text-blue-700">
             Términos y condiciones
-          </a>
-          {' '}y{' '}
+          </a>{" "}
+          y{" "}
           <a href="#" className="text-blue-600 hover:text-blue-700">
             Política de privacidad
           </a>
@@ -260,4 +348,4 @@ const LandingScreen = ({ onLogin }: LandingScreenProps) => {
   );
 };
 
-export default LandingScreen; 
+export default LandingScreen;
