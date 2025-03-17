@@ -1,6 +1,6 @@
 import { createAuthClient } from "better-auth/client";
 import { usernameClient } from "better-auth/client/plugins";
-const baseURL = "http://localhost:3000";
+const baseURL = "https://kasbu.batarse.dev";
 
 export const authClient = createAuthClient({
   baseURL: baseURL,
