@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { emailSignUp, googleSignIn } from "../utils/auth-client";
-
+import {
+  emailSignUp,
+  googleSignIn,
+  updateUsername,
+} from "../utils/auth-client";
+import { useLocation } from "react-router-dom";
+const baseURL = "https://kasbu.batarse.dev";
 const LandingScreen = () => {
-  const navigate = useNavigate();
   const location = useLocation();
   const initialUsername =
     (location.state as { username?: string })?.username || "";
@@ -40,7 +43,8 @@ const LandingScreen = () => {
     setErrorMessage("");
     if (username && isAvailable) {
       try {
-        await googleSignIn(username);
+        await googleSignIn();
+        await updateUsername(username);
       } catch (error: unknown) {
         console.error("Error during Google sign-in:", error);
         setErrorMessage(
