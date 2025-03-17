@@ -8,7 +8,7 @@ export const authClient = createAuthClient({
 });
 
 // Google sign-in function with proper error handling
-export const googleSignIn = async () => {
+export const googleSignIn = async (username: string) => {
   const { data, error } = await authClient.signIn.social(
     {
       provider: "google",
@@ -17,6 +17,9 @@ export const googleSignIn = async () => {
     {
       onSuccess: async (ctx) => {
         console.log("Google sign-in successful:", ctx);
+        authClient.updateUser({
+          username: username,
+        });
       },
       onError: (ctx) => {
         console.error("Google sign-in error:", ctx.error);
@@ -87,24 +90,3 @@ export const signOut = async () => {
 
 // Export error codes for translation or custom error messages
 export const ERROR_CODES = authClient.$ERROR_CODES;
-
-export const updateUsername = async (username: string) => {
-  try {
-    const response = await fetch(`${baseURL}/api/user/update-username`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify({ username: username }),
-    });
-    const result = await response.json();
-    if (result.success) {
-      console.log(result.message);
-    } else {
-      console.error(result.message);
-    }
-  } catch (error) {
-    console.error("Failed to update username:", error);
-  }
-};
