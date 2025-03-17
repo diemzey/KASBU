@@ -32,6 +32,9 @@ export interface BaseSocialCardProps {
   buttonStyle?: string;
   buttonText?: string;
   size?: { w: number; h: number };
+  description?: string;
+  imageUrl?: string;
+  onImageChange?: (imageUrl: string | null) => void;
 }
 
 export interface SocialCardProps extends Omit<BaseSocialCardProps, 'icon' | 'className'> {

@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { fonts } from '../utils/constants';
 import MarketModal from './MarketModal';
 import { Platform } from '../types';
+import { parseUrl, enrichMetadata } from '../utils/url-parser';
 
 interface SidebarProps {
   onAddCard: (
@@ -187,11 +188,32 @@ const Sidebar = ({ onAddCard, onChangeBackground, onAddSticker, onSave, classNam
     setActiveMenu(current => current === menu ? 'none' : menu);
   };
 
-  const handleQuickUrlSubmit = (e: React.FormEvent) => {
+  const handleQuickUrlSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (quickUrl) {
-      onAddCard('url', { w: 1, h: 1 }, { url: quickUrl, title: 'Enlace rápido' });
-      setQuickUrl('');
+      try {
+        // Procesar la URL y obtener metadatos
+        const metadata = await parseUrl(quickUrl);
+        // Enriquecer con metadatos adicionales (título, descripción, etc.)
+        const enrichedMetadata = await enrichMetadata(metadata);
+
+        // Crear la tarjeta con los metadatos obtenidos
+        onAddCard('url', { w: 1, h: 1 }, {
+          title: enrichedMetadata.data.title || enrichedMetadata.title,
+          text: enrichedMetadata.description,
+          url: quickUrl,
+          ...enrichedMetadata.data
+        });
+
+        setQuickUrl('');
+      } catch (error) {
+        console.error('Error procesando URL:', error);
+        // Si hay un error, crear una tarjeta genérica
+        onAddCard('url', { w: 1, h: 1 }, { 
+          url: quickUrl, 
+          title: 'Enlace rápido' 
+        });
+      }
     }
   };
 

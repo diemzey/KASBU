@@ -1,22 +1,20 @@
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { MapCard } from './cards/MapCard';
-import { URLCard } from './cards/URLCard';
-import { CustomCard } from './cards/CustomCard';
+import { SocialCard } from './cards/SocialCard';
+import { ImageCard } from './cards/ImageCard';
+import type { SocialPlatform } from './cards/SocialCard';
 
 interface FloatingCardProps {
   className?: string;
   style?: React.CSSProperties;
-  size?: 'small' | 'normal' | 'wide' | 'tall';
+  size?: 'normal' | 'tall';
   children: React.ReactNode;
 }
 
 const FloatingCard = ({ className = '', size = 'normal', children }: FloatingCardProps) => {
   const sizeClasses = {
-    small: 'w-36 h-36',
     normal: 'w-44 h-44',
-    wide: 'w-64 h-44',
-    tall: 'w-44 h-64',
+    tall: 'w-44 h-[352px]',
   }[size];
 
   return (
@@ -27,135 +25,114 @@ const FloatingCard = ({ className = '', size = 'normal', children }: FloatingCar
 };
 
 interface CardConfig {
-  type: 'custom' | 'url' | 'map';
+  type: 'social' | 'image';
+  platform?: SocialPlatform;
   position: string;
-  size?: 'small' | 'normal' | 'wide' | 'tall';
+  size?: 'normal' | 'tall';
   depth: number;
   scale: number;
   blur?: string;
-  props: any;
+  text: string;
+  imageUrl?: string;
+  description?: string;
 }
 
 const CARDS_CONFIG: CardConfig[] = [
   {
-    type: 'custom',
+    type: 'image',
     position: 'left-32 bottom-80',
     size: 'tall',
     depth: 15,
     scale: 1.25,
-    props: {
-      title: '¡Hola! 👋',
-      children: 'Bienvenido a Kasbu,\n¿Estás listo?'
-    }
+    blur: 'blur-[1.5px]',
+    text: 'Mi compañero fiel 🐾',
+    imageUrl: 'https://plus.unsplash.com/premium_photo-1666777247416-ee7a95235559?q=80&w=1374&auto=format&fit=crop',
+    description: 'Mi compañero fiel 🐾'
   },
   {
-    type: 'url',
+    type: 'social',
+    platform: 'youtube',
     position: 'left-64 top-8',
-    size: 'wide',
-    depth: 10,
+    size: 'normal',
+    depth: 4,
     scale: 1.1,
     blur: 'blur-[0.8px]',
-    props: {
-      url: 'https://youtube.com/@yourusername',
-      title: 'Mis videos',
-      children: 'YouTube'
-    }
+    text: 'Últimos vlogs',
+    description: '@luisitocomunica'
   },
   {
-    type: 'url',
+    type: 'social',
+    platform: 'github',
     position: 'left-16 top-24',
-    depth: 5,
+    size: 'normal',
+    depth: 3,
     scale: 0.85,
-    blur: 'blur-[1.5px]',
-    props: {
-      url: 'https://github.com/yourusername',
-      title: 'Código',
-      children: 'GitHub'
-    }
+    text: 'Mis proyectos',
+    description: '@midudev'
   },
   {
-    type: 'url',
+    type: 'social',
+    platform: 'instagram',
     position: 'right-24 top-16',
+    size: 'tall',
     depth: 12,
     scale: 1.25,
-    props: {
-      url: 'https://instagram.com/yourusername',
-      title: 'Mis fotos',
-      children: 'Instagram'
-    }
+    text: 'Mi día a día',
+    description: '@leomessi'
   },
   {
-    type: 'url',
+    type: 'social',
+    platform: 'spotify',
     position: 'right-80 top-32',
+    size: 'normal',
     depth: 8,
     scale: 1.05,
     blur: 'blur-[0.8px]',
-    props: {
-      url: 'https://open.spotify.com/user/yourusername',
-      title: 'Mi música',
-      children: 'Spotify'
-    }
+    text: 'Lo que escucho',
+    description: '@badbunnypr'
   },
   {
-    type: 'map',
-    position: 'right-48 top-64',
-    size: 'small',
-    depth: 10,
-    scale: 1.2,
-    props: {
-      icon: '🌍',
-      children: 'Barcelona'
-    }
-  },
-  {
-    type: 'url',
+    type: 'social',
+    platform: 'twitter',
     position: 'right-16 top-96',
-    size: 'wide',
+    size: 'normal',
     depth: 4,
     scale: 0.8,
     blur: 'blur-[2px]',
-    props: {
-      url: 'https://twitter.com/yourusername',
-      title: 'Pensamientos',
-      children: 'Twitter'
-    }
+    text: 'Mis ideas',
+    description: '@elonmusk'
   },
   {
-    type: 'url',
+    type: 'social',
+    platform: 'linkedin',
     position: 'left-96 bottom-24',
-    size: 'small',
+    size: 'normal',
     depth: 9,
     scale: 1.1,
     blur: 'blur-[0.8px]',
-    props: {
-      url: 'https://linkedin.com/in/yourusername',
-      title: 'Profesional',
-      children: 'LinkedIn'
-    }
+    text: 'Mi experiencia',
+    description: '@billgates'
   },
   {
-    type: 'url',
+    type: 'social',
+    platform: 'twitch',
     position: 'right-48 bottom-8',
+    size: 'tall',
     depth: 14,
     scale: 1.25,
-    props: {
-      url: 'https://twitch.tv/yourusername',
-      title: 'En vivo',
-      children: 'Twitch'
-    }
+    text: 'Streams en vivo',
+    description: '@ibai'
   },
   {
-    type: 'url',
+    type: 'social',
+    platform: 'discord',
     position: 'left-32 bottom-16',
-    size: 'small',
+    size: 'normal',
     depth: 6,
     scale: 0.85,
     blur: 'blur-[1.5px]',
-    props: {
-      url: 'https://discord.gg/yourusername',
-      title: 'Comunidad',
-      children: 'Discord'
-    }
+    text: 'Únete al chat',
+    description: '@pewdiepie'
   }
 ];
 
@@ -197,12 +174,6 @@ const FloatingCards = ({ startSequence }: { startSequence: boolean }) => {
   `;
 
   const renderCard = (config: CardConfig, index: number) => {
-    const CardComponent = {
-      custom: CustomCard,
-      url: URLCard,
-      map: MapCard
-    }[config.type];
-
     return (
       <FloatingCard
         key={index}
@@ -213,7 +184,15 @@ const FloatingCards = ({ startSequence }: { startSequence: boolean }) => {
           className={`transform scale-[${config.scale}] ${config.blur || ''} transition-transform duration-700 ease-out`}
           style={getParallaxStyle(config.depth)}
         >
-          <CardComponent {...config.props} />
+          {config.type === 'image' ? (
+            <ImageCard imageUrl={config.imageUrl!}>
+              {config.text}
+            </ImageCard>
+          ) : (
+            <SocialCard platform={config.platform!} description={config.description}>
+              {config.text}
+            </SocialCard>
+          )}
         </div>
       </FloatingCard>
     );
@@ -289,81 +268,129 @@ const HomeScreen = () => {
   };
 
   return (
-    <div className={`relative min-h-screen w-full bg-white overflow-hidden transition-opacity duration-800
-      ${isExiting ? 'opacity-0' : 'opacity-100'}`}>
-      {/* Fondo decorativo */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-1/2 -left-1/2 w-[200%] h-[200%] bg-[radial-gradient(circle_at_50%_50%,rgba(99,102,241,0.05),transparent_50%)]" />
-        <div className="absolute top-0 left-0 w-full h-full bg-[linear-gradient(to_right,transparent,rgba(255,255,255,0.8),transparent)]" />
-      </div>
-
-      <FloatingCards startSequence={showCards} />
-
-      {/* Contenido principal */}
-      <div className={`relative min-h-screen w-full flex flex-col items-center transition-all duration-1000 ease-out
-        ${showForm ? 'justify-center -translate-y-16' : 'justify-center translate-y-8'}`}>
-        <div className="text-center transform transition-all duration-1000">
-          {/* Logo */}
-          <div className={`relative mb-6 mt-32 group transition-all duration-1000 transform
-            ${mounted ? 'scale-100 opacity-100' : 'scale-50 opacity-0'}`}>
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 blur-2xl 
-              group-hover:from-blue-600/30 group-hover:to-purple-600/30 transition-all duration-500" />
-            <h1 className="relative text-[6rem] leading-none font-normal font-['Modernia'] bg-gradient-to-r from-blue-600 to-purple-600 
-              bg-clip-text text-transparent transition-all duration-500
-              hover:from-blue-500 hover:to-purple-500">
-              K
-            </h1>
-          </div>
-
-          {/* Contador */}
-          <div className={`space-y-8 transition-all duration-1000 delay-300
-            ${showForm ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-            <p className="text-xl text-gray-600">
-              ¡A Linktree no le va gustar esto!
-            </p>
-            
-            <div className="flex gap-8 justify-center">
-              <div className="text-center">
-                <div className="text-4xl font-bold bg-gradient-to-br from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  {countdown.days}
-                </div>
-                <div className="text-sm text-gray-500 mt-1">Días</div>
-              </div>
-              <div className="text-center">
-                <div className="text-4xl font-bold bg-gradient-to-br from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  {countdown.hours}
-                </div>
-                <div className="text-sm text-gray-500 mt-1">Horas</div>
-              </div>
-              <div className="text-center">
-                <div className="text-4xl font-bold bg-gradient-to-br from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  {countdown.minutes}
-                </div>
-                <div className="text-sm text-gray-500 mt-1">Minutos</div>
-              </div>
-              <div className="text-center">
-                <div className="text-4xl font-bold bg-gradient-to-br from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  {countdown.seconds}
-                </div>
-                <div className="text-sm text-gray-500 mt-1">Segundos</div>
-              </div>
-            </div>
-
-            <p className="text-sm text-gray-500 mt-8">
-              1 de Junio, 2025
-            </p>
+    <>
+      {/* Loading Screen */}
+      <div className={`fixed inset-0 z-50 flex items-center justify-center bg-white transition-opacity duration-500
+        ${isExiting ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+        <div className="relative">
+          {/* Fondo con gradiente animado */}
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 blur-2xl 
+            animate-pulse" />
+          
+          {/* Loading icon */}
+          <div className="relative">
+            <svg className="w-12 h-12 animate-spin" viewBox="0 0 24 24">
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+                fill="none"
+                style={{ color: '#6366f1' }}
+              />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                style={{ color: '#6366f1' }}
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              />
+            </svg>
           </div>
         </div>
       </div>
 
-      {/* Footer */}
-      <div className={`absolute bottom-8 left-0 right-0 text-center transition-all duration-1000
-        ${showForm ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-        <p className="text-sm text-gray-500">
-          Diseña · Comparte · Conecta
-        </p>
+      {/* Main Content */}
+      <div className={`relative min-h-screen w-full bg-white overflow-hidden transition-opacity duration-800
+        ${isExiting ? 'opacity-0' : 'opacity-100'}`}>
+        {/* Fondo decorativo */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-1/2 -left-1/2 w-[200%] h-[200%] bg-[radial-gradient(circle_at_50%_50%,rgba(99,102,241,0.05),transparent_50%)]" />
+          <div className="absolute top-0 left-0 w-full h-full bg-[linear-gradient(to_right,transparent,rgba(255,255,255,0.8),transparent)]" />
+        </div>
+
+        <FloatingCards startSequence={showCards} />
+
+        {/* Contenido principal */}
+        <div className={`relative min-h-screen w-full flex flex-col items-center transition-all duration-1000 ease-out
+          ${showForm ? 'justify-center -translate-y-16' : 'justify-center translate-y-8'}`}>
+          <div className="text-center transform transition-all duration-1000">
+            {/* Logo */}
+            <div className={`relative mb-6 mt-32 group transition-all duration-1000 transform
+              ${mounted ? 'scale-100 opacity-100' : 'scale-50 opacity-0'}`}>
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 blur-2xl 
+                group-hover:from-blue-600/30 group-hover:to-purple-600/30 transition-all duration-500" />
+              <h1 className="relative text-[6rem] leading-none font-normal font-['Modernia'] bg-gradient-to-r from-blue-600 to-purple-600 
+                bg-clip-text text-transparent transition-all duration-500
+                hover:from-blue-500 hover:to-purple-500">
+                K
+              </h1>
+            </div>
+
+            {/* Contador y Botón */}
+            <div className={`space-y-8 transition-all duration-1000 delay-300
+              ${showForm ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+              <p className="text-xl text-gray-600">
+                ¡A Linktree no le va gustar esto!
+              </p>
+              
+              <div className="flex gap-8 justify-center">
+                <div className="text-center">
+                  <div className="text-4xl font-bold bg-gradient-to-br from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    {countdown.days}
+                  </div>
+                  <div className="text-sm text-gray-500 mt-1">Días</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-4xl font-bold bg-gradient-to-br from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    {countdown.hours}
+                  </div>
+                  <div className="text-sm text-gray-500 mt-1">Horas</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-4xl font-bold bg-gradient-to-br from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    {countdown.minutes}
+                  </div>
+                  <div className="text-sm text-gray-500 mt-1">Minutos</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-4xl font-bold bg-gradient-to-br from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    {countdown.seconds}
+                  </div>
+                  <div className="text-sm text-gray-500 mt-1">Segundos</div>
+                </div>
+              </div>
+
+              <div className="flex flex-col items-center space-y-6">
+                <button 
+                  onClick={handleLogin}
+                  className="px-8 py-3 text-lg font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 
+                    rounded-xl shadow-lg hover:from-blue-500 hover:to-purple-500 
+                    active:from-blue-700 active:to-purple-700 transform hover:scale-105 
+                    transition-all duration-200 ease-out focus:outline-none focus:ring-2 
+                    focus:ring-purple-500 focus:ring-opacity-50"
+                >
+                  Unirse a la lista de espera
+                </button>
+
+                <p className="text-sm text-gray-500">
+                  Lanzamiento: 1 de Junio, 2025
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className={`absolute bottom-8 left-0 right-0 text-center transition-all duration-1000
+          ${showForm ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+          <p className="text-sm text-gray-500">
+            Diseña · Comparte · Conecta
+          </p>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

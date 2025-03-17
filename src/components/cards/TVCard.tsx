@@ -10,12 +10,27 @@ export const TVCard = memo(({ children, onDelete, videoId: initialVideoId, onVid
   }, [initialVideoId]);
 
   return (
-    <BaseSocialCard
-      icon={<></>}
-      onDelete={onDelete}
-      className="bg-black group relative overflow-hidden"
-    >
-      <div className="absolute inset-0">
+    <div className="w-full h-full bg-black rounded-[1.5rem] relative overflow-hidden group">
+      {/* Botón de eliminar */}
+      {onDelete && (
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onDelete();
+          }}
+          className="absolute top-3 right-3 p-1.5 rounded-full bg-black/20 hover:bg-red-500/90 transition-all 
+            opacity-0 group-hover:opacity-100 z-50"
+          title="Eliminar"
+        >
+          <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      )}
+
+      {/* Contenedor del video */}
+      <div className="absolute inset-0 w-full h-full">
         {videoId ? (
           <iframe
             src={`https://www.youtube.com/embed/${videoId}?autoplay=0&controls=1`}
@@ -36,6 +51,6 @@ export const TVCard = memo(({ children, onDelete, videoId: initialVideoId, onVid
           </div>
         )}
       </div>
-    </BaseSocialCard>
+    </div>
   );
 }); 

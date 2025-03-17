@@ -2,7 +2,7 @@ import { memo } from 'react';
 import { BaseSocialCard } from './BaseSocialCard';
 import { BaseSocialCardProps } from '../../types';
 
-type SocialPlatform = 'facebook' | 'instagram' | 'tiktok' | 'youtube' | 'twitter' | 'pinterest' | 'linkedin' | 'github' | 'twitch' | 'discord' | 'spotify' | 'behance' | 'dribbble' | 'medium' | 'dev' | 'stackoverflow';
+export type SocialPlatform = 'facebook' | 'instagram' | 'tiktok' | 'youtube' | 'twitter' | 'pinterest' | 'linkedin' | 'github' | 'twitch' | 'discord' | 'spotify' | 'behance' | 'dribbble' | 'medium' | 'dev' | 'stackoverflow';
 
 interface SocialCardProps extends Omit<BaseSocialCardProps, 'icon' | 'className'> {
   platform: SocialPlatform;
@@ -244,6 +244,7 @@ const SocialCardComponent = ({ platform, children, ...props }: SocialCardProps) 
       className={`${config.bgTint} ${config.color}`}
       buttonStyle={config.buttonStyle}
       buttonText={config.buttonText}
+      description={children?.toString().toLowerCase()}
       {...props}
     >
       {children || config.defaultText}

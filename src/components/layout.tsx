@@ -144,6 +144,35 @@ const Block = memo(({ keyProp, onDelete, platform }: BlockProps) => {
   const layout = currentlayout?.lg?.find(item => item.i === keyProp) || currentlayout?.xs?.find(item => item.i === keyProp);
   const size = layout ? { w: layout.w, h: layout.h } : { w: 1, h: 1 };
   
+  // Si la plataforma es una red social, usamos SocialCard
+  if (card?.platform && ['facebook', 'instagram', 'tiktok', 'youtube', 'twitter', 'pinterest', 'linkedin', 'github', 'twitch', 'discord', 'spotify', 'behance', 'dribbble', 'medium', 'dev', 'stackoverflow'].includes(card.platform)) {
+    return (
+      <SocialCard
+        platform={card.platform as any}
+        onDelete={onDelete}
+        onTextChange={(newText: string) => handleTextChange(keyProp, newText)}
+        size={size}
+      >
+        {card?.text || card?.title?.replace('@', '')}
+      </SocialCard>
+    );
+  }
+  
+  // Para URLs con título, usamos URLCard
+  if (card?.url && card?.title) {
+    return (
+      <URLCard
+        url={card.url}
+        title={card.title}
+        onDelete={onDelete}
+        onTitleChange={(newTitle: string) => handleTextChange(keyProp, newTitle)}
+        size={size}
+      >
+        {card.text}
+      </URLCard>
+    );
+  }
+  
   if (platform || keyProp in socialPlatforms) {
     const platformToUse = platform || socialPlatforms[keyProp as keyof typeof socialPlatforms].platform;
     
@@ -311,7 +340,7 @@ function Layout() {
     return () => clearTimeout(timer);
   }, []);
 
-  const [visibleCards, setVisibleCards] = useState<string[]>(keys);
+  const [visibleCards, setVisibleCards] = useState<string[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [background, setBackground] = useState('bg-white');
   const [pattern, setPattern] = useState('');
@@ -321,24 +350,7 @@ function Layout() {
   const [currentSubtitleFontIndex, setCurrentSubtitleFontIndex] = useState(0);
   const [titleColor, setTitleColor] = useState('from-blue-600 to-purple-600');
   const [subtitleColor, setSubtitleColor] = useState('from-gray-600 to-gray-600');
-  const [cards, setCards] = useState<CardData[]>([
-    { id: 'a', platform: 'facebook', w: 1, h: 1 },
-    { id: 'b', platform: 'instagram', w: 1, h: 1 },
-    { id: 'c', platform: 'tiktok', w: 1, h: 1 },
-    { id: 'd', platform: 'youtube', w: 1, h: 1 },
-    { id: 'e', platform: 'twitter', w: 1, h: 1 },
-    { id: 'f', platform: 'pinterest', w: 1, h: 1 },
-    { id: 'g', platform: 'linkedin', w: 1, h: 1 },
-    { id: 'h', platform: 'github', w: 1, h: 1 },
-    { id: 'i', platform: 'twitch', w: 1, h: 1 },
-    { id: 'j', platform: 'discord', w: 1, h: 1 },
-    { id: 'k', platform: 'spotify', w: 1, h: 1 },
-    { id: 'l', platform: 'behance', w: 1, h: 1 },
-    { id: 'm', platform: 'dribbble', w: 1, h: 1 },
-    { id: 'n', platform: 'medium', w: 1, h: 1 },
-    { id: 'o', platform: 'dev', w: 1, h: 1 },
-    { id: 'p', platform: 'stackoverflow', w: 1, h: 1 }
-  ]);
+  const [cards, setCards] = useState<CardData[]>([]);
   const [stickers, setStickers] = useState<Sticker[]>([]);
   const [isMobile, setIsMobile] = useState(false);
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
@@ -781,7 +793,9 @@ function Layout() {
                   hover:after:opacity-100
                   before:absolute before:inset-0 before:bg-gradient-to-b before:from-black/[0.01] before:to-black/[0.06]
                   ${isDragging ? '' : '[transition:box-shadow_300ms_ease-out,transform_300ms_ease-out]'}
-                  ${isInitialLoad ? 'initial-load' : ''}`}
+                  ${isInitialLoad ? 'initial-load' : ''}
+                  animate-[cardAppear_500ms_cubic-bezier(0.22,1,0.36,1)_forwards]
+                  opacity-0 scale-95`}
                 style={{
                   animationDelay: isInitialLoad ? `${Math.floor((currentlayout[isMobile ? 'xs' : 'lg'].find(item => item.i === key)?.y || 0) * 200 + (currentlayout[isMobile ? 'xs' : 'lg'].find(item => item.i === key)?.x || 0) * 100)}ms` : undefined
                 }}

@@ -123,12 +123,18 @@ const URLIcon = ({ url }: { url?: string }) => {
 
 export const URLCard = ({ children, onDelete, url, title, onTitleChange }: URLCardProps) => {
   const displayUrl = url || children?.toString() || 'https://ejemplo.com';
-  const [currentTitle, setCurrentTitle] = useState(title || 'Título del sitio web');
+  const [currentTitle, setCurrentTitle] = useState(title || '');
   const titleRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (title) {
+      setCurrentTitle(title);
+    }
+  }, [title]);
 
   const handleTitleBlur = () => {
     const newText = titleRef.current?.innerText || '';
-    setCurrentTitle(newText || 'Título del sitio web');
+    setCurrentTitle(newText || title || '');
     onTitleChange?.(newText);
   };
 
@@ -152,15 +158,14 @@ export const URLCard = ({ children, onDelete, url, title, onTitleChange }: URLCa
           suppressContentEditableWarning
           onBlur={handleTitleBlur}
           onKeyDown={handleKeyDown}
-          className="text-lg font-semibold text-gray-900 mb-2 outline-none empty:before:content-[Título_del_sitio_web] empty:before:text-gray-400"
+          className="text-lg font-semibold text-gray-900 mb-2 outline-none empty:before:content-[attr(data-placeholder)] empty:before:text-gray-400"
+          data-placeholder="Título del sitio web"
         >
           {currentTitle}
         </div>
 
         <div className="flex items-center gap-2 text-sm text-gray-500">
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-          </svg>
+          <URLIcon url={displayUrl} />
           <a 
             href={displayUrl.startsWith('http') ? displayUrl : `https://${displayUrl}`}
             target="_blank"
