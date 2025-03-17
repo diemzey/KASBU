@@ -12,7 +12,7 @@ export const googleSignIn = async (username: string) => {
   const { data, error } = await authClient.signIn.social(
     {
       provider: "google",
-      callbackURL: "http://localhost:5173/app",
+      callbackURL: "kasbu.com/app",
     },
     {
       onSuccess: async (ctx) => {
