@@ -8,7 +8,7 @@ export const authClient = createAuthClient({
 });
 
 // Google sign-in function with proper error handling
-export const googleSignIn = async (username: string) => {
+export const googleSignIn = async () => {
   const { data, error } = await authClient.signIn.social(
     {
       provider: "google",
@@ -17,9 +17,6 @@ export const googleSignIn = async (username: string) => {
     {
       onSuccess: async (ctx) => {
         console.log("Google sign-in successful:", ctx);
-        authClient.updateUser({
-          username: username,
-        });
       },
       onError: (ctx) => {
         console.error("Google sign-in error:", ctx.error);

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { emailSignUp, googleSignIn } from "../utils/auth-client";
+import { authClient, emailSignUp, googleSignIn } from "../utils/auth-client";
 import { useLocation } from "react-router-dom";
 
 const LandingScreen = () => {
@@ -39,7 +39,10 @@ const LandingScreen = () => {
     setErrorMessage("");
     if (username && isAvailable) {
       try {
-        await googleSignIn(username);
+        await googleSignIn();
+        await authClient.updateUser({
+          username: username,
+        });
       } catch (error: unknown) {
         console.error("Error during Google sign-in:", error);
         setErrorMessage(
