@@ -27,10 +27,6 @@ export const googleSignUp = async () => {
     {
       onSuccess: (ctx) => {
         console.log("Google sign-in successful:", ctx);
-        localStorage.setItem(
-          "bearer_token",
-          ctx.response.headers.get("set-auth-token")!,
-        );
       },
       onError: (ctx) => {
         console.error("Google sign-in error:", ctx.error);
@@ -53,10 +49,6 @@ export const emailSignIn = async (email: string, password: string) => {
     },
     {
       onSuccess: (ctx) => {
-        const authToken = ctx.response.headers.get("set-auth-token");
-        if (authToken) {
-          localStorage.setItem("bearer_token", authToken);
-        }
         console.log("Email sign-in successful:", ctx);
       },
       onError: (ctx) => {
