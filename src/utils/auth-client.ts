@@ -5,18 +5,6 @@ const baseURL = "https://kasbu.batarse.dev";
 export const authClient = createAuthClient({
   baseURL: baseURL,
   plugins: [usernameClient()],
-  fetchOptions: {
-    onSuccess: (ctx) => {
-      const authToken = ctx.response.headers.get("set-auth-token");
-      if (authToken) {
-        localStorage.setItem("bearer_token", authToken);
-      }
-    },
-    auth: {
-      type: "Bearer",
-      token: () => localStorage.getItem("bearer_token") || "",
-    },
-  },
 });
 export const googleSignUp = async () => {
   const { data, error } = await authClient.signIn.social(
