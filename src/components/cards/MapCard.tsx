@@ -1,6 +1,6 @@
 import { memo, useCallback, useState, useEffect, useRef } from 'react';
 import mapboxgl from 'mapbox-gl';
-import { BaseSocialCardProps } from '../../types';
+import { BaseURLCardProps } from '../../types';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
 // Configura tu token de Mapbox
@@ -36,7 +36,7 @@ const markerHtml = `
   </div>
 `;
 
-function MapCardComponent({ children, onDelete, onTextChange }: BaseSocialCardProps) {
+function MapCardComponent({ children, onDelete, onTextChange }: BaseURLCardProps) {
   const [location, setLocation] = useState(children?.toString() || 'Mérida');
   const [position, setPosition] = useState({ lng: -89.5926, lat: 20.9674 });
   const [isEditing, setIsEditing] = useState(false);

@@ -20,12 +20,6 @@ interface SidebarProps {
       videoId?: string;
       imageUrl?: string;
       videoUrl?: string;
-      productImage?: string;
-      price?: string;
-      rating?: number;
-      reviews?: number;
-      prime?: boolean;
-      variant?: 'amazon' | 'mercadolibre' | 'generic';
     }
   ) => void;
   onChangeBackground: (type: string, value: string) => void;
@@ -97,9 +91,6 @@ const platforms = [
   { id: 'url', name: 'URL' },
   { id: 'image', name: 'Imagen' },
   { id: 'video', name: 'Video' },
-  { id: 'amazon-product', name: 'Amazon' },
-  { id: 'mercadolibre-product', name: 'MercadoLibre' },
-  { id: 'generic-product', name: 'Producto' },
 ] as const;
 
 const sizes = [

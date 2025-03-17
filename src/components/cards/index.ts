@@ -27,4 +27,4 @@ export type {
 } from '../../types';
 
 // Exportación del componente base (si se necesita)
-export { BaseSocialCard } from './BaseSocialCard'; 
+export { BaseURLCard } from './BaseURLCard'; 

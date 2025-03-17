@@ -10,7 +10,6 @@ import {
   URLCard,
   ImageCard,
   VideoCard,
-  ProductCard
 } from './cards';
 
 type CardType = {
@@ -34,12 +33,6 @@ type CardType = {
     controls?: boolean;
     showTitle?: boolean;
     videoUrl?: string;
-    productImage?: string;
-    price?: string;
-    rating?: number;
-    reviews?: number;
-    prime?: boolean;
-    variant?: 'amazon' | 'mercadolibre' | 'generic';
   };
 };
 
@@ -244,87 +237,6 @@ const cards: CardType[] = [
     defaultSize: { w: 2, h: 1 },
     customData: {
       videoUrl: 'https://videos.pexels.com/video-files/8435441/8435441-hd_1920_1080_25fps.mp4'
-    }
-  },
-  {
-    id: 'amazon-product',
-    title: 'Amazon',
-    description: 'Producto estilo Amazon con Prime',
-    preview: (
-      <ProductCard
-        variant="amazon"
-        productImage="https://images-na.ssl-images-amazon.com/images/I/71ZXj1QEE0L._AC_SL1500_.jpg"
-        price="299.99"
-        rating={4.8}
-        reviews={2547}
-        prime={true}
-      >
-        Apple AirPods Pro (2da Generación) con Estuche de Carga MagSafe
-      </ProductCard>
-    ),
-    defaultSize: { w: 1, h: 2 },
-    customData: {
-      variant: "amazon",
-      productImage: "https://images-na.ssl-images-amazon.com/images/I/71ZXj1QEE0L._AC_SL1500_.jpg",
-      price: "299.99",
-      rating: 4.8,
-      reviews: 2547,
-      prime: true,
-      text: "Apple AirPods Pro (2da Generación) con Estuche de Carga MagSafe"
-    }
-  },
-  {
-    id: 'mercadolibre-product',
-    title: 'MercadoLibre',
-    description: 'Producto estilo MercadoLibre con FULL',
-    preview: (
-      <ProductCard
-        variant="mercadolibre"
-        productImage="https://http2.mlstatic.com/D_NQ_NP_2X_652335-MLM51559388195_092022-F.webp"
-        price="299.99"
-        rating={4.8}
-        reviews={2547}
-        prime={true}
-      >
-        Apple AirPods Pro (2da Generación) Originales - Blanco
-      </ProductCard>
-    ),
-    defaultSize: { w: 1, h: 2 },
-    customData: {
-      variant: "mercadolibre",
-      productImage: "https://http2.mlstatic.com/D_NQ_NP_2X_652335-MLM51559388195_092022-F.webp",
-      price: "299.99",
-      rating: 4.8,
-      reviews: 2547,
-      prime: true,
-      text: "Apple AirPods Pro (2da Generación) Originales - Blanco"
-    }
-  },
-  {
-    id: 'generic-product',
-    title: 'Producto',
-    description: 'Tarjeta de producto minimalista',
-    preview: (
-      <ProductCard
-        variant="generic"
-        productImage="https://images-na.ssl-images-amazon.com/images/I/71ZXj1QEE0L._AC_SL1500_.jpg"
-        price="299.99"
-        rating={4.8}
-        reviews={2547}
-        prime={true}
-      >
-        Apple AirPods Pro (2da Generación) - Blanco
-      </ProductCard>
-    ),
-    defaultSize: { w: 1, h: 2 },
-    customData: {
-      variant: "generic",
-      productImage: "https://images-na.ssl-images-amazon.com/images/I/71ZXj1QEE0L._AC_SL1500_.jpg",
-      price: "299.99",
-      rating: 4.8,
-      reviews: 2547,
-      prime: true,
-      text: "Apple AirPods Pro (2da Generación) - Blanco"
     }
   }
 ];
@@ -689,24 +601,6 @@ export const MarketModal = memo(({ isOpen, onClose, onAddCard }: MarketModalProp
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
                 {cards
                   .filter(card => categorizedCards.media.includes(card.id))
-                  .map((card) => (
-                    <div key={card.id} className="flex flex-col items-center gap-4">
-                      <CardPreview card={card} onAdd={handleAddCard} />
-                      <div className="flex flex-col items-center text-center">
-                        <h3 className="text-sm font-medium text-gray-900">{card.title}</h3>
-                        <p className="text-xs text-gray-500 mt-1">{card.description}</p>
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            </section>
-
-            {/* Sección Productos */}
-            <section>
-              <h3 className="text-lg font-semibold text-gray-900 mb-6">Productos</h3>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-                {cards
-                  .filter(card => categorizedCards.products.includes(card.id))
                   .map((card) => (
                     <div key={card.id} className="flex flex-col items-center gap-4">
                       <CardPreview card={card} onAdd={handleAddCard} />

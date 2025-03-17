@@ -1,7 +1,7 @@
 import { memo, useState, useRef, useEffect } from 'react';
-import { BaseSocialCardProps } from '../../types';
+import { BaseURLCardProps } from '../../types';
 
-const BaseSocialCardComponent = ({ 
+const BaseURLCardComponent = ({ 
   children, 
   className = '', 
   icon, 
@@ -13,7 +13,7 @@ const BaseSocialCardComponent = ({
   description,
   imageUrl: initialImage,
   onImageChange
-}: BaseSocialCardProps) => {
+}: BaseURLCardProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [image, setImage] = useState<string | null>(initialImage || null);
   const [isLoadingImage, setIsLoadingImage] = useState(false);
@@ -195,7 +195,7 @@ const BaseSocialCardComponent = ({
             active:scale-[0.98]
             active:shadow-[0_1px_2px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.05)]`}
           >
-            {buttonText} <span className="ml-1 font-medium text-white/80">132K</span>
+            {buttonText}
           </button>
         </div>
 
@@ -303,5 +303,5 @@ const BaseSocialCardComponent = ({
   );
 };
 
-export const BaseSocialCard = memo(BaseSocialCardComponent);
-export default BaseSocialCard; 
+export const BaseURLCard = memo(BaseURLCardComponent);
+export default BaseURLCard; 

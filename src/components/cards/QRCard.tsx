@@ -1,4 +1,4 @@
-import { BaseSocialCard } from './BaseSocialCard';
+import { BaseURLCard } from './BaseURLCard';
 import { QRCodeSVG } from 'qrcode.react';
 import { useEffect, useRef, useState } from 'react';
 import { CardProps } from '../../types';
@@ -39,7 +39,7 @@ export const QRCard = ({ children, onDelete, url, size = { w: 1, h: 1 }, onTextC
   const style = QR_STYLES[`${size.w}x${size.h}` as keyof typeof QR_STYLES] || QR_STYLES['1x1'];
   
   return (
-    <BaseSocialCard
+    <BaseURLCard
       icon={<></>}
       onDelete={onDelete}
       className="bg-gradient-to-br from-violet-500 to-purple-700 group relative overflow-hidden
@@ -69,6 +69,6 @@ export const QRCard = ({ children, onDelete, url, size = { w: 1, h: 1 }, onTextC
           {qrValue}
         </div>
       </div>
-    </BaseSocialCard>
+    </BaseURLCard>
   );
 }; 

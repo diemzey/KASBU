@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { BaseSocialCard } from './BaseSocialCard';
+import { BaseURLCard } from './BaseURLCard';
 import { CardProps } from '../../types';
 
 interface ShopCardProps extends CardProps {
@@ -127,7 +127,7 @@ const ShopCardComponent = ({
   const is1x1 = size.w === 1 && size.h === 1;
 
   return (
-    <BaseSocialCard
+    <BaseURLCard
       icon={<></>}
       onDelete={onDelete}
       className={`${shopStyle.cardStyle} group relative overflow-hidden rounded-2xl
@@ -221,7 +221,7 @@ const ShopCardComponent = ({
           </div>
         </div>
       </div>
-    </BaseSocialCard>
+    </BaseURLCard>
   );
 };
 

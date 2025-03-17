@@ -2,7 +2,7 @@ import { useMemo, useState, useCallback, memo, useContext, createContext, useEff
 import { Responsive, WidthProvider } from "react-grid-layout";
 import { HomeLayouts, keys } from "../utils/layout.helper";
 import { fonts, socialPlatforms } from "../utils/constants";
-import { CustomCard, CodeCard, QRCard, MapCard, TVCard, URLCard, ImageCard, SocialCard, VideoCard, ProductCard } from "./cards";
+import { CustomCard, CodeCard, QRCard, MapCard, TVCard, URLCard, ImageCard, SocialCard, VideoCard } from "./cards";
 import Sidebar from "./Sidebar";
 import ColorMenu from "./ColorMenu";
 import Sticker from "./Sticker";
@@ -25,12 +25,6 @@ type CardData = {
   videoId?: string;
   imageUrl?: string;
   videoUrl?: string;
-  productImage?: string;
-  price?: string;
-  rating?: number;
-  reviews?: number;
-  prime?: boolean;
-  variant?: 'amazon' | 'mercadolibre' | 'generic';
 };
 
 interface ResizeMenuProps {
@@ -198,9 +192,6 @@ const Block = memo(({ keyProp, onDelete, platform }: BlockProps) => {
       url: URLCard,
       image: ImageCard,
       video: VideoCard,
-      'amazon-product': ProductCard,
-      'mercadolibre-product': ProductCard,
-      'generic-product': ProductCard
     }[platformToUse];
 
     if (CardComponent) {
@@ -247,28 +238,6 @@ const Block = memo(({ keyProp, onDelete, platform }: BlockProps) => {
           >
             {text}
           </VideoCard>
-        );
-      }
-
-      if (platformToUse.endsWith('-product')) {
-        const variant = platformToUse === 'amazon-product' 
-          ? 'amazon' 
-          : platformToUse === 'mercadolibre-product'
-            ? 'mercadolibre'
-            : 'generic';
-
-        return (
-          <ProductCard 
-            {...commonProps}
-            productImage={card?.productImage}
-            price={card?.price}
-            rating={card?.rating}
-            reviews={card?.reviews}
-            prime={card?.prime}
-            variant={variant}
-          >
-            {card?.text || text}
-          </ProductCard>
         );
       }
 
@@ -794,8 +763,7 @@ function Layout() {
                   before:absolute before:inset-0 before:bg-gradient-to-b before:from-black/[0.01] before:to-black/[0.06]
                   ${isDragging ? '' : '[transition:box-shadow_300ms_ease-out,transform_300ms_ease-out]'}
                   ${isInitialLoad ? 'initial-load' : ''}
-                  animate-[cardAppear_500ms_cubic-bezier(0.22,1,0.36,1)_forwards]
-                  opacity-0 scale-95`}
+                  animate-cardAppear`}
                 style={{
                   animationDelay: isInitialLoad ? `${Math.floor((currentlayout[isMobile ? 'xs' : 'lg'].find(item => item.i === key)?.y || 0) * 200 + (currentlayout[isMobile ? 'xs' : 'lg'].find(item => item.i === key)?.x || 0) * 100)}ms` : undefined
                 }}

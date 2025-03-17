@@ -1,6 +1,6 @@
 import { memo, useCallback, useState, useEffect, useRef } from 'react';
 import { VideoCardProps } from '../../types';
-import { BaseSocialCard } from './BaseSocialCard';
+import { BaseURLCard } from './BaseURLCard';
 
 function VideoCardComponent({ children, onDelete, onVideoChange, videoUrl: initialVideoUrl }: VideoCardProps) {
   const [videoUrl, setVideoUrl] = useState<string | null>(initialVideoUrl || null);

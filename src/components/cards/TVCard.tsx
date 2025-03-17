@@ -1,6 +1,6 @@
 import { memo, useCallback, useState, useEffect } from 'react';
 import { TVCardProps } from '../../types';
-import { BaseSocialCard } from './BaseSocialCard';
+import { BaseURLCard } from './BaseURLCard';
 
 export const TVCard = memo(({ children, onDelete, videoId: initialVideoId, onVideoChange }: TVCardProps) => {
   const [videoId, setVideoId] = useState(initialVideoId || '');

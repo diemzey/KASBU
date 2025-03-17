@@ -1,10 +1,8 @@
 import { ReactNode } from 'react';
 
-export type Platform = 'tiktok' | 'instagram' | 'facebook' | 'youtube' | 'twitter' | 'pinterest' | 'linkedin' | 'github' | 'twitch' | 'discord' | 'spotify' | 'behance' | 'dribbble' | 'medium' | 'dev' | 'stackoverflow' | 'custom' | 'code' | 'qr' | 'map' | 'tv' | 'url' | 'image' | 'video' | 'amazon-product' | 'mercadolibre-product' | 'generic-product';
+export type Platform = 'tiktok' | 'instagram' | 'facebook' | 'youtube' | 'twitter' | 'pinterest' | 'linkedin' | 'github' | 'twitch' | 'discord' | 'spotify' | 'behance' | 'dribbble' | 'medium' | 'dev' | 'stackoverflow' | 'custom' | 'code' | 'qr' | 'map' | 'tv' | 'url' | 'image' | 'video';
 
 export type SocialPlatform = 'facebook' | 'instagram' | 'tiktok' | 'youtube' | 'twitter' | 'pinterest' | 'linkedin' | 'github' | 'twitch' | 'discord' | 'spotify' | 'behance' | 'dribbble' | 'medium' | 'dev' | 'stackoverflow';
-
-export type ShopPlatform = 'amazon' | 'mercadolibre' | 'generic';
 
 export interface CardData {
   id: string;
@@ -23,10 +21,10 @@ export interface CardData {
   imageUrl?: string;
 }
 
-export interface BaseSocialCardProps {
+export interface BaseURLCardProps {
   children?: ReactNode;
   className?: string;
-  icon: ReactNode;
+  icon?: ReactNode;
   onDelete?: () => void;
   onTextChange?: (text: string) => void;
   buttonStyle?: string;
@@ -37,7 +35,7 @@ export interface BaseSocialCardProps {
   onImageChange?: (imageUrl: string | null) => void;
 }
 
-export interface SocialCardProps extends Omit<BaseSocialCardProps, 'icon' | 'className'> {
+export interface SocialCardProps extends Omit<BaseURLCardProps, 'icon' | 'className'> {
   platform: SocialPlatform;
 }
 
@@ -85,13 +83,4 @@ export interface ImageCardProps extends CardProps {
 export interface VideoCardProps extends CardProps {
   videoUrl?: string;
   onVideoChange?: (videoUrl: string) => void;
-}
-
-export interface ShopCardProps extends CardProps {
-  productImage?: string;
-  price?: string;
-  rating?: number;
-  reviews?: number;
-  prime?: boolean;
-  variant: ShopPlatform;
 } 
