@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { authClient, emailSignUp, googleSignIn } from "../utils/auth-client";
-import { useLocation } from "react-router-dom";
+import { authClient, emailSignUp, googleSignUp } from "../utils/auth-client";
+import { redirect, useLocation } from "react-router-dom";
 
 const LandingScreen = () => {
   const location = useLocation();
@@ -39,10 +39,15 @@ const LandingScreen = () => {
     setErrorMessage("");
     if (username && isAvailable) {
       try {
-        await googleSignIn();
-        await authClient.updateUser({
+        await googleSignUp();
+        const { data, error } = await authClient.updateUser({
           username: username,
         });
+        if (error) {
+          setErrorMessage(error.message || "Usuario no valido");
+        } else {
+          redirect("/app");
+        }
       } catch (error: unknown) {
         console.error("Error during Google sign-in:", error);
         setErrorMessage(
@@ -60,9 +65,15 @@ const LandingScreen = () => {
         await emailSignUp(email, password, username, name);
       } catch (error: unknown) {
         console.error("Error during email sign-up:", error);
-        setErrorMessage(
-          error.message || "Error durante el registro con correo",
-        );
+        if (error?.code === "USERNAME_IS_ALREADY_TAKEN_PLEASE_TRY_ANOTHER") {
+          setErrorMessage(
+            "Este nombre de usuario ya está en uso. Por favor, elige otro.",
+          );
+        } else {
+          setErrorMessage(
+            error.message || "Error durante el registro con correo",
+          );
+        }
       }
     } else if (!name) {
       setErrorMessage("Por favor ingresa tu nombre completo");

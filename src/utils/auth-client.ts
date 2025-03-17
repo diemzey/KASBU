@@ -1,21 +1,20 @@
 import { createAuthClient } from "better-auth/client";
 import { usernameClient } from "better-auth/client/plugins";
-import { redirect } from "react-router-dom";
-const baseURL = "https://kasbu.batarse.dev";
+const baseURL = "http://localhost:3000";
+
 export const authClient = createAuthClient({
   baseURL: baseURL,
   plugins: [usernameClient()],
 });
 
-// Google sign-in function with proper error handling
-export const googleSignIn = async () => {
+export const googleSignUp = async () => {
   const { data, error } = await authClient.signIn.social(
     {
       provider: "google",
-      callbackURL: "https://kasbu.com/app",
+      disableRedirect: true,
     },
     {
-      onSuccess: async (ctx) => {
+      onSuccess: (ctx) => {
         console.log("Google sign-in successful:", ctx);
       },
       onError: (ctx) => {
@@ -32,16 +31,26 @@ export const googleSignIn = async () => {
 };
 
 export const emailSignIn = async (email: string, password: string) => {
-  try {
-    const data = await authClient.signIn.email({
+  const { data, error } = await authClient.signIn.email(
+    {
       email,
       password,
-    });
-    return data;
-  } catch (error) {
-    console.error("Email sign-in error:", error);
+    },
+    {
+      onSuccess: (ctx) => {
+        console.log("Email sign-in successful:", ctx);
+      },
+      onError: (ctx) => {
+        console.error("Email sign-in error:", ctx.error);
+      },
+    },
+  );
+
+  if (error) {
     throw error;
   }
+
+  return data;
 };
 
 export const emailSignUp = async (
@@ -50,19 +59,29 @@ export const emailSignUp = async (
   username: string,
   name: string,
 ) => {
-  try {
-    const data = await authClient.signUp.email({
+  const { data, error } = await authClient.signUp.email(
+    {
       email,
       password,
       username,
       name,
-    });
-    redirect("/");
-    return data;
-  } catch (error) {
-    console.error("Email sign-up error:", error);
+    },
+    {
+      onSuccess: (ctx) => {
+        console.log("Email sign-up successful:", ctx);
+      },
+
+      onError: (ctx) => {
+        console.error("Email sign-up error:", ctx.error);
+      },
+    },
+  );
+
+  if (error) {
     throw error;
   }
+
+  return data;
 };
 
 // Sign out function
@@ -71,7 +90,6 @@ export const signOut = async () => {
     {},
     {
       onSuccess: () => {
-        redirect("/");
         console.log("Sign-out successful");
       },
       onError: (ctx) => {
