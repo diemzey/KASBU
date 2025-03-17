@@ -324,6 +324,14 @@ function Layout() {
   const [isMobile, setIsMobile] = useState(false);
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
 
+  const handleFontChange = useCallback((newIndex: number, isSubtitle = false) => {
+    if (isSubtitle) {
+      setCurrentSubtitleFontIndex(newIndex);
+    } else {
+      setCurrentFontIndex(newIndex);
+    }
+  }, []);
+
   // Memoize context value
   const contextValue = useMemo(() => ({
     cards,
@@ -351,14 +359,6 @@ function Layout() {
     }
   }), [cards, currentlayout]);
 
-  const handleFontChange = useCallback((index: number, isSubtitle = false) => {
-    if (isSubtitle) {
-      setCurrentSubtitleFontIndex(index);
-    } else {
-      setCurrentFontIndex(index);
-    }
-  }, []);
-
   const handleDeleteCard = useCallback((keyToDelete: string) => {
     if (!isDragging) {
       setVisibleCards(prev => prev.filter(key => key !== keyToDelete));
@@ -382,11 +382,25 @@ function Layout() {
     setVisibleCards(prev => [...prev, newId]);
     
     setCurrentLayout(prev => {
-      // Encontrar la posición Y más alta actual
-      const maxY = Math.max(
-        ...prev.lg.map(item => item.y + item.h),
-        0
-      );
+      // Encontrar la siguiente posición disponible
+      const lgItems = prev.lg;
+      let nextPosition = { x: 0, y: 0 };
+      
+      // Buscar la primera posición disponible horizontalmente
+      while (true) {
+        const isPositionTaken = lgItems.some(item => 
+          item.x === nextPosition.x && item.y === nextPosition.y
+        );
+        
+        if (!isPositionTaken) break;
+        
+        // Mover a la siguiente posición horizontal
+        nextPosition.x++;
+        if (nextPosition.x >= 4) { // 4 es el número máximo de columnas
+          nextPosition.x = 0;
+          nextPosition.y++;
+        }
+      }
       
       return {
         ...prev,
@@ -394,8 +408,8 @@ function Layout() {
           ...prev.lg,
           {
             i: newId,
-            x: 0,
-            y: maxY,
+            x: nextPosition.x,
+            y: nextPosition.y,
             w: size.w,
             h: size.h,
             isResizable: false as const,
@@ -406,8 +420,8 @@ function Layout() {
           ...prev.xs,
           {
             i: newId,
-            x: 0,
-            y: maxY,
+            x: 0, // En móvil siempre empezamos desde x:0
+            y: nextPosition.y,
             w: Math.min(size.w, 2),
             h: size.h,
             static: false as const,
@@ -438,15 +452,37 @@ function Layout() {
   }, []);
 
   const handleResize = useCallback((cardId: string, newSize: { w: number; h: number }) => {
-    setCurrentLayout(prev => ({
-      ...prev,
-      lg: prev.lg.map(item => 
-        item.i === cardId ? { ...item, w: newSize.w, h: newSize.h } : item
-      ),
-      xs: prev.xs.map(item =>
-        item.i === cardId ? { ...item, w: Math.min(newSize.w, 2), h: newSize.h } : item
-      )
-    }));
+    setCurrentLayout(prev => {
+      // Encontrar la posición actual de la card
+      const currentLgItem = prev.lg.find(item => item.i === cardId);
+      const currentXsItem = prev.xs.find(item => item.i === cardId);
+
+      if (!currentLgItem || !currentXsItem) return prev;
+
+      return {
+        ...prev,
+        lg: prev.lg.map(item => 
+          item.i === cardId ? { 
+            ...item, 
+            w: newSize.w, 
+            h: newSize.h,
+            // Mantener las coordenadas x,y originales
+            x: currentLgItem.x,
+            y: currentLgItem.y
+          } : item
+        ),
+        xs: prev.xs.map(item =>
+          item.i === cardId ? { 
+            ...item, 
+            w: Math.min(newSize.w, 2), 
+            h: newSize.h,
+            // Mantener las coordenadas x,y originales
+            x: currentXsItem.x,
+            y: currentXsItem.y
+          } : item
+        )
+      };
+    });
   }, []);
 
   const ResponsiveReactGridLayout = useMemo(() => WidthProvider(Responsive), []);
@@ -513,34 +549,43 @@ function Layout() {
       // Forzar el modo mobile cuando estamos en preview
       setIsMobile(true);
       
-      // Sincronizar las posiciones de xs basadas en lg
-      setCurrentLayout(prev => ({
-        ...prev,
-        xs: prev.lg.map(item => ({
+      // Reorganizar las cards para el modo móvil
+      setCurrentLayout(prev => {
+        const newXsLayout = prev.lg.map((item, index) => ({
           ...item,
           static: false as const,
           isResizable: false as const,
           w: Math.min(item.w, 2),
           h: item.h,
-          y: item.y // Mantener la misma posición Y
-        }))
-      }));
+          x: index % 2, // Alternar entre 0 y 1 para crear dos columnas
+          y: Math.floor(index / 2) // Calcular la fila basada en el índice
+        }));
+
+        return {
+          ...prev,
+          xs: newXsLayout,
+          lg: prev.lg.map(item => ({
+            ...item,
+            static: false as const,
+            isResizable: false as const
+          }))
+        };
+      });
     } else {
       document.body.style.maxWidth = 'none';
       document.body.style.margin = '0';
       // Restaurar el modo mobile basado en el ancho de la ventana
       setIsMobile(window.innerWidth < 768);
       
-      // Sincronizar las posiciones de lg basadas en xs
+      // Restaurar el layout de escritorio
       setCurrentLayout(prev => ({
         ...prev,
         lg: prev.xs.map(item => ({
           ...item,
           static: false as const,
           isResizable: false as const,
-          w: item.w * 2 <= 4 ? item.w * 2 : item.w, // Ajustar el ancho proporcionalmente
-          h: item.h,
-          y: item.y // Mantener la misma posición Y
+          w: item.w * 2 <= 4 ? item.w * 2 : item.w,
+          h: item.h
         }))
       }));
     }
@@ -633,7 +678,7 @@ function Layout() {
                     value={title}
                     onChange={(e) => handleTitleChange(e.target.value)}
                     className={`peer ${isMobile ? 'text-4xl' : 'text-4xl sm:text-6xl md:text-8xl'} font-bold text-center bg-transparent border-none outline-none focus:ring-0 bg-gradient-to-r ${titleColor} bg-clip-text text-transparent ${fonts[currentFontIndex].class}
-                      caret-blue-500 selection:bg-blue-500/20 uppercase w-full px-8 sm:px-12 md:px-16 leading-none
+                      caret-blue-500 selection:bg-blue-500/20 w-full px-8 sm:px-12 md:px-16 leading-none
                       opacity-0 animate-[titleAppear_800ms_cubic-bezier(0.22,1,0.36,1)_forwards]`}
                     placeholder="kasbu"
                   />
@@ -762,8 +807,7 @@ function Layout() {
                   hover:after:opacity-100
                   before:absolute before:inset-0 before:bg-gradient-to-b before:from-black/[0.01] before:to-black/[0.06]
                   ${isDragging ? '' : '[transition:box-shadow_300ms_ease-out,transform_300ms_ease-out]'}
-                  ${isInitialLoad ? 'initial-load' : ''}
-                  animate-cardAppear`}
+                  ${isInitialLoad ? 'initial-load' : ''}`}
                 style={{
                   animationDelay: isInitialLoad ? `${Math.floor((currentlayout[isMobile ? 'xs' : 'lg'].find(item => item.i === key)?.y || 0) * 200 + (currentlayout[isMobile ? 'xs' : 'lg'].find(item => item.i === key)?.x || 0) * 100)}ms` : undefined
                 }}

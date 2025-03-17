@@ -8,7 +8,24 @@ export default {
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
+    fontFamily: {
+      'sans': ['Montserrat', 'system-ui', 'sans-serif'],
+    },
     extend: {
+      fontFamily: {
+        'montserrat': ['Montserrat', 'sans-serif'],
+        'alexandria': ['Alexandria', 'sans-serif'],
+        'bebas': ['"Bebas Neue"', 'sans-serif'],
+        'yeseva': ['"Yeseva One"', 'cursive'],
+        'dm-serif': ['"DM Serif Display"', 'serif'],
+        'marker': ['"Permanent Marker"', 'cursive'],
+        'playfair': ['"Playfair Display"', 'serif'],
+        'poppins': ['Poppins', 'sans-serif'],
+        'righteous': ['Righteous', 'cursive'],
+        'rubik-mono': ['"Rubik Mono One"', 'sans-serif'],
+        'space': ['"Space Grotesk"', 'sans-serif'],
+        'rozha': ['"Rozha One"', 'serif'],
+      },
       animation: {
         'spin-slow': 'spin 3s linear infinite',
         'bounce-delay-1': 'bounce 1s infinite -0.32s',

@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { authClient, emailSignUp, googleSignUp } from "../utils/auth-client";
-import { redirect, useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const LandingScreen = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const initialUsername =
     (location.state as { username?: string })?.username || "";
   const [username, setUsername] = useState(initialUsername);
@@ -46,7 +47,7 @@ const LandingScreen = () => {
         if (error) {
           setErrorMessage(error.message || "Usuario no valido");
         } else {
-          redirect("/app");
+          navigate("/app");
         }
       } catch (error: unknown) {
         console.error("Error during Google sign-in:", error);
@@ -63,6 +64,7 @@ const LandingScreen = () => {
     if (username && isAvailable && email && password && name) {
       try {
         await emailSignUp(email, password, username, name);
+        navigate("/app");
       } catch (error: unknown) {
         console.error("Error during email sign-up:", error);
         if (error?.code === "USERNAME_IS_ALREADY_TAKEN_PLEASE_TRY_ANOTHER") {
