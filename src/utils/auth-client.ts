@@ -11,7 +11,7 @@ export const googleSignUp = async () => {
   const { data, error } = await authClient.signIn.social(
     {
       provider: "google",
-      disableRedirect: true,
+      callbackURL: "https://kasbu.com/app",
     },
     {
       onSuccess: (ctx) => {
