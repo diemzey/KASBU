@@ -5,8 +5,19 @@ const baseURL = "https://kasbu.batarse.dev";
 export const authClient = createAuthClient({
   baseURL: baseURL,
   plugins: [usernameClient()],
+  fetchOptions: {
+    onSuccess: (ctx) => {
+      const authToken = ctx.response.headers.get("set-auth-token");
+      if (authToken) {
+        localStorage.setItem("bearer_token", authToken);
+      }
+    },
+    auth: {
+      type: "Bearer",
+      token: () => localStorage.getItem("bearer_token") || "",
+    },
+  },
 });
-
 export const googleSignUp = async () => {
   const { data, error } = await authClient.signIn.social(
     {
@@ -16,6 +27,10 @@ export const googleSignUp = async () => {
     {
       onSuccess: (ctx) => {
         console.log("Google sign-in successful:", ctx);
+        localStorage.setItem(
+          "bearer_token",
+          ctx.response.headers.get("set-auth-token")!,
+        );
       },
       onError: (ctx) => {
         console.error("Google sign-in error:", ctx.error);
@@ -38,6 +53,10 @@ export const emailSignIn = async (email: string, password: string) => {
     },
     {
       onSuccess: (ctx) => {
+        const authToken = ctx.response.headers.get("set-auth-token");
+        if (authToken) {
+          localStorage.setItem("bearer_token", authToken);
+        }
         console.log("Email sign-in successful:", ctx);
       },
       onError: (ctx) => {
