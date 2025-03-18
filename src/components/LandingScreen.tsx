@@ -153,7 +153,7 @@ const LandingScreen = () => {
                     value={username}
                     onChange={(e) => handleUsernameChange(e.target.value)}
                     onBlur={checkAvailability}
-                    className="block w-full pl-[6rem] pr-10 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                    className="block w-full pl-[7.5rem] pr-10 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
                     placeholder="mi-nombre"
                     required
                     minLength={3}
