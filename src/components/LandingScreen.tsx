@@ -144,7 +144,7 @@ const LandingScreen = () => {
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                    <span className="text-gray-600 font-medium whitespace-nowrap">
+                    <span className="text-gray-600 font-medium">
                       kasbu.com/
                     </span>
                   </div>
