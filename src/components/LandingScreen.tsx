@@ -41,6 +41,7 @@ const LandingScreen = () => {
     if (username && isAvailable) {
       try {
         await googleSignUp();
+        setTimeout(() => {}, 1000);
         const { data, error } = await authClient.updateUser({
           username: username,
         });
