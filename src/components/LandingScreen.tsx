@@ -1,8 +1,17 @@
 import { useState, useEffect } from "react";
 import { authClient, emailSignUp, googleSignUp } from "../utils/auth-client";
-import { useLocation, useNavigate } from "react-router-dom";
+import { redirect, useLocation, useNavigate } from "react-router-dom";
 
-const LandingScreen = () => {
+interface AuthError {
+  message?: string;
+  code?: string;
+}
+
+interface LandingScreenProps {
+  onLogin: () => void;
+}
+
+const LandingScreen = ({ onLogin }: LandingScreenProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const initialUsername =
@@ -11,26 +20,56 @@ const LandingScreen = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
-  const [isAvailable, setIsAvailable] = useState<boolean>(false);
+  const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
   const [showEmailForm, setShowEmailForm] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isCheckingUsername, setIsCheckingUsername] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-    // Si viene un username del Home, verificamos su disponibilidad
-    if (initialUsername) {
-      checkAvailability();
-    }
-  }, []);
+    const checkSession = async () => {
+      try {
+        const { data } = await authClient.getSession();
+        if (data?.user) {
+          navigate('/beta');
+          return;
+        }
+      } catch (error) {
+        console.error('Error checking session:', error);
+      }
+      
+      setMounted(true);
+      if (initialUsername) {
+        checkAvailability();
+      }
+    };
+
+    checkSession();
+  }, [navigate, initialUsername]);
 
   const handleUsernameChange = (value: string) => {
     setUsername(value.toLowerCase().replace(/[^a-z0-9-]/g, ""));
-    setIsAvailable(false);
+    setIsAvailable(null);
   };
 
-  const checkAvailability = () => {
-    // Simulación de verificación
-    setIsAvailable(username.length >= 3);
+  const checkAvailability = async () => {
+    if (!username || username.length < 3) {
+      setIsAvailable(false);
+      return;
+    }
+
+    setIsCheckingUsername(true);
+    try {
+      const response = await fetch(`https://back.kasbu.com/check-username/${username}`);
+      const data = await response.json();
+      // Si exists es false, significa que el usuario está disponible
+      setIsAvailable(!data.exists);
+    } catch (error) {
+      console.error('Error checking username:', error);
+      setIsAvailable(false);
+    } finally {
+      setIsCheckingUsername(false);
+    }
   };
 
   const [errorMessage, setErrorMessage] = useState("");
@@ -38,24 +77,54 @@ const LandingScreen = () => {
   const handleGoogleSignIn = async (e: React.MouseEvent) => {
     e.preventDefault();
     setErrorMessage("");
-    if (username && isAvailable) {
+    
+    // Validar username primero
+    if (!username || username.length < 3) {
+      setErrorMessage("El nombre de usuario debe tener al menos 3 caracteres");
+      return;
+    }
+
+    // Si no se ha verificado la disponibilidad, hacerlo ahora
+    if (isAvailable === null) {
+      setIsCheckingUsername(true);
       try {
-        await googleSignUp();
-        setTimeout(() => {}, 1000);
-        const { data, error } = await authClient.updateUser({
-          username: username,
-        });
-        if (error) {
-          setErrorMessage(error.message || "Usuario no valido");
-        } else {
-          navigate("/app");
+        const response = await fetch(`https://back.kasbu.com/check-username/${username}`);
+        const data = await response.json();
+        const available = !data.exists;
+        setIsAvailable(available);
+        if (!available) {
+          setErrorMessage("Este nombre de usuario no está disponible");
+          setIsCheckingUsername(false);
+          return;
         }
-      } catch (error: unknown) {
-        console.error("Error during Google sign-in:", error);
-        setErrorMessage(
-          error.message || "Error durante el inicio de sesión con Google",
-        );
+      } catch (error) {
+        console.error('Error checking username:', error);
+        setErrorMessage("Error al verificar el nombre de usuario");
+        setIsCheckingUsername(false);
+        return;
       }
+    } else if (!isAvailable) {
+      setErrorMessage("Este nombre de usuario no está disponible");
+      return;
+    }
+
+    // Si llegamos aquí, el username es válido y está disponible
+    try {
+      await googleSignUp();
+      const { data, error } = await authClient.updateUser({
+        username: username,
+      });
+      if (error) {
+        setErrorMessage(error.message || "Usuario no válido");
+      } else {
+        navigate("/beta");
+      }
+    } catch (error) {
+      const authError = error as AuthError;
+      console.error("Error during Google sign-in:", error);
+      setErrorMessage(
+        authError.message || "Error durante el inicio de sesión con Google",
+      );
     }
   };
 
@@ -63,20 +132,24 @@ const LandingScreen = () => {
     e.preventDefault();
     setErrorMessage("");
     if (username && isAvailable && email && password && name) {
+      setIsLoading(true);
       try {
         await emailSignUp(email, password, username, name);
-        navigate("/app");
-      } catch (error: unknown) {
+        navigate("/beta");
+      } catch (error) {
+        const authError = error as AuthError;
         console.error("Error during email sign-up:", error);
-        if (error?.code === "USERNAME_IS_ALREADY_TAKEN_PLEASE_TRY_ANOTHER") {
+        if (authError.code === "USERNAME_IS_ALREADY_TAKEN_PLEASE_TRY_ANOTHER") {
           setErrorMessage(
             "Este nombre de usuario ya está en uso. Por favor, elige otro.",
           );
         } else {
           setErrorMessage(
-            error.message || "Error durante el registro con correo",
+            authError.message || "Error durante el registro con correo",
           );
         }
+      } finally {
+        setIsLoading(false);
       }
     } else if (!name) {
       setErrorMessage("Por favor ingresa tu nombre completo");
@@ -123,13 +196,12 @@ const LandingScreen = () => {
                 className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 blur-2xl 
                 group-hover:from-blue-600/30 group-hover:to-purple-600/30 transition-all duration-500"
               />
-              <h1
-                className="relative text-[6rem] leading-none font-normal font-['Modernia'] bg-gradient-to-r from-blue-600 to-purple-600 
-                bg-clip-text text-transparent transition-all duration-500
-                hover:from-blue-500 hover:to-purple-500"
-              >
-                K
-              </h1>
+              <img 
+                src="/images/Kasbu.png"
+                alt="Kasbu Logo"
+                className="relative w-24 h-24 object-contain mx-auto transition-all duration-500
+                hover:scale-105"
+              />
             </div>
             <p className="text-gray-600">Crea tu espacio digital único</p>
           </div>
@@ -158,9 +230,14 @@ const LandingScreen = () => {
                     required
                     minLength={3}
                   />
-                  {isAvailable !== null && (
-                    <div className="absolute inset-y-0 right-3 flex items-center">
-                      {isAvailable ? (
+                  <div className="absolute inset-y-0 right-3 flex items-center">
+                    {isCheckingUsername ? (
+                      <svg className="animate-spin h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                    ) : isAvailable !== null && (
+                      isAvailable ? (
                         <svg
                           className="w-5 h-5 text-green-500"
                           fill="none"
@@ -188,18 +265,25 @@ const LandingScreen = () => {
                             d="M6 18L18 6M6 6l12 12"
                           />
                         </svg>
-                      )}
-                    </div>
-                  )}
+                      )
+                    )}
+                  </div>
                 </div>
                 <p className="mt-1 text-xs text-gray-500 pl-3">
                   Esta será tu URL personal. Usa solo letras minúsculas, números
                   y guiones.
                 </p>
-                {!isAvailable && username.length > 0 && (
-                  <p className="mt-1 text-xs text-red-500 pl-3">
-                    El nombre debe tener al menos 3 caracteres y estar
-                    disponible.
+                {username.length > 0 && (
+                  <p className={`mt-1 text-xs pl-3 ${isAvailable ? 'text-green-500' : 'text-red-500'}`}>
+                    {username.length < 3 ? (
+                      'El nombre debe tener al menos 3 caracteres'
+                    ) : /[^a-z0-9-]/.test(username) ? (
+                      'Solo puedes usar letras minúsculas, números y guiones'
+                    ) : isAvailable === false ? (
+                      'Este nombre de usuario no está disponible'
+                    ) : isAvailable === true ? (
+                      '¡Este nombre de usuario está disponible!'
+                    ) : null}
                   </p>
                 )}
               </div>
@@ -210,8 +294,9 @@ const LandingScreen = () => {
                   <button
                     type="button"
                     onClick={handleGoogleSignIn}
+                    disabled={!username || username.length < 3 || isAvailable === false || isCheckingUsername}
                     className="w-full bg-white text-gray-700 py-3 px-4 rounded-xl font-medium border border-gray-200 hover:bg-gray-50 transition-all duration-300 shadow-sm
-                      flex items-center justify-center gap-3 relative group"
+                      flex items-center justify-center gap-3 relative group disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <svg className="w-5 h-5" viewBox="0 0 24 24">
                       <path
@@ -231,7 +316,9 @@ const LandingScreen = () => {
                         fill="#EA4335"
                       />
                     </svg>
-                    <span className="relative">Continuar con Google</span>
+                    <span className="relative">
+                      {isCheckingUsername ? 'Verificando usuario...' : 'Continuar con Google'}
+                    </span>
                   </button>
 
                   <div className="relative">
@@ -246,7 +333,9 @@ const LandingScreen = () => {
                   <button
                     type="button"
                     onClick={() => setShowEmailForm(true)}
-                    className="w-full bg-gray-50 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-100 transition-all duration-300"
+                    disabled={!username || username.length < 3 || isAvailable === false || isCheckingUsername}
+                    className="w-full bg-gray-50 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-100 transition-all duration-300
+                      disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-gray-50"
                   >
                     Continuar con correo
                   </button>
@@ -306,13 +395,25 @@ const LandingScreen = () => {
                     className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-xl font-medium 
                       hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg shadow-blue-500/25 
                       disabled:opacity-50 disabled:cursor-not-allowed group relative"
-                    disabled={!isAvailable || !email || !password || !name}
+                    disabled={!isAvailable || !email || !password || !name || isLoading}
                   >
                     <div
                       className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300
                       bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1),transparent_50%)] rounded-xl"
                     />
-                    <span className="relative">Crear mi Kasbu</span>
+                    <div className="flex items-center justify-center gap-2">
+                      {isLoading ? (
+                        <>
+                          <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          <span className="relative">Creando cuenta...</span>
+                        </>
+                      ) : (
+                        <span className="relative">Crear mi Kasbu</span>
+                      )}
+                    </div>
                   </button>
 
                   <button

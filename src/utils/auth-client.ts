@@ -5,12 +5,20 @@ const baseURL = "https://back.kasbu.com";
 export const authClient = createAuthClient({
   baseURL: baseURL,
   plugins: [usernameClient()],
+  cookies: {
+    sameSite: 'None',
+    secure: true,
+    path: '/',
+    prefix: '__Secure-',
+    crossDomain: true,
+    credentials: 'include'
+  }
 });
 export const googleSignUp = async () => {
   const { data, error } = await authClient.signIn.social(
     {
       provider: "google",
-      callbackURL: "https://kasbu.com/app",
+      callbackURL: "https://kasbu.com/beta",
     },
     {
       onSuccess: (ctx) => {
@@ -38,6 +46,7 @@ export const emailSignIn = async (email: string, password: string) => {
     {
       onSuccess: (ctx) => {
         console.log("Email sign-in successful:", ctx);
+        window.location.href = '/app';
       },
       onError: (ctx) => {
         console.error("Email sign-in error:", ctx.error);
@@ -68,8 +77,8 @@ export const emailSignUp = async (
     {
       onSuccess: (ctx) => {
         console.log("Email sign-up successful:", ctx);
+        window.location.href = '/app';
       },
-
       onError: (ctx) => {
         console.error("Email sign-up error:", ctx.error);
       },
@@ -90,6 +99,7 @@ export const signOut = async () => {
     {
       onSuccess: () => {
         console.log("Sign-out successful");
+        window.location.href = '/';
       },
       onError: (ctx) => {
         console.error("Sign-out error:", ctx.error);

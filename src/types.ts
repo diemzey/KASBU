@@ -11,6 +11,7 @@ export interface CardData {
   h: number;
   title?: string;
   text?: string;
+  description?: string;
   gradient?: 'blue' | 'purple' | 'green' | 'orange' | 'pink';
   command?: string;
   url?: string;
@@ -19,6 +20,7 @@ export interface CardData {
   zoom?: number;
   videoId?: string;
   imageUrl?: string;
+  videoUrl?: string;
 }
 
 export interface BaseURLCardProps {
@@ -33,10 +35,13 @@ export interface BaseURLCardProps {
   description?: string;
   imageUrl?: string;
   onImageChange?: (imageUrl: string | null) => void;
+  isEditorMode?: boolean;
+  url?: string;
 }
 
 export interface SocialCardProps extends Omit<BaseURLCardProps, 'icon' | 'className'> {
   platform: SocialPlatform;
+  isEditorMode?: boolean;
 }
 
 export interface CardProps {
@@ -69,6 +74,7 @@ export interface MapCardProps extends CardProps {
 export interface TVCardProps extends CardProps {
   videoId?: string;
   onVideoChange?: (videoId: string) => void;
+  isEditorMode?: boolean;
 }
 
 export interface URLCardProps extends CardProps {
@@ -83,4 +89,5 @@ export interface ImageCardProps extends CardProps {
 export interface VideoCardProps extends CardProps {
   videoUrl?: string;
   onVideoChange?: (videoUrl: string) => void;
+  isEditorMode?: boolean;
 } 

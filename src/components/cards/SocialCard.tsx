@@ -1,14 +1,16 @@
 import { memo } from 'react';
 import { BaseURLCard } from './BaseURLCard';
-import { BaseURLCardProps } from '../../types';
+import { SocialCardProps, SocialPlatform } from '../../types';
 
-export type SocialPlatform = 'facebook' | 'instagram' | 'tiktok' | 'youtube' | 'twitter' | 'pinterest' | 'linkedin' | 'github' | 'twitch' | 'discord' | 'spotify' | 'behance' | 'dribbble' | 'medium' | 'dev' | 'stackoverflow' | 'amazon' | 'mercadolibre';
-
-interface SocialCardProps extends Omit<BaseURLCardProps, 'icon' | 'className'> {
-  platform: SocialPlatform;
-}
-
-const platformConfig = {
+const platformConfig: Record<SocialPlatform, {
+  icon: JSX.Element;
+  defaultText: string;
+  color: string;
+  bgTint: string;
+  buttonStyle: string;
+  buttonText: string;
+  baseUrl: string;
+}> = {
   facebook: {
     icon: (
       <div className="w-full h-full bg-gradient-to-br from-white to-[#EEF4FF] flex items-center justify-center rounded-xl shadow-[inset_2px_2px_4px_rgba(24,119,242,0.2),inset_-2px_-2px_4px_rgba(255,255,255,0.7)]">
@@ -21,7 +23,8 @@ const platformConfig = {
     color: 'text-[#1877F2]',
     bgTint: 'bg-gradient-to-br from-white to-[#EEF4FF]',
     buttonStyle: 'bg-[#1877F2] hover:bg-[#0C63D4] active:bg-[#1567E0]',
-    buttonText: 'Add Friend'
+    buttonText: 'Add Friend',
+    baseUrl: 'https://facebook.com/'
   },
   instagram: {
     icon: (
@@ -35,7 +38,8 @@ const platformConfig = {
     color: 'text-[#E4405F]',
     bgTint: 'bg-gradient-to-br from-white to-[#FFF0F7]',
     buttonStyle: 'bg-gradient-to-r from-[#F58529] via-[#DD2A7B] to-[#8134AF] hover:from-[#E37A24] hover:via-[#C42569] hover:to-[#722D9B] active:from-[#D97323] active:via-[#B72361] active:to-[#682B91]',
-    buttonText: 'Follow'
+    buttonText: 'Follow',
+    baseUrl: 'https://instagram.com/'
   },
   tiktok: {
     icon: (
@@ -49,7 +53,8 @@ const platformConfig = {
     color: 'text-black',
     bgTint: 'bg-gradient-to-br from-white to-[#F0FEFF]',
     buttonStyle: 'bg-black hover:bg-gray-900 active:bg-gray-800',
-    buttonText: 'Follow'
+    buttonText: 'Follow',
+    baseUrl: 'https://tiktok.com/@'
   },
   youtube: {
     icon: (
@@ -63,7 +68,8 @@ const platformConfig = {
     color: 'text-[#FF0000]',
     bgTint: 'bg-gradient-to-br from-white to-[#FFF0F0]',
     buttonStyle: 'bg-[#FF0000] hover:bg-[#D90000] active:bg-[#CC0000]',
-    buttonText: 'Subscribe'
+    buttonText: 'Subscribe',
+    baseUrl: 'https://youtube.com/@'
   },
   twitter: {
     icon: (
@@ -77,7 +83,8 @@ const platformConfig = {
     color: 'text-black',
     bgTint: 'bg-gradient-to-br from-white to-[#F0F9FF]',
     buttonStyle: 'bg-black hover:bg-gray-900 active:bg-gray-800',
-    buttonText: 'Follow'
+    buttonText: 'Follow',
+    baseUrl: 'https://twitter.com/'
   },
   pinterest: {
     icon: (
@@ -91,7 +98,8 @@ const platformConfig = {
     color: 'text-[#E60023]',
     bgTint: 'bg-gradient-to-br from-white to-[#FFE7EA]',
     buttonStyle: 'bg-[#E60023] hover:bg-[#CC001F] active:bg-[#B3001B]',
-    buttonText: 'Save'
+    buttonText: 'Save',
+    baseUrl: 'https://pinterest.com/'
   },
   linkedin: {
     icon: (
@@ -105,7 +113,8 @@ const platformConfig = {
     color: 'text-[#0077B5]',
     bgTint: 'bg-gradient-to-br from-white to-[#E7F3FF]',
     buttonStyle: 'bg-[#0077B5] hover:bg-[#006396] active:bg-[#005582]',
-    buttonText: 'Connect'
+    buttonText: 'Connect',
+    baseUrl: 'https://linkedin.com/in/'
   },
   github: {
     icon: (
@@ -119,7 +128,8 @@ const platformConfig = {
     color: 'text-[#24292F]',
     bgTint: 'bg-gradient-to-br from-white to-[#F0F0F0]',
     buttonStyle: 'bg-[#24292F] hover:bg-[#1B1F23] active:bg-[#1B1F23]',
-    buttonText: 'Follow'
+    buttonText: 'Follow',
+    baseUrl: 'https://github.com/'
   },
   twitch: {
     icon: (
@@ -133,7 +143,8 @@ const platformConfig = {
     color: 'text-[#6441A5]',
     bgTint: 'bg-gradient-to-br from-white to-[#F0E7FF]',
     buttonStyle: 'bg-[#6441A5] hover:bg-[#563A8F] active:bg-[#4C347D]',
-    buttonText: 'Follow'
+    buttonText: 'Follow',
+    baseUrl: 'https://twitch.tv/'
   },
   discord: {
     icon: (
@@ -147,7 +158,8 @@ const platformConfig = {
     color: 'text-[#5865F2]',
     bgTint: 'bg-gradient-to-br from-white to-[#E7E9FF]',
     buttonStyle: 'bg-[#5865F2] hover:bg-[#4752C4] active:bg-[#3C45A5]',
-    buttonText: 'Join'
+    buttonText: 'Join',
+    baseUrl: 'https://discord.gg/'
   },
   spotify: {
     icon: (
@@ -161,7 +173,8 @@ const platformConfig = {
     color: 'text-[#1ED760]',
     bgTint: 'bg-gradient-to-br from-white to-[#E7FFE7]',
     buttonStyle: 'bg-[#1ED760] hover:bg-[#1DB954] active:bg-[#1AA34A]',
-    buttonText: 'Follow'
+    buttonText: 'Follow',
+    baseUrl: 'https://open.spotify.com/user/'
   },
   behance: {
     icon: (
@@ -175,13 +188,14 @@ const platformConfig = {
     color: 'text-[#0057FF]',
     bgTint: 'bg-gradient-to-br from-white to-[#E7E7FF]',
     buttonStyle: 'bg-[#0057FF] hover:bg-[#004CE6] active:bg-[#0042CC]',
-    buttonText: 'Follow'
+    buttonText: 'Follow',
+    baseUrl: 'https://behance.net/'
   },
   dribbble: {
     icon: (
       <div className="w-full h-full bg-gradient-to-br from-white to-[#FFE7F4] flex items-center justify-center rounded-xl shadow-[inset_2px_2px_4px_rgba(234,76,137,0.2),inset_-2px_-2px_4px_rgba(255,255,255,0.7)]">
         <svg className="w-5 h-5 text-[#EA4C89]" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M12 0C5.372 0 0 5.373 0 12s5.372 12 12 12c6.627 0 12-5.373 12-12S18.627 0 12 0zm9.885 11.441c-2.575-.422-4.943-.445-7.103-.073-.244-.563-.497-1.125-.767-1.68 2.31-1 4.165-2.358 5.548-4.082 1.35 1.594 2.197 3.619 2.322 5.835zm-3.842-7.282c-1.205 1.554-2.868 2.783-4.986 3.68-1.016-1.861-2.178-3.676-3.488-5.438.779-.197 1.591-.314 2.431-.314 2.275 0 4.368.779 6.043 2.072zm-10.516-.993c1.331 1.742 2.511 3.538 3.537 5.381-2.43.715-5.331 1.082-8.684 1.105.692-2.835 2.601-5.193 5.147-6.486zM1.333 12c0-.076.008-.152.01-.228 3.767-.072 7.108-.526 10.024-1.363.222.475.475.951.653 1.43-3.596 1.123-6.425 3.446-8.573 7.075-1.318-1.984-2.114-4.364-2.114-6.914zm4.481 8.292c1.97-3.39 4.536-5.535 7.896-6.479.849 2.204 1.497 4.466 1.953 6.783-1.089.438-2.278.68-3.514.68-2.4 0-4.605-.893-6.335-2.984zm7.96 2.455c-.438-2.269-1.07-4.48-1.895-6.635 1.952-.293 4.106-.248 6.471.169-.418 2.727-2.028 5.082-4.576 6.466z"/>
+          <path d="M12 0C5.372 0 0 5.373 0 12c0 6.627 5.372 12 12 12s12-5.373 12-12c0-6.627-5.372-12-12-12zm9.885 11.441c-2.575-.422-4.943-.445-7.103-.073-.244-.563-.497-1.125-.767-1.68 2.31-1 4.165-2.358 5.548-4.082 1.35 1.594 2.197 3.619 2.322 5.835zm-3.842-7.282c-1.205 1.554-2.868 2.783-4.986 3.68-1.016-1.861-2.178-3.676-3.488-5.438.779-.197 1.591-.314 2.431-.314 2.275 0 4.368.779 6.043 2.072zm-10.516-.993c1.331 1.742 2.511 3.538 3.537 5.381-2.43.715-5.331 1.082-8.684 1.105.692-2.835 2.601-5.193 5.147-6.486zM1.333 12c0-.076.008-.152.01-.228 3.767-.072 7.108-.526 10.024-1.363.222.475.475.951.653 1.43-3.596 1.123-6.425 3.446-8.573 7.075-1.318-1.984-2.114-4.364-2.114-6.914zm4.481 8.292c1.97-3.39 4.536-5.535 7.896-6.479.849 2.204 1.497 4.466 1.953 6.783-1.089.438-2.278.68-3.514.68-2.4 0-4.605-.893-6.335-2.984zm7.96 2.455c-.438-2.269-1.07-4.48-1.895-6.635 1.952-.293 4.106-.248 6.471.169-.418 2.418.27.43.72.79.79 1.215.79.3 0 1.275-.24 1.62-.72.45-.48.87-1.486 1.17-.615.315-1.215.472-1.8.472-.915 0-1.686-.27-2.31-.795-.615-.524-.524-.927-1.28-.927-2.28v-.15zm3.098-5.874c-.75.03-1.395.27-1.92.72-.526.45-.79 1.065-.79 1.845v.465c0 .856.275 1.47.826 1.845.55.374 1.198.555 1.939.555.78 0 1.425-.24 1.935-.704.51-.466.766-1.05.766-1.755v-2.76c-.706.016-1.685.076-2.756.18v.01zM15.72 17.33c.05-.12.198-.157.438-.124 3.75.48 7.24.018 10.47-1.383.215-.09.383-.09.504.014.165.104.24.255.24.45-.006.18-.096.334-.27.465-1.275.914-2.695 1.575-4.26 2.01-4.26 1.56.435-3.164.645-4.798.645-1.754 0-3.48-.255-5.18-.765-.18-.06-.27-.164-.27-.314 0-.09.045-.176.135-.256.09-.075.195-.135.3-.18l2.52-.435c.21-.03.375-.016.495.045.12.045.21.14.27.27.09.195.21.375.36.54.144.18.33.307.54.39.21.08.48.15.81.195.33.045.615.064.855.064.435 0 .885-.034 1.35-.104a4.688 4.688 0 001.215-.315l-.016-.015z"/>
         </svg>
       </div>
     ),
@@ -189,7 +203,8 @@ const platformConfig = {
     color: 'text-[#EA4C89]',
     bgTint: 'bg-gradient-to-br from-white to-[#FFE7F4]',
     buttonStyle: 'bg-[#EA4C89] hover:bg-[#E62A72] active:bg-[#D91A62]',
-    buttonText: 'Follow'
+    buttonText: 'Follow',
+    baseUrl: 'https://dribbble.com/'
   },
   medium: {
     icon: (
@@ -203,7 +218,8 @@ const platformConfig = {
     color: 'text-black',
     bgTint: 'bg-gradient-to-br from-white to-[#F0F0F0]',
     buttonStyle: 'bg-black hover:bg-gray-900 active:bg-gray-800',
-    buttonText: 'Follow'
+    buttonText: 'Follow',
+    baseUrl: 'https://medium.com/@'
   },
   dev: {
     icon: (
@@ -217,7 +233,8 @@ const platformConfig = {
     color: 'text-black',
     bgTint: 'bg-gradient-to-br from-white to-[#F0F0F0]',
     buttonStyle: 'bg-black hover:bg-gray-900 active:bg-gray-800',
-    buttonText: 'Follow'
+    buttonText: 'Follow',
+    baseUrl: 'https://dev.to/'
   },
   stackoverflow: {
     icon: (
@@ -231,13 +248,14 @@ const platformConfig = {
     color: 'text-[#F48024]',
     bgTint: 'bg-gradient-to-br from-white to-[#FFE7E0]',
     buttonStyle: 'bg-[#F48024] hover:bg-[#DA721F] active:bg-[#C1651C]',
-    buttonText: 'Follow'
+    buttonText: 'Follow',
+    baseUrl: 'https://stackoverflow.com/users/'
   },
   amazon: {
     icon: (
       <div className="w-full h-full bg-gradient-to-br from-white to-[#FEEBDC] flex items-center justify-center rounded-xl shadow-[inset_2px_2px_4px_rgba(255,153,0,0.2),inset_-2px_-2px_4px_rgba(255,255,255,0.7)]">
         <svg className="w-5 h-5 text-[#FF9900]" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M.045 18.02c.072-.116.187-.124.348-.022 3.636 2.11 7.594 3.166 11.87 3.166 2.852 0 5.668-.533 8.447-1.595l.315-.14c.138-.06.234-.1.293-.13.226-.088.39-.046.525.13.12.174.09.336-.12.48-.256.19-.6.41-1.006.654-1.244.743-2.64 1.316-4.185 1.726a17.617 17.617 0 01-10.951-.577 17.88 17.88 0 01-5.43-3.35c-.1-.074-.151-.15-.151-.22 0-.047.021-.09.051-.13zm6.565-6.218c0-1.005.247-1.863.743-2.577.495-.71 1.17-1.25 2.04-1.615.796-.335 1.756-.575 2.912-.72.39-.046 1.033-.103 1.92-.174v-.37c0-.93-.105-1.558-.3-1.875-.302-.43-.78-.65-1.44-.65h-.182c-.48.046-.896.196-1.246.45-.35.256-.575.586-.66.993-.06.26-.206.4-.435.42l-2.52-.315c-.248-.06-.372-.18-.372-.39 0-.046.007-.09.022-.15.247-1.29.855-2.25 1.82-2.88.976-.616 2.1-.975 3.39-1.05h.54c1.65 0 2.957.434 3.888 1.29.135.15.27.3.405.48.12.165.224.314.283.45.075.134.15.33.195.57.06.254.105.42.135.51.03.09.062.26.076.51.015.24.03.39.036.45.015.046.03.15.037.27l.03.33c.03.39.044.75.044 1.09v4.71c0 .315.06.57.18.766.12.192.225.34.316.435l.445.45c.12.165.135.315.045.465-.09.133-.225.19-.435.165a7.17 7.17 0 01-.45-.074 3.718 3.718 0 01-.435-.127c-.15-.06-.42-.21-.81-.444a7.548 7.548 0 01-.915-.673l-.2-.193c-.135.195-.27.375-.405.54-.375.48-.87.87-1.486 1.17-.615.315-1.215.472-1.8.472-.915 0-1.686-.27-2.31-.795-.615-.524-.524-.927-1.28-.927-2.28v-.15zm3.098-5.874c-.75.03-1.395.27-1.92.72-.526.45-.79 1.065-.79 1.845v.465c0 .856.275 1.47.826 1.845.55.374 1.198.555 1.939.555.78 0 1.425-.24 1.935-.704.51-.466.766-1.05.766-1.755v-2.76c-.706.016-1.685.076-2.756.18v.01zM15.72 17.33c.05-.12.198-.157.438-.124 3.75.48 7.24.018 10.47-1.383.215-.09.383-.09.504.014.165.104.24.255.24.45-.006.18-.096.334-.27.465-1.275.914-2.695 1.575-4.26 2.01-1.56.435-3.164.645-4.798.645-1.754 0-3.48-.255-5.18-.765-.18-.06-.27-.164-.27-.314 0-.09.045-.176.135-.256.09-.075.195-.135.3-.18l2.52-.435c.21-.03.375-.016.495.045.12.045.21.14.27.27.09.195.21.375.36.54.144.18.33.307.54.39.21.08.48.15.81.195.33.045.615.064.855.064.435 0 .885-.034 1.35-.104a4.688 4.688 0 001.215-.315l-.016-.015z"/>
+          <path d="M.045 18.02c.072-.116.187-.124.348-.022 3.636 2.11 7.594 3.166 11.87 3.166 2.852 0 5.668-.533 8.447-1.595l.315-.14c.138-.06.234-.1.293-.13.226-.088.39-.046.525.13.174.174.09.336-.12.48-.256.19-.6.41-1.006.654-1.244.743-2.64 1.316-4.185 1.726a17.617 17.617 0 01-10.951-.577 17.88 17.88 0 01-5.43-3.35c-.1-.074-.151-.15-.151-.22 0-.047.021-.09.021-.09.051-.13zm6.565-6.218c0-1.005.247-1.863.743-2.577.495-.71 1.17-1.25 2.04-1.615.796-.335 1.756-.575 2.912-.72.39-.046 1.033-.103 1.92-.174v-.37c0-.93-.105-1.558-.3-1.875-.302-.43-.78-.65-1.44-.65h-.182c-.48.046-.896.196-1.246.45-.35.35.256-.575.586-.66.993-.06.26-.206.4-.435.42l-2.52-.315c.21-.03.375-.016.495.045.12.045.21.14.27.27.09.195.21.375.36.54.144.18.33.307.54.39.21.08.48.15.81.195.33.045.615.064.855.064.435 0 .885-.034 1.35-.104a4.688 4.688 0 001.215-.315l-.016-.015z"/>
         </svg>
       </div>
     ),
@@ -245,7 +263,8 @@ const platformConfig = {
     color: 'text-[#FF9900]',
     bgTint: 'bg-gradient-to-br from-white to-[#FEEBDC]',
     buttonStyle: 'bg-[#FF9900] hover:bg-[#E68A00] active:bg-[#CC7A00]',
-    buttonText: 'Comprar'
+    buttonText: 'Comprar',
+    baseUrl: 'https://amazon.com/'
   },
   mercadolibre: {
     icon: (
@@ -259,12 +278,22 @@ const platformConfig = {
     color: 'text-[#2D3277]',
     bgTint: 'bg-gradient-to-br from-white to-[#FFF9CC]',
     buttonStyle: 'bg-[#3483FA] hover:bg-[#2968C8] active:bg-[#1259C3]',
-    buttonText: 'Comprar'
+    buttonText: 'Comprar',
+    baseUrl: 'https://mercadolibre.com/'
   }
 };
 
-const SocialCardComponent = ({ platform, children, ...props }: SocialCardProps) => {
+const SocialCardComponent = ({
+  platform,
+  children,
+  isEditorMode = true,
+  description,
+  ...props
+}: SocialCardProps) => {
   const config = platformConfig[platform];
+  const normalizedDescription = description ?? children?.toString().toLowerCase();
+  const username = children?.toString().replace('@', '') || '';
+  const url = `${config.baseUrl}${username}`;
   
   return (
     <BaseURLCard
@@ -272,7 +301,10 @@ const SocialCardComponent = ({ platform, children, ...props }: SocialCardProps) 
       className={`${config.bgTint} ${config.color}`}
       buttonStyle={config.buttonStyle}
       buttonText={config.buttonText}
-      description={children?.toString().toLowerCase()}
+      description={normalizedDescription}
+      isEditorMode={isEditorMode}
+      url={url}
+      size={{ w: 1, h: 1 }}
       {...props}
     >
       {children || config.defaultText}

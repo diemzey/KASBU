@@ -1,0 +1,35 @@
+@keyframes float-1 {
+  0% { transform: translate(0px, 0px); }
+  25% { transform: translate(2px, 2px); }
+  50% { transform: translate(0px, 3px); }
+  75% { transform: translate(-2px, 2px); }
+  100% { transform: translate(0px, 0px); }
+}
+
+@keyframes float-2 {
+  0% { transform: translate(0px, 0px); }
+  25% { transform: translate(-2px, 2px); }
+  50% { transform: translate(-3px, 0px); }
+  75% { transform: translate(-2px, -2px); }
+  100% { transform: translate(0px, 0px); }
+}
+
+@keyframes float-3 {
+  0% { transform: translate(0px, 0px); }
+  25% { transform: translate(2px, -2px); }
+  50% { transform: translate(3px, 0px); }
+  75% { transform: translate(2px, 2px); }
+  100% { transform: translate(0px, 0px); }
+}
+
+.animate-float-1 {
+  animation: float-1 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-float-2 {
+  animation: float-2 5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-float-3 {
+  animation: float-3 6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+} 

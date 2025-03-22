@@ -28,7 +28,6 @@ interface SidebarProps {
   onFontChange: (index: number) => void;
   currentTitle: string;
   currentFontIndex: number;
-  onSave?: () => void;
   className?: string;
   onViewModeChange?: (mode: 'web' | 'desktop') => void;
 }
@@ -140,13 +139,7 @@ const emojiCategories = [
   }
 ];
 
-const WebIcon = ({ className }: { className?: string }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-  </svg>
-);
-
-const Sidebar = ({ onAddCard, onChangeBackground, onAddSticker, onSave, className, onViewModeChange }: SidebarProps) => {
+const Sidebar = ({ onAddCard, onChangeBackground, onAddSticker, className, onViewModeChange }: SidebarProps) => {
   const [activeMenu, setActiveMenu] = useState<MenuType>('none');
   const [viewMode, setViewMode] = useState<'web' | 'desktop'>('desktop');
   const menuRef = useRef<HTMLDivElement>(null);
@@ -356,16 +349,9 @@ const Sidebar = ({ onAddCard, onChangeBackground, onAddSticker, onSave, classNam
                   value={quickUrl}
                   onChange={(e) => setQuickUrl(e.target.value)}
                   placeholder="Pega una URL aquí"
-                  className={`${isMobile ? 'w-full max-w-[180px]' : 'w-48'} px-3 py-2 text-sm bg-white/70 backdrop-blur-md border border-white/20 rounded-lg 
+                  className={`${isMobile ? 'w-full' : 'w-48'} px-3 py-2 text-sm bg-white/70 backdrop-blur-md border border-white/20 rounded-lg 
                     focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all placeholder-gray-400`}
                 />
-                <button
-                  type="submit"
-                  className="ml-2 w-10 h-10 rounded-lg flex items-center justify-center text-gray-700 hover:bg-gray-100 transition-all"
-                  title="Agregar URL"
-                >
-                  <WebIcon className="w-5 h-5" />
-                </button>
               </form>
             </div>
 
@@ -409,18 +395,6 @@ const Sidebar = ({ onAddCard, onChangeBackground, onAddSticker, onSave, classNam
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                 </svg>
               </button>
-
-              {onSave && !isMobile && (
-                <button
-                  onClick={onSave}
-                  className="w-10 h-10 rounded-lg flex items-center justify-center text-gray-700 hover:bg-gray-100 transition-all"
-                  title="Guardar"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-                  </svg>
-                </button>
-              )}
             </div>
           </div>
         </div>

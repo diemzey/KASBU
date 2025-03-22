@@ -30,7 +30,8 @@ export default {
         'spin-slow': 'spin 3s linear infinite',
         'bounce-delay-1': 'bounce 1s infinite -0.32s',
         'bounce-delay-2': 'bounce 1s infinite -0.16s',
-        'cardAppear': 'cardAppear 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards'
+        'cardAppear': 'cardAppear 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards',
+        'float-slow': 'float 20s ease-in-out infinite',
       },
       keyframes: {
         bounce: {
@@ -50,7 +51,11 @@ export default {
             opacity: '1',
             transform: 'scale(1) translateY(0)'
           }
-        }
+        },
+        float: {
+          '0%, 100%': { transform: 'translate(-50%, -50%) translate(0, 0)' },
+          '50%': { transform: 'translate(-50%, -50%) translate(40px, 20px)' },
+        },
       },
     },
   },

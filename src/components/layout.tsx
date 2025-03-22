@@ -4,6 +4,7 @@ import { HomeLayouts, keys } from "../utils/layout.helper";
 import { fonts, socialPlatforms } from "../utils/constants";
 import { CustomCard, CodeCard, QRCard, MapCard, TVCard, URLCard, ImageCard, SocialCard, VideoCard } from "./cards";
 import Sidebar from "./Sidebar";
+import DevSidebar from "./DevSidebar";
 import ColorMenu from "./ColorMenu";
 import Sticker from "./Sticker";
 import "../styles/grid.css";
@@ -25,6 +26,7 @@ type CardData = {
   videoId?: string;
   imageUrl?: string;
   videoUrl?: string;
+  description?: string;
 };
 
 interface ResizeMenuProps {
@@ -133,7 +135,7 @@ interface BlockProps {
 }
 
 const Block = memo(({ keyProp, onDelete, platform }: BlockProps) => {
-  const { cards, currentlayout, handleTextChange, handleVideoChange, handleImageChange } = useContext(LayoutContext);
+  const { cards, currentlayout, handleTextChange, handleVideoChange, handleImageChange, isEditorMode } = useContext(LayoutContext);
   const card = cards.find(c => c.id === keyProp);
   const layout = currentlayout?.lg?.find(item => item.i === keyProp) || currentlayout?.xs?.find(item => item.i === keyProp);
   const size = layout ? { w: layout.w, h: layout.h } : { w: 1, h: 1 };
@@ -146,6 +148,8 @@ const Block = memo(({ keyProp, onDelete, platform }: BlockProps) => {
         onDelete={onDelete}
         onTextChange={(newText: string) => handleTextChange(keyProp, newText)}
         size={size}
+        description={card.description}
+        isEditorMode={isEditorMode}
       >
         {card?.text || card?.title?.replace('@', '')}
       </SocialCard>
@@ -177,6 +181,7 @@ const Block = memo(({ keyProp, onDelete, platform }: BlockProps) => {
           onDelete={onDelete}
           onTextChange={(newText: string) => handleTextChange(keyProp, newText)}
           size={size}
+          isEditorMode={isEditorMode}
         >
           {card?.text}
         </SocialCard>
@@ -211,6 +216,7 @@ const Block = memo(({ keyProp, onDelete, platform }: BlockProps) => {
             {...commonProps}
             imageUrl={card?.imageUrl}
             onImageChange={(newImageUrl: string) => handleImageChange(keyProp, newImageUrl)}
+            isEditing={isEditorMode}
           >
             {text}
           </ImageCard>
@@ -223,6 +229,7 @@ const Block = memo(({ keyProp, onDelete, platform }: BlockProps) => {
             {...commonProps}
             videoId={card?.videoId}
             onVideoChange={(newVideoId: string) => handleVideoChange(keyProp, newVideoId)}
+            isEditorMode={isEditorMode}
           >
             {text}
           </TVCard>
@@ -235,6 +242,7 @@ const Block = memo(({ keyProp, onDelete, platform }: BlockProps) => {
             {...commonProps}
             videoUrl={card?.videoUrl}
             onVideoChange={(videoUrl: string) => handleVideoChange(keyProp, videoUrl)}
+            isEditorMode={isEditorMode}
           >
             {text}
           </VideoCard>
@@ -244,6 +252,7 @@ const Block = memo(({ keyProp, onDelete, platform }: BlockProps) => {
       return (
         <CardComponent 
           {...commonProps}
+          isEditorMode={isEditorMode}
         >
           {text}
         </CardComponent>
@@ -261,17 +270,24 @@ interface LayoutContextType {
   handleTextChange: (cardId: string, newText: string) => void;
   handleVideoChange: (cardId: string, newVideoId: string) => void;
   handleImageChange: (cardId: string, newImageUrl: string) => void;
+  isEditorMode: boolean;
 }
 
-export const LayoutContext = createContext<LayoutContextType>({
+const LayoutContext = createContext<LayoutContextType>({
   cards: [],
   currentlayout: HomeLayouts,
   handleTextChange: () => {},
   handleVideoChange: () => {},
   handleImageChange: () => {},
+  isEditorMode: false,
 });
 
-function Layout() {
+interface LayoutProps {
+  isEditorMode: boolean;
+  onEditorModeChange: (mode: boolean) => void;
+}
+
+function Layout({ isEditorMode, onEditorModeChange }: LayoutProps) {
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [currentlayout, setCurrentLayout] = useState(() => ({
@@ -287,27 +303,126 @@ function Layout() {
       w: Math.min(item.w, 2)
     }))
   }));
+
+  // Cards de demo iniciales
+  const demoCards: CardData[] = [
+    {
+      id: 'image-demo-1',
+      platform: 'image',
+      w: 2,
+      h: 2,
+      text: 'Mi último proyecto ✨',
+      imageUrl: 'https://images.unsplash.com/photo-1555212697-194d092e3b8f?q=80&w=2070'
+    },
+    {
+      id: 'image-demo-2',
+      platform: 'image',
+      w: 1,
+      h: 2,
+      text: 'Mi espacio creativo 🎨',
+      imageUrl: 'https://images.unsplash.com/photo-1567016376408-0226e4d0c1ea?q=80&w=1974'
+    },
+    {
+      id: 'instagram-demo',
+      platform: 'instagram',
+      w: 1,
+      h: 1,
+      text: 'Mi día a día',
+      description: '@leonelmesi'
+    },
+    {
+      id: 'youtube-demo',
+      platform: 'youtube',
+      w: 2,
+      h: 1,
+      text: 'Mi canal favorito 🎬',
+      description: '@micanal',
+      videoId: 'dQw4w9WgXcQ'
+    },
+    {
+      id: 'map-demo',
+      platform: 'map',
+      w: 1,
+      h: 2,
+      text: 'Encuéntrame aquí 📍',
+      lat: 40.416775,
+      lng: -3.703790,
+      zoom: 15
+    },
+    {
+      id: 'twitter-demo',
+      platform: 'twitter',
+      w: 1,
+      h: 1,
+      text: 'Mis pensamientos',
+      description: '@mitwitter'
+    },
+    {
+      id: 'spotify-demo',
+      platform: 'spotify',
+      w: 1,
+      h: 1,
+      text: 'Mi playlist 🎵',
+      description: '@mispotify'
+    },
+    {
+      id: 'image-demo-3',
+      platform: 'image',
+      w: 2,
+      h: 1,
+      text: 'Mi setup 🖥️',
+      imageUrl: 'https://images.unsplash.com/photo-1593062096033-9a26b09da705?q=80&w=2070'
+    },
+    {
+      id: 'github-demo',
+      platform: 'github',
+      w: 1,
+      h: 1,
+      text: 'Mis proyectos 💻',
+      description: '@migithub'
+    },
+    {
+      id: 'linkedin-demo',
+      platform: 'linkedin',
+      w: 1,
+      h: 1,
+      text: 'Mi trayectoria ⭐',
+      description: '@milinkedin'
+    },
+    {
+      id: 'image-demo-4',
+      platform: 'image',
+      w: 2,
+      h: 2,
+      text: 'Mis aventuras 🌎',
+      imageUrl: 'https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?q=80&w=2070'
+    },
+    {
+      id: 'twitch-demo',
+      platform: 'twitch',
+      w: 1,
+      h: 1,
+      text: 'Mis directos 🎮',
+      description: '@mitwitch'
+    },
+    {
+      id: 'discord-demo',
+      platform: 'discord',
+      w: 1,
+      h: 1,
+      text: 'El chat 💬',
+      description: '@midiscord'
+    },
+    {
+      id: 'custom-demo-1',
+      platform: 'custom',
+      w: 2,
+      h: 1,
+      text: '¡Hola! Bienvenido a mi espacio digital ✌️'
+    }
+  ];
+
   const [viewMode, setViewMode] = useState<'web' | 'desktop'>('desktop');
-
-  // Asegurar que todas las tarjetas sean móviles al montar
-  useEffect(() => {
-    setCurrentLayout(prev => ({
-      ...prev,
-      xs: prev.xs.map(item => ({
-        ...item,
-        static: false,
-        isResizable: false,
-        w: Math.min(item.w, 2)
-      }))
-    }));
-
-    // Desactivar la animación inicial después de que todas las cards se hayan cargado
-    const timer = setTimeout(() => {
-      setIsInitialLoad(false);
-    }, 2000); // Tiempo suficiente para que todas las animaciones terminen
-
-    return () => clearTimeout(timer);
-  }, []);
 
   const [visibleCards, setVisibleCards] = useState<string[]>([]);
   const [isDragging, setIsDragging] = useState(false);
@@ -356,8 +471,9 @@ function Layout() {
           ? { ...card, imageUrl: newImageUrl }
           : card
       ));
-    }
-  }), [cards, currentlayout]);
+    },
+    isEditorMode
+  }), [cards, currentlayout, isEditorMode]);
 
   const handleDeleteCard = useCallback((keyToDelete: string) => {
     if (!isDragging) {
@@ -546,45 +662,32 @@ function Layout() {
       document.body.style.maxWidth = '430px';
       document.body.style.margin = '0 auto';
       document.body.style.transition = 'max-width 0.3s ease-in-out';
-      // Forzar el modo mobile cuando estamos en preview
       setIsMobile(true);
       
-      // Reorganizar las cards para el modo móvil
-      setCurrentLayout(prev => {
-        const newXsLayout = prev.lg.map((item, index) => ({
+      // Mantener el layout y tamaño exactamente igual que en desktop
+      setCurrentLayout(prev => ({
+        ...prev,
+        xs: prev.lg.map(item => ({
           ...item,
           static: false as const,
           isResizable: false as const,
-          w: Math.min(item.w, 2),
-          h: item.h,
-          x: index % 2, // Alternar entre 0 y 1 para crear dos columnas
-          y: Math.floor(index / 2) // Calcular la fila basada en el índice
-        }));
-
-        return {
-          ...prev,
-          xs: newXsLayout,
-          lg: prev.lg.map(item => ({
-            ...item,
-            static: false as const,
-            isResizable: false as const
-          }))
-        };
-      });
+          w: item.w,
+          h: item.h
+        }))
+      }));
     } else {
       document.body.style.maxWidth = 'none';
       document.body.style.margin = '0';
-      // Restaurar el modo mobile basado en el ancho de la ventana
       setIsMobile(window.innerWidth < 768);
       
-      // Restaurar el layout de escritorio
+      // Mantener el layout y tamaño exactamente igual que en móvil
       setCurrentLayout(prev => ({
         ...prev,
         lg: prev.xs.map(item => ({
           ...item,
           static: false as const,
           isResizable: false as const,
-          w: item.w * 2 <= 4 ? item.w * 2 : item.w,
+          w: item.w,
           h: item.h
         }))
       }));
@@ -599,34 +702,142 @@ function Layout() {
       lg: allLayouts.lg?.map(item => ({
         ...item,
         isResizable: false as const,
-        static: false as const,
-        w: item.w,
-        h: item.h
+        static: false as const
       })) || currentlayout.lg,
       xs: allLayouts.xs?.map(item => ({
         ...item,
         static: false as const,
         isResizable: false as const,
-        w: Math.min(item.w, 2),
+        // Mantener el tamaño original en móvil
+        w: item.w,
         h: item.h
       })) || currentlayout.xs
     };
 
-    // Sincronizar las posiciones entre lg y xs
+    // Sincronizar las posiciones entre lg y xs manteniendo los tamaños originales
     if (isMobile) {
       newLayout.lg = newLayout.lg.map(item => {
         const xsItem = newLayout.xs.find(x => x.i === item.i);
-        return xsItem ? { ...item, y: xsItem.y } : item;
+        return xsItem ? { ...item, y: xsItem.y, w: item.w, h: item.h } : item;
       });
     } else {
       newLayout.xs = newLayout.xs.map(item => {
         const lgItem = newLayout.lg.find(x => x.i === item.i);
-        return lgItem ? { ...item, y: lgItem.y } : item;
+        return lgItem ? { ...item, y: lgItem.y, w: item.w, h: item.h } : item;
       });
     }
 
     setCurrentLayout(newLayout);
   }, [isMobile, currentlayout]);
+
+  const handleLoad = useCallback((settings: any) => {
+    try {
+      if (settings.title) {
+        setTitle(settings.title.text || '');
+        setTitleColor(settings.title.color || '');
+        const fontIndex = fonts.findIndex(f => f === settings.title.font);
+        if (fontIndex !== -1) {
+          setCurrentFontIndex(fontIndex);
+        }
+      }
+
+      if (settings.subtitle) {
+        setSubtitle(settings.subtitle.text || '');
+        setSubtitleColor(settings.subtitle.color || '');
+      }
+
+      if (settings.background) {
+        setBackground(settings.background.color || '');
+        setPattern(settings.background.pattern || '');
+      }
+
+      if (settings.grid) {
+        const newLayouts = {
+          lg: settings.grid.layout.lg || [],
+          xs: settings.grid.layout.xs || []
+        };
+        setCurrentLayout(newLayouts);
+        setCards(settings.grid.cards || []);
+      }
+
+      if (settings.stickers) {
+        setStickers(settings.stickers || []);
+      }
+    } catch (error) {
+      console.error('Error loading settings:', error);
+    }
+  }, []);
+
+  useEffect(() => {
+    // Inicializar el layout con las cards de demo
+    if (isEditorMode) {
+      setCards(demoCards);
+      setVisibleCards(demoCards.map(card => card.id));
+      
+      // Crear layout inicial para las cards de demo
+      setCurrentLayout(prev => ({
+        lg: [
+          // Primera fila (y: 0)
+          { i: 'image-demo-1', x: 0, y: 0, w: 2, h: 2, isResizable: false, static: false },
+          { i: 'image-demo-2', x: 2, y: 0, w: 1, h: 2, isResizable: false, static: false },
+          { i: 'twitter-demo', x: 3, y: 0, w: 1, h: 1, isResizable: false, static: false },
+          { i: 'instagram-demo', x: 3, y: 1, w: 1, h: 1, isResizable: false, static: false },
+          
+          // Tercera fila (y: 2)
+          { i: 'youtube-demo', x: 0, y: 2, w: 2, h: 1, isResizable: false, static: false },
+          { i: 'map-demo', x: 2, y: 2, w: 1, h: 2, isResizable: false, static: false },
+          { i: 'spotify-demo', x: 3, y: 2, w: 1, h: 1, isResizable: false, static: false },
+          
+          // Cuarta fila (y: 3)
+          { i: 'image-demo-3', x: 0, y: 3, w: 2, h: 1, isResizable: false, static: false },
+          { i: 'github-demo', x: 3, y: 3, w: 1, h: 1, isResizable: false, static: false },
+          
+          // Quinta fila (y: 4)
+          { i: 'custom-demo-1', x: 0, y: 4, w: 2, h: 1, isResizable: false, static: false },
+          { i: 'linkedin-demo', x: 2, y: 4, w: 1, h: 1, isResizable: false, static: false },
+          { i: 'twitch-demo', x: 3, y: 4, w: 1, h: 1, isResizable: false, static: false },
+          
+          // Sexta fila (y: 5)
+          { i: 'image-demo-4', x: 0, y: 5, w: 2, h: 2, isResizable: false, static: false },
+          { i: 'discord-demo', x: 2, y: 5, w: 1, h: 1, isResizable: false, static: false }
+        ],
+        xs: [
+          // Organizamos las cards en 2 columnas para móvil
+          { i: 'image-demo-1', x: 0, y: 0, w: 2, h: 2, isResizable: false, static: false },
+          { i: 'image-demo-2', x: 0, y: 2, w: 2, h: 2, isResizable: false, static: false },
+          { i: 'twitter-demo', x: 0, y: 4, w: 1, h: 1, isResizable: false, static: false },
+          { i: 'instagram-demo', x: 1, y: 4, w: 1, h: 1, isResizable: false, static: false },
+          { i: 'youtube-demo', x: 0, y: 5, w: 2, h: 1, isResizable: false, static: false },
+          { i: 'map-demo', x: 0, y: 6, w: 2, h: 2, isResizable: false, static: false },
+          { i: 'spotify-demo', x: 0, y: 8, w: 1, h: 1, isResizable: false, static: false },
+          { i: 'github-demo', x: 1, y: 8, w: 1, h: 1, isResizable: false, static: false },
+          { i: 'image-demo-3', x: 0, y: 9, w: 2, h: 1, isResizable: false, static: false },
+          { i: 'custom-demo-1', x: 0, y: 10, w: 2, h: 1, isResizable: false, static: false },
+          { i: 'linkedin-demo', x: 0, y: 11, w: 1, h: 1, isResizable: false, static: false },
+          { i: 'twitch-demo', x: 1, y: 11, w: 1, h: 1, isResizable: false, static: false },
+          { i: 'image-demo-4', x: 0, y: 12, w: 2, h: 2, isResizable: false, static: false },
+          { i: 'discord-demo', x: 0, y: 14, w: 1, h: 1, isResizable: false, static: false }
+        ]
+      }));
+    }
+
+    setCurrentLayout(prev => ({
+      ...prev,
+      xs: prev.xs.map(item => ({
+        ...item,
+        static: false,
+        isResizable: false,
+        w: Math.min(item.w, 2)
+      }))
+    }));
+
+    // Desactivar la animación inicial después de que todas las cards se hayan cargado
+    const timer = setTimeout(() => {
+      setIsInitialLoad(false);
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, [isEditorMode]);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -653,7 +864,7 @@ function Layout() {
   return (
     <LayoutContext.Provider value={contextValue}>
       <div className={`min-h-screen transition-colors duration-500 ${background} ${pattern}`}>
-        <div className={`relative mx-auto ${viewMode === 'web' ? 'max-w-[430px] border-x border-gray-200' : ''} min-h-screen py-12 md:py-16`}>
+        <div className={`relative mx-auto ${viewMode === 'web' ? 'max-w-[430px] border-x border-gray-200' : ''} min-h-screen py-16 pb-32 px-2 md:px-24`}>
           {/* Stickers Layer */}
           <div className={`fixed inset-0 pointer-events-none ${isMobile ? 'hidden' : ''}`}>
             <div className="absolute inset-0 pointer-events-auto">
@@ -672,6 +883,18 @@ function Layout() {
             {/* Título */}
             <div className="relative flex-1 max-w-3xl w-full px-4">
               <div className="h-[60px] sm:h-[80px] md:h-[100px] flex items-center">
+                {isEditorMode && (
+                  <div className="absolute inset-y-0 left-0 flex items-center z-10">
+                    <button
+                      onClick={() => handleFontChange((currentFontIndex - 1 + fonts.length) % fonts.length)}
+                      className="text-gray-400 hover:text-blue-500 transition-colors"
+                    >
+                      <svg className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
+                    </button>
+                  </div>
+                )}
                 <div className="relative w-full group">
                   <input
                     type="text"
@@ -681,38 +904,45 @@ function Layout() {
                       caret-blue-500 selection:bg-blue-500/20 w-full px-8 sm:px-12 md:px-16 leading-none
                       opacity-0 animate-[titleAppear_800ms_cubic-bezier(0.22,1,0.36,1)_forwards]`}
                     placeholder="kasbu"
+                    readOnly={!isEditorMode}
                   />
-                  <ColorMenu 
-                    value={titleColor}
-                    onChange={(color) => handleTitleChange(title, color)}
-                  />
+                  {isEditorMode && (
+                    <ColorMenu 
+                      value={titleColor}
+                      onChange={(color) => handleTitleChange(title, color)}
+                    />
+                  )}
                 </div>
-                <div className="absolute inset-y-0 left-0 flex items-center">
-                  <button
-                    onClick={() => handleFontChange((currentFontIndex - 1 + fonts.length) % fonts.length)}
-                    className="text-gray-400 hover:text-blue-500 transition-colors"
-                  >
-                    <svg className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                    </svg>
-                  </button>
-                </div>
-                <div className="absolute inset-y-0 right-0 flex items-center">
-                  <button
-                    onClick={() => handleFontChange((currentFontIndex + 1) % fonts.length)}
-                    className="text-gray-400 hover:text-blue-500 transition-colors"
-                  >
-                    <svg className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
-                </div>
+                {isEditorMode && (
+                  <div className="absolute inset-y-0 right-0 flex items-center z-10">
+                    <button
+                      onClick={() => handleFontChange((currentFontIndex + 1) % fonts.length)}
+                      className="text-gray-400 hover:text-blue-500 transition-colors"
+                    >
+                      <svg className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
 
             {/* Subtítulo */}
             <div className="relative flex-1 max-w-2xl w-full px-4">
               <div className="min-h-[30px] sm:min-h-[40px] md:min-h-[60px] flex items-center py-1 sm:py-2">
+                {isEditorMode && (
+                  <div className="absolute inset-y-0 left-0 flex items-center">
+                    <button
+                      onClick={() => handleFontChange((currentSubtitleFontIndex - 1 + fonts.length) % fonts.length, true)}
+                      className="text-gray-400 hover:text-blue-500 transition-colors"
+                    >
+                      <svg className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
+                    </button>
+                  </div>
+                )}
                 <div className="relative w-full group">
                   <textarea
                     value={subtitle}
@@ -723,47 +953,42 @@ function Layout() {
                     placeholder="Subtítulo"
                     rows={1}
                     style={{ height: 'auto' }}
+                    readOnly={!isEditorMode}
                     onInput={(e) => {
                       const target = e.target as HTMLTextAreaElement;
                       target.style.height = 'auto';
                       target.style.height = Math.min(target.scrollHeight, 160) + 'px';
                     }}
                   />
-                  <ColorMenu 
-                    value={subtitleColor}
-                    onChange={(color) => handleTitleChange(subtitle, color, true)}
-                  />
+                  {isEditorMode && (
+                    <ColorMenu 
+                      value={subtitleColor}
+                      onChange={(color) => handleTitleChange(subtitle, color, true)}
+                    />
+                  )}
                 </div>
-                <div className="absolute inset-y-0 left-0 flex items-center">
-                  <button
-                    onClick={() => handleFontChange((currentSubtitleFontIndex - 1 + fonts.length) % fonts.length, true)}
-                    className="text-gray-400 hover:text-blue-500 transition-colors"
-                  >
-                    <svg className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                    </svg>
-                  </button>
-                </div>
-                <div className="absolute inset-y-0 right-0 flex items-center">
-                  <button
-                    onClick={() => handleFontChange((currentSubtitleFontIndex + 1) % fonts.length, true)}
-                    className="text-gray-400 hover:text-blue-500 transition-colors"
-                  >
-                    <svg className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
-                </div>
+                {isEditorMode && (
+                  <div className="absolute inset-y-0 right-0 flex items-center">
+                    <button
+                      onClick={() => handleFontChange((currentSubtitleFontIndex + 1) % fonts.length, true)}
+                      className="text-gray-400 hover:text-blue-500 transition-colors"
+                    >
+                      <svg className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
           <ResponsiveReactGridLayout
-            className="w-full max-w-[800px] px-0 mx-auto"
+            className="w-full max-w-[800px] mx-auto"
             breakpoints={{ lg: 800, md: 600, sm: 400, xs: 0 }}
             cols={{ lg: 4, md: 4, sm: 2, xs: 2 }}
             rowHeight={180}
             margin={[12, 12]}
-            containerPadding={[8, 8]}
+            containerPadding={[4, 4]}
             layouts={filteredLayouts}
             onDragStart={() => setIsDragging(true)}
             onDragStop={() => {
@@ -774,12 +999,12 @@ function Layout() {
             }}
             useCSSTransforms={false}
             draggableCancel=".no-drag"
-            isDraggable={selectedCard ? true : window.innerWidth >= 600}
+            isDraggable={isEditorMode && (selectedCard ? true : window.innerWidth >= 600)}
             draggableHandle={selectedCard ? undefined : ".drag-handle"}
             preventCollision={false}
             compactType={null}
             verticalCompact={false}
-            isDroppable={true}
+            isDroppable={isEditorMode}
             onDrop={(layout, item, e) => {
               e.preventDefault();
               return item;
@@ -791,16 +1016,16 @@ function Layout() {
               <div
                 key={key}
                 onClick={() => {
-                  if (window.innerWidth < 600) {
+                  if (isEditorMode && window.innerWidth < 600) {
                     setSelectedCard(prev => prev === key ? null : key);
                   }
                 }}
                 className={`bg-[#f5f5f7] flex justify-center items-center rounded-[1.5rem] text-2xl text-[#1d1d1f] visible 
-                  ${window.innerWidth < 600 ? (selectedCard === key ? 'cursor-grab ring-4 ring-blue-500 ring-offset-4 ring-offset-white' : 'cursor-pointer') : 'cursor-grab'} 
-                  group relative overflow-hidden ${window.innerWidth >= 600 ? 'drag-handle' : ''}
+                  ${isEditorMode ? (window.innerWidth < 600 ? (selectedCard === key ? 'cursor-grab ring-4 ring-blue-500 ring-offset-4 ring-offset-white' : 'cursor-pointer') : 'cursor-grab') : 'cursor-default'} 
+                  group relative overflow-hidden ${isEditorMode && window.innerWidth >= 600 ? 'drag-handle' : ''}
                   shadow-[0_12px_24px_-6px_rgba(0,0,0,0.12),0_6px_12px_-2px_rgba(0,0,0,0.04),0_0_0_1px_rgba(0,0,0,0.05),inset_0_1px_0_rgba(255,255,255,0.3)]
                   hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.18),0_12px_24px_-6px_rgba(0,0,0,0.06),0_0_0_1px_rgba(0,0,0,0.05),inset_0_1px_0_rgba(255,255,255,0.4)]
-                  active:scale-[0.97]
+                  ${isEditorMode ? 'active:scale-[0.97]' : ''}
                   active:shadow-[0_8px_16px_-4px_rgba(0,0,0,0.1),0_3px_6px_-2px_rgba(0,0,0,0.05),0_0_0_1px_rgba(0,0,0,0.05),inset_0_1px_0_rgba(255,255,255,0.2)]
                   backdrop-blur-[3px]
                   after:absolute after:inset-0 after:bg-gradient-to-br after:from-white/10 after:to-transparent after:opacity-0
@@ -814,15 +1039,17 @@ function Layout() {
               >
                 <Block 
                   keyProp={key} 
-                  onDelete={() => handleDeleteCard(key)}
+                  onDelete={isEditorMode ? () => handleDeleteCard(key) : undefined}
                   platform={cards.find(card => card.id === key)?.platform}
                 />
-                <ResizeMenu 
-                  onResize={(size) => handleResize(key, size)} 
-                  onDelete={() => handleDeleteCard(key)} 
-                  isDragging={isDragging}
-                  currentSize={currentlayout.lg.find(item => item.i === key)}
-                />
+                {isEditorMode && (
+                  <ResizeMenu 
+                    onResize={(size) => handleResize(key, size)} 
+                    onDelete={() => handleDeleteCard(key)} 
+                    isDragging={isDragging}
+                    currentSize={currentlayout.lg.find(item => item.i === key)}
+                  />
+                )}
               </div>
             ))}
           </ResponsiveReactGridLayout>
@@ -839,18 +1066,49 @@ function Layout() {
               Made with Kasbu
             </a>
           )}
-          <Sidebar 
-            onAddCard={handleAddCard} 
-            onChangeBackground={handleBackgroundChange} 
-            onTitleChange={handleTitleChange}
-            onFontChange={handleFontChange}
-            onAddSticker={handleAddSticker}
-            currentTitle={title}
-            currentFontIndex={currentFontIndex}
+          <DevSidebar 
             onSave={handleSave}
-            onViewModeChange={handleViewModeChange}
-            className={`transform transition-transform duration-[2000ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${isSidebarVisible ? 'translate-y-0' : 'translate-y-[300%]'}`}
+            onLoad={handleLoad}
+            isEditorMode={isEditorMode}
+            onEditorModeChange={(mode) => {
+              // Actualizar la URL sin recargar la página
+              const url = new URL(window.location.href);
+              const params = new URLSearchParams(url.search);
+              if (mode) {
+                params.set('mode', 'editor');
+              } else {
+                params.delete('mode');
+              }
+              url.search = params.toString();
+              window.history.pushState({}, '', url.toString());
+              
+              // Actualizar el estado global
+              onEditorModeChange(mode);
+              
+              // Actualizar el estado local del sidebar
+              if (!mode) {
+                setIsSidebarVisible(false);
+              } else {
+                setIsSidebarVisible(true);
+              }
+              
+              // Disparar el evento popstate para que React actualice la vista
+              window.dispatchEvent(new Event('popstate'));
+            }}
           />
+          {isEditorMode && (
+            <Sidebar 
+              onAddCard={handleAddCard} 
+              onChangeBackground={handleBackgroundChange} 
+              onTitleChange={handleTitleChange}
+              onFontChange={handleFontChange}
+              onAddSticker={handleAddSticker}
+              currentTitle={title}
+              currentFontIndex={currentFontIndex}
+              onViewModeChange={handleViewModeChange}
+              className={`transform transition-transform duration-[2000ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${isSidebarVisible ? 'translate-y-0' : 'translate-y-[300%]'}`}
+            />
+          )}
         </div>
       </div>
     </LayoutContext.Provider>

@@ -2,30 +2,64 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { SocialCard } from './cards/SocialCard';
 import { ImageCard } from './cards/ImageCard';
+import { MapCard } from './cards/MapCard';
 import type { SocialPlatform } from './cards/SocialCard';
+import { motion } from 'framer-motion';
+import '../styles/animations.css';
 
 interface FloatingCardProps {
   className?: string;
   style?: React.CSSProperties;
   size?: 'normal' | 'tall';
   children: React.ReactNode;
+  index: number;
 }
 
-const FloatingCard = ({ className = '', size = 'normal', children }: FloatingCardProps) => {
+const FloatingCard = ({ className = '', size = 'normal', children, index }: FloatingCardProps) => {
   const sizeClasses = {
-    normal: 'w-44 h-44',
-    tall: 'w-44 h-[352px]',
+    normal: 'w-48 h-48',
+    tall: 'w-48 h-96',
   }[size];
 
+  const patterns = [
+    {
+      y: [0, -40, -15, 40, 0],
+      x: [0, 40, -15, -40, 0],
+      rotate: [-5, 0, 5, 0, -5]
+    },
+    {
+      y: [-15, -45, 0, -25, -15],
+      x: [-40, 15, 40, -10, -40],
+      rotate: [3, -3, 3, -3, 3]
+    },
+    {
+      y: [10, -30, -50, 25, 10],
+      x: [30, -30, 0, 30, 30],
+      rotate: [0, -3, 0, 3, 0]
+    }
+  ];
+
+  const patternIndex = index % patterns.length;
+  const duration = 15 + (index % 3) * 5;
+
   return (
-    <div className={`absolute ${sizeClasses} ${className}`}>
+    <motion.div 
+      className={`absolute ${sizeClasses} ${className} rounded-2xl overflow-hidden`}
+      animate={patterns[patternIndex]}
+      transition={{ 
+        duration: duration,
+        ease: "easeInOut",
+        repeat: Infinity,
+        repeatType: "reverse"
+      }}
+    >
       {children}
-    </div>
+    </motion.div>
   );
 };
 
 interface CardConfig {
-  type: 'social' | 'image';
+  type: 'social' | 'image' | 'map';
   platform?: SocialPlatform;
   position: string;
   size?: 'normal' | 'tall';
@@ -43,22 +77,11 @@ const CARDS_CONFIG: CardConfig[] = [
     position: 'left-32 bottom-80',
     size: 'tall',
     depth: 15,
-    scale: 1.25,
-    blur: 'blur-[1.5px]',
+    scale: 0.7,
+    blur: 'blur-[2.2px]',
     text: 'Mi compañero fiel 🐾',
-    imageUrl: 'https://plus.unsplash.com/premium_photo-1666777247416-ee7a95235559?q=80&w=1374&auto=format&fit=crop',
+    imageUrl: 'https://content.elmueble.com/medio/2023/03/02/perro-de-raza-beagle_67c65dda_230302133829_900x900.jpg',
     description: 'Mi compañero fiel 🐾'
-  },
-  {
-    type: 'social',
-    platform: 'youtube',
-    position: 'left-64 top-8',
-    size: 'normal',
-    depth: 4,
-    scale: 1.1,
-    blur: 'blur-[0.8px]',
-    text: 'Últimos vlogs',
-    description: '@luisitocomunica'
   },
   {
     type: 'social',
@@ -66,7 +89,7 @@ const CARDS_CONFIG: CardConfig[] = [
     position: 'left-16 top-24',
     size: 'normal',
     depth: 3,
-    scale: 0.85,
+    scale: 1.2,
     text: 'Mis proyectos',
     description: '@midudev'
   },
@@ -74,82 +97,92 @@ const CARDS_CONFIG: CardConfig[] = [
     type: 'social',
     platform: 'instagram',
     position: 'right-24 top-16',
-    size: 'tall',
-    depth: 12,
-    scale: 1.25,
+    size: 'normal',
+    depth: 4,
+    scale: 1.15,
+    blur: 'blur-[1.8px]',
     text: 'Mi día a día',
     description: '@leomessi'
+  },
+  {
+    type: 'map',
+    position: 'right-48 top-64',
+    size: 'normal',
+    depth: 6,
+    scale: 1.1,
+    blur: 'blur-[1px]',
+    text: 'Mérida',
+    description: 'Mi ubicación'
+  },
+  {
+    type: 'social',
+    platform: 'youtube',
+    position: 'left-64 top-8',
+    size: 'normal',
+    depth: 8,
+    scale: 1,
+    blur: 'blur-[0.8px]',
+    text: 'Últimos vlogs',
+    description: '@luisitocomunica'
   },
   {
     type: 'social',
     platform: 'spotify',
     position: 'right-80 top-32',
     size: 'normal',
-    depth: 8,
-    scale: 1.05,
-    blur: 'blur-[0.8px]',
+    depth: 9,
+    scale: 0.95,
+    blur: 'blur-[0.2px]',
     text: 'Lo que escucho',
     description: '@badbunnypr'
-  },
-  {
-    type: 'social',
-    platform: 'twitter',
-    position: 'right-16 top-96',
-    size: 'normal',
-    depth: 4,
-    scale: 0.8,
-    blur: 'blur-[2px]',
-    text: 'Mis ideas',
-    description: '@elonmusk'
   },
   {
     type: 'social',
     platform: 'linkedin',
     position: 'left-96 bottom-24',
     size: 'normal',
-    depth: 9,
-    scale: 1.1,
-    blur: 'blur-[0.8px]',
+    depth: 10,
+    scale: 0.9,
+    blur: 'blur-[1.2px]',
     text: 'Mi experiencia',
     description: '@billgates'
-  },
-  {
-    type: 'social',
-    platform: 'twitch',
-    position: 'right-48 bottom-8',
-    size: 'tall',
-    depth: 14,
-    scale: 1.25,
-    text: 'Streams en vivo',
-    description: '@ibai'
   },
   {
     type: 'social',
     platform: 'discord',
     position: 'left-32 bottom-16',
     size: 'normal',
-    depth: 6,
+    depth: 12,
     scale: 0.85,
-    blur: 'blur-[1.5px]',
+    blur: 'blur-[0.8px]',
     text: 'Únete al chat',
     description: '@pewdiepie'
+  },
+  {
+    type: 'social',
+    platform: 'twitter',
+    position: 'right-16 top-96',
+    size: 'normal',
+    depth: 13,
+    scale: 0.8,
+    text: 'Mis ideas',
+    description: '@elonmusk'
+  },
+  {
+    type: 'social',
+    platform: 'twitch',
+    position: 'right-48 bottom-8',
+    size: 'normal',
+    depth: 14,
+    scale: 0.75,
+    blur: 'blur-[1.2px]',
+    text: 'Streams en vivo',
+    description: '@ibai'
   }
 ];
 
 const FloatingCards = ({ startSequence }: { startSequence: boolean }) => {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [visibleCards, setVisibleCards] = useState<number>(-1);
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      const x = (e.clientX / window.innerWidth) * 2 - 1;
-      const y = (e.clientY / window.innerHeight) * 2 - 1;
-      setMousePosition({ x: x * 0.5, y: y * 0.5 });
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
 
   useEffect(() => {
     if (startSequence) {
@@ -164,10 +197,6 @@ const FloatingCards = ({ startSequence }: { startSequence: boolean }) => {
     }
   }, [startSequence]);
 
-  const getParallaxStyle = (depth: number) => ({
-    transform: `translate3d(${mousePosition.x * depth}px, ${mousePosition.y * depth}px, 0)`
-  });
-
   const cardClasses = (index: number) => `
     transition-[opacity,transform] duration-500 ease-out
     ${visibleCards >= index ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}
@@ -179,15 +208,26 @@ const FloatingCards = ({ startSequence }: { startSequence: boolean }) => {
         key={index}
         className={`fixed ${config.position} ${cardClasses(index)}`}
         size={config.size || 'normal'}
+        index={index}
       >
-        <div 
-          className={`transform scale-[${config.scale}] ${config.blur || ''} transition-transform duration-700 ease-out`}
-          style={getParallaxStyle(config.depth)}
-        >
+        <div className={`${config.blur || ''} w-full h-full`}>
           {config.type === 'image' ? (
-            <ImageCard imageUrl={config.imageUrl!}>
+            <div className="w-full h-full">
+              <img 
+                src={config.imageUrl} 
+                alt={config.text}
+                className="w-full h-full object-cover rounded-2xl"
+              />
+              <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/80 to-transparent rounded-b-2xl">
+                <div className="text-white text-sm">
+                  {config.text}
+                </div>
+              </div>
+            </div>
+          ) : config.type === 'map' ? (
+            <MapCard>
               {config.text}
-            </ImageCard>
+            </MapCard>
           ) : (
             <SocialCard platform={config.platform!} description={config.description}>
               {config.text}
@@ -308,6 +348,7 @@ const HomeScreen = () => {
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-1/2 -left-1/2 w-[200%] h-[200%] bg-[radial-gradient(circle_at_50%_50%,rgba(99,102,241,0.05),transparent_50%)]" />
           <div className="absolute top-0 left-0 w-full h-full bg-[linear-gradient(to_right,transparent,rgba(255,255,255,0.8),transparent)]" />
+          <div className="absolute bottom-0 left-0 w-full h-[70vh] bg-[linear-gradient(to_top,rgba(255,255,255,1),rgba(255,255,255,0.8),transparent)]" />
         </div>
 
         <FloatingCards startSequence={showCards} />
@@ -321,11 +362,12 @@ const HomeScreen = () => {
               ${mounted ? 'scale-100 opacity-100' : 'scale-50 opacity-0'}`}>
               <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 blur-2xl 
                 group-hover:from-blue-600/30 group-hover:to-purple-600/30 transition-all duration-500" />
-              <h1 className="relative text-[6rem] leading-none font-normal font-['Modernia'] bg-gradient-to-r from-blue-600 to-purple-600 
-                bg-clip-text text-transparent transition-all duration-500
-                hover:from-blue-500 hover:to-purple-500">
-                K
-              </h1>
+              <img 
+                src="/images/Kasbu.png" 
+                alt="Kasbu Logo" 
+                className="relative w-32 h-32 object-contain mx-auto transition-all duration-500 
+                  hover:scale-105"
+              />
             </div>
 
             {/* Contador y Botón */}
