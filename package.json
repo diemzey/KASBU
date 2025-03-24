@@ -15,6 +15,7 @@
     "@vercel/analytics": "^1.5.0",
     "better-auth": "^1.2.4",
     "caniuse-lite": "^1.0.30001702",
+    "canvas-confetti": "^1.9.3",
     "framer-motion": "^12.4.10",
     "install": "^0.13.0",
     "mapbox-gl": "^2.15.0",
