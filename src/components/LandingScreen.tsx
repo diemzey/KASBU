@@ -92,54 +92,66 @@ const LandingScreen = ({ onLogin }: LandingScreenProps) => {
   const handleGoogleSignIn = async (e: React.MouseEvent) => {
     e.preventDefault();
     setErrorMessage("");
+    setIsLoading(true);
     
-    // Validar username primero
-    if (!username || username.length < 3) {
-      setErrorMessage("El nombre de usuario debe tener al menos 3 caracteres");
-      return;
-    }
+    try {
+      // Validar username primero
+      if (!username || username.length < 3) {
+        setErrorMessage("El nombre de usuario debe tener al menos 3 caracteres");
+        return;
+      }
 
-    // Si no se ha verificado la disponibilidad, hacerlo ahora
-    if (isAvailable === null) {
-      setIsCheckingUsername(true);
-      try {
-        const response = await fetch(`https://back.kasbu.com/check-username/${username}`);
-        const data = await response.json();
-        const available = !data.exists;
-        setIsAvailable(available);
-        if (!available) {
-          setErrorMessage("Este nombre de usuario no está disponible");
+      // Si no se ha verificado la disponibilidad, hacerlo ahora
+      if (isAvailable === null) {
+        setIsCheckingUsername(true);
+        try {
+          const response = await fetch(`https://back.kasbu.com/check-username/${username}`);
+          const data = await response.json();
+          const available = !data.exists;
+          setIsAvailable(available);
+          if (!available) {
+            setErrorMessage("Este nombre de usuario no está disponible");
+            setIsCheckingUsername(false);
+            return;
+          }
+        } catch (error) {
+          console.error('Error checking username:', error);
+          setErrorMessage("Error al verificar el nombre de usuario");
           setIsCheckingUsername(false);
           return;
         }
-      } catch (error) {
-        console.error('Error checking username:', error);
-        setErrorMessage("Error al verificar el nombre de usuario");
-        setIsCheckingUsername(false);
+      } else if (!isAvailable) {
+        setErrorMessage("Este nombre de usuario no está disponible");
         return;
       }
-    } else if (!isAvailable) {
-      setErrorMessage("Este nombre de usuario no está disponible");
-      return;
-    }
 
-    // Si llegamos aquí, el username es válido y está disponible
-    try {
-      await googleSignUp();
+      // Si llegamos aquí, el username es válido y está disponible
+      const signUpResult = await googleSignUp();
+      
+      if (!signUpResult) {
+        setErrorMessage("Error durante el inicio de sesión con Google");
+        return;
+      }
+
       const { data, error } = await authClient.updateUser({
         username: username,
       });
+
       if (error) {
-        setErrorMessage(error.message || "Usuario no válido");
-      } else {
-        navigate("/beta");
+        console.error("Error updating username:", error);
+        setErrorMessage("No se pudo asignar el nombre de usuario. Por favor, intenta con otro.");
+        return;
       }
+
+      navigate("/beta");
     } catch (error) {
       const authError = error as AuthError;
       console.error("Error during Google sign-in:", error);
       setErrorMessage(
-        authError.message || "Error durante el inicio de sesión con Google",
+        authError.message || "Hubo un problema durante el inicio de sesión. Por favor, intenta de nuevo."
       );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -410,7 +422,7 @@ const LandingScreen = ({ onLogin }: LandingScreenProps) => {
                     className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-xl font-medium 
                       hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg shadow-blue-500/25 
                       disabled:opacity-50 disabled:cursor-not-allowed group relative"
-                    disabled={!isAvailable || !email || !password || !name || isLoading}
+                    disabled={!username || username.length < 3 || isAvailable === false || !email || !password || !name || isLoading || isCheckingUsername}
                   >
                     <div
                       className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300
