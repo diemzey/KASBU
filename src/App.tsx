@@ -6,6 +6,7 @@ import HomeScreen from "./components/HomeScreen";
 import BlackHole from "./components/SolarSystem";
 import BetaPage from "./components/BetaPage";
 import { authClient } from "./utils/auth-client";
+import { Analytics } from "@vercel/analytics/react";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -55,6 +56,7 @@ function App() {
             }
           />
         </Routes>
+        <Analytics />
       </main>
     </BrowserRouter>
   );
