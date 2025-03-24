@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { authClient, emailSignUp, googleSignUp } from "../utils/auth-client";
 import { redirect, useLocation, useNavigate } from "react-router-dom";
 
@@ -25,6 +25,7 @@ const LandingScreen = ({ onLogin }: LandingScreenProps) => {
   const [mounted, setMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isCheckingUsername, setIsCheckingUsername] = useState(false);
+  const checkTimeout = useRef<number | null>(null);
 
   useEffect(() => {
     const checkSession = async () => {
@@ -40,7 +41,7 @@ const LandingScreen = ({ onLogin }: LandingScreenProps) => {
       
       setMounted(true);
       if (initialUsername) {
-        checkAvailability();
+        checkAvailability(initialUsername);
       }
     };
 
@@ -48,21 +49,35 @@ const LandingScreen = ({ onLogin }: LandingScreenProps) => {
   }, [navigate, initialUsername]);
 
   const handleUsernameChange = (value: string) => {
-    setUsername(value.toLowerCase().replace(/[^a-z0-9-]/g, ""));
-    setIsAvailable(null);
+    const sanitizedValue = value.toLowerCase().replace(/[^a-z0-9-]/g, "");
+    setUsername(sanitizedValue);
+    
+    // Si el valor es menor a 3 caracteres, marcamos como no disponible
+    if (sanitizedValue.length < 3) {
+      setIsAvailable(false);
+      return;
+    }
+
+    // Debounce para no hacer demasiadas llamadas al servidor
+    if (checkTimeout.current) {
+      clearTimeout(checkTimeout.current);
+    }
+
+    checkTimeout.current = setTimeout(() => {
+      checkAvailability(sanitizedValue);
+    }, 300);
   };
 
-  const checkAvailability = async () => {
-    if (!username || username.length < 3) {
+  const checkAvailability = async (value: string) => {
+    if (!value || value.length < 3) {
       setIsAvailable(false);
       return;
     }
 
     setIsCheckingUsername(true);
     try {
-      const response = await fetch(`https://back.kasbu.com/check-username/${username}`);
+      const response = await fetch(`https://back.kasbu.com/check-username/${value}`);
       const data = await response.json();
-      // Si exists es false, significa que el usuario está disponible
       setIsAvailable(!data.exists);
     } catch (error) {
       console.error('Error checking username:', error);
@@ -224,8 +239,8 @@ const LandingScreen = ({ onLogin }: LandingScreenProps) => {
                     type="text"
                     value={username}
                     onChange={(e) => handleUsernameChange(e.target.value)}
-                    onBlur={checkAvailability}
-                    className="block w-full pl-[7.5rem] pr-10 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                    onBlur={() => checkAvailability(username)}
+                    className="block w-full pl-[calc(7.5rem-0.5rem)] pr-10 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
                     placeholder="mi-nombre"
                     required
                     minLength={3}
