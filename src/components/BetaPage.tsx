@@ -69,6 +69,7 @@ const BetaPage = () => {
             }
           } else if (data.user.username) {
             setUserUsername(data.user.username);
+            // Siempre mostramos el mensaje de éxito si el usuario tiene un username
             setUsernameStatus('success');
           }
           setShowLoadingModal(false);
@@ -138,7 +139,7 @@ const BetaPage = () => {
                 </div>
                 <div className="text-center">
                   <p className="text-green-700 text-lg font-medium mb-1">
-                    ¡Has reservado tu nombre de usuario!
+                    {requestedUsername ? '¡Has reservado tu nombre de usuario!' : 'Tu nombre de usuario está reservado'}
                   </p>
                   <p className="text-green-600 text-sm mb-3">
                     Serás de los primeros en tener tu espacio en Kasbu
