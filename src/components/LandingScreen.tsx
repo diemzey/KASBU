@@ -141,7 +141,8 @@ const LandingScreen = ({ onLogin }: LandingScreenProps) => {
   };
 
   return (
-    <div className="relative min-h-screen w-full bg-white overflow-hidden">
+    <div className={`relative min-h-screen w-full bg-white overflow-hidden transition-opacity duration-500
+      ${showLoadingModal ? 'opacity-0' : 'opacity-100'}`}>
       <LoadingModal 
         isOpen={showLoadingModal} 
         message="Iniciando sesión con Google..."

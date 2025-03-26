@@ -7,6 +7,7 @@ import type { SocialPlatform } from '../types';
 import { motion } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import '../styles/animations.css';
+import LoadingModal from './LoadingModal';
 
 interface FloatingCardProps {
   className?: string;
@@ -342,40 +343,9 @@ const HomeScreen = () => {
 
   return (
     <>
-      {/* Loading Screen */}
-      <div className={`fixed inset-0 z-50 flex items-center justify-center bg-white transition-opacity duration-500
-        ${isExiting ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-        <div className="relative">
-          {/* Fondo con gradiente animado */}
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 blur-2xl 
-            animate-pulse" />
-          
-          {/* Loading icon */}
-          <div className="relative">
-            <svg className="w-12 h-12 animate-spin" viewBox="0 0 24 24">
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-                fill="none"
-                style={{ color: '#6366f1' }}
-              />
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                style={{ color: '#6366f1' }}
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              />
-            </svg>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className={`relative min-h-screen w-full bg-white overflow-hidden transition-opacity duration-800
+      <LoadingModal isOpen={isExiting} />
+      
+      <div className={`relative min-h-screen w-full bg-white transition-opacity duration-500
         ${isExiting ? 'opacity-0' : 'opacity-100'}`}>
         {/* Fondo decorativo */}
         <div className="absolute inset-0 overflow-hidden">
