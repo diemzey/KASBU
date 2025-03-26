@@ -8,9 +8,11 @@ const BetaPage = () => {
   const [userUsername, setUserUsername] = useState('');
   const [usernameStatus, setUsernameStatus] = useState<'success' | 'error' | null>(null);
   const [showLoadingModal, setShowLoadingModal] = useState(true);
+  const [debugInfo, setDebugInfo] = useState<any>(null);
   const navigate = useNavigate();
   const location = useLocation();
   const requestedUsername = location.state?.username;
+  const isDevelopment = true; // Forzamos modo desarrollo
 
   useEffect(() => {
     const getUserData = async () => {
@@ -18,6 +20,9 @@ const BetaPage = () => {
         const { data } = await authClient.getSession();
         if (data?.user?.name) {
           setUserName(data.user.name);
+          if (isDevelopment) {
+            setDebugInfo(prev => ({ ...prev, sessionData: data }));
+          }
 
           // Si tenemos un username pendiente de actualizar, lo intentamos aquí
           if (requestedUsername && !data.user.username) {
@@ -29,6 +34,9 @@ const BetaPage = () => {
               if (updateError) {
                 console.error("Error updating username:", updateError);
                 setUsernameStatus('error');
+                if (isDevelopment) {
+                  setDebugInfo(prev => ({ ...prev, updateError }));
+                }
                 navigate('/', { 
                   state: { 
                     error: "No se pudo asignar el nombre de usuario. Por favor, intenta con otro." 
@@ -42,10 +50,16 @@ const BetaPage = () => {
               if (updatedData?.user?.username) {
                 setUserUsername(updatedData.user.username);
                 setUsernameStatus('success');
+                if (isDevelopment) {
+                  setDebugInfo(prev => ({ ...prev, updatedData }));
+                }
               }
             } catch (error) {
               console.error("Error updating username:", error);
               setUsernameStatus('error');
+              if (isDevelopment) {
+                setDebugInfo(prev => ({ ...prev, error }));
+              }
               navigate('/', { 
                 state: { 
                   error: "Hubo un problema al actualizar tu nombre de usuario. Por favor, intenta de nuevo." 
@@ -63,11 +77,14 @@ const BetaPage = () => {
         }
       } catch (error) {
         console.error('Error getting user data:', error);
+        if (isDevelopment) {
+          setDebugInfo(prev => ({ ...prev, error }));
+        }
         navigate('/');
       }
     };
     getUserData();
-  }, [navigate, requestedUsername]);
+  }, [navigate, requestedUsername, isDevelopment]);
 
   const handleSignOut = async () => {
     try {
@@ -76,6 +93,9 @@ const BetaPage = () => {
       navigate('/');
     } catch (error) {
       console.error('Error signing out:', error);
+      if (isDevelopment) {
+        setDebugInfo(prev => ({ ...prev, signOutError: error }));
+      }
       setShowLoadingModal(false);
     }
   };
@@ -133,6 +153,18 @@ const BetaPage = () => {
           <p className="text-xl text-gray-600 mt-6">
             Pronto Kasbu estará disponible para ti
           </p>
+
+          {/* Debug Info */}
+          {isDevelopment && debugInfo && (
+            <div className="mt-8 text-left">
+              <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
+                <h2 className="text-lg font-medium text-gray-800 mb-2">Debug Info:</h2>
+                <pre className="text-xs text-gray-600 overflow-auto max-h-96">
+                  {JSON.stringify(debugInfo, null, 2)}
+                </pre>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
