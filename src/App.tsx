@@ -5,6 +5,7 @@ import LandingScreen from "./components/LandingScreen";
 import HomeScreen from "./components/HomeScreen";
 import BlackHole from "./components/SolarSystem";
 import BetaPage from "./components/BetaPage";
+import UserPage from "./components/UserPage";
 import { authClient } from "./utils/auth-client";
 import { Analytics } from "@vercel/analytics/react";
 
@@ -46,6 +47,7 @@ function App() {
           />
           <Route path="/solar" element={<BlackHole />} />
           <Route path="/beta" element={<BetaPage />} />
+          <Route path="/:username" element={<UserPage />} />
           <Route
             path="/app"
             element={
