@@ -7,6 +7,7 @@ import Sidebar from "./Sidebar";
 import DevSidebar from "./DevSidebar";
 import ColorMenu from "./ColorMenu";
 import Sticker from "./Sticker";
+import DemoBanner from "./DemoBanner";
 import "../styles/grid.css";
 import { Platform } from "../types";
 
@@ -863,12 +864,13 @@ function Layout({ isEditorMode, onEditorModeChange }: LayoutProps) {
 
   return (
     <LayoutContext.Provider value={contextValue}>
-      <div className={`min-h-screen transition-colors duration-500 ${background} ${pattern}`}>
-        <div className={`relative mx-auto ${viewMode === 'web' ? 'max-w-[430px] border-x border-gray-200' : ''} min-h-screen py-16 pb-32 px-2 md:px-24`}>
-          {/* Stickers Layer */}
-          <div className={`fixed inset-0 pointer-events-none ${isMobile ? 'hidden' : ''}`}>
-            <div className="absolute inset-0 pointer-events-auto">
-              {stickers.map(sticker => (
+      <div className="min-h-screen w-full bg-white relative">
+        <DemoBanner />
+        <div className={`min-h-screen transition-colors duration-500 ${background} ${pattern}`}>
+          <div className={`relative mx-auto ${viewMode === 'web' ? 'max-w-[430px] border-x border-gray-200' : ''} min-h-screen py-16 pb-32 px-2 md:px-24`}>
+            {/* Stickers Layer */}
+            <div className={`fixed inset-0 pointer-events-none ${isMobile ? 'hidden' : ''}`}>
+              {stickers.map((sticker) => (
                 <Sticker
                   key={sticker.id}
                   emoji={sticker.emoji}
@@ -877,238 +879,238 @@ function Layout({ isEditorMode, onEditorModeChange }: LayoutProps) {
                 />
               ))}
             </div>
-          </div>
 
-          <div className="flex flex-col items-center gap-1 sm:gap-2 mb-4 sm:mb-8 w-full">
-            {/* Título */}
-            <div className="relative flex-1 max-w-3xl w-full px-4">
-              <div className="h-[60px] sm:h-[80px] md:h-[100px] flex items-center">
-                {isEditorMode && (
-                  <div className="absolute inset-y-0 left-0 flex items-center z-10">
-                    <button
-                      onClick={() => handleFontChange((currentFontIndex - 1 + fonts.length) % fonts.length)}
-                      className="text-gray-400 hover:text-blue-500 transition-colors"
-                    >
-                      <svg className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                      </svg>
-                    </button>
-                  </div>
-                )}
-                <div className="relative w-full group">
-                  <input
-                    type="text"
-                    value={title}
-                    onChange={(e) => handleTitleChange(e.target.value)}
-                    className={`peer ${isMobile ? 'text-4xl' : 'text-4xl sm:text-6xl md:text-8xl'} font-bold text-center bg-transparent border-none outline-none focus:ring-0 bg-gradient-to-r ${titleColor} bg-clip-text text-transparent ${fonts[currentFontIndex].class}
-                      caret-blue-500 selection:bg-blue-500/20 w-full px-8 sm:px-12 md:px-16 leading-none
-                      opacity-0 animate-[titleAppear_800ms_cubic-bezier(0.22,1,0.36,1)_forwards]`}
-                    placeholder="kasbu"
-                    readOnly={!isEditorMode}
-                  />
+            <div className="flex flex-col items-center gap-1 sm:gap-2 mb-4 sm:mb-8 w-full">
+              {/* Título */}
+              <div className="relative flex-1 max-w-3xl w-full px-4">
+                <div className="h-[60px] sm:h-[80px] md:h-[100px] flex items-center">
                   {isEditorMode && (
-                    <ColorMenu 
-                      value={titleColor}
-                      onChange={(color) => handleTitleChange(title, color)}
+                    <div className="absolute inset-y-0 left-0 flex items-center z-10">
+                      <button
+                        onClick={() => handleFontChange((currentFontIndex - 1 + fonts.length) % fonts.length)}
+                        className="text-gray-400 hover:text-blue-500 transition-colors"
+                      >
+                        <svg className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                        </svg>
+                      </button>
+                    </div>
+                  )}
+                  <div className="relative w-full group">
+                    <input
+                      type="text"
+                      value={title}
+                      onChange={(e) => handleTitleChange(e.target.value)}
+                      className={`peer ${isMobile ? 'text-4xl' : 'text-4xl sm:text-6xl md:text-8xl'} font-bold text-center bg-transparent border-none outline-none focus:ring-0 bg-gradient-to-r ${titleColor} bg-clip-text text-transparent ${fonts[currentFontIndex].class}
+                        caret-blue-500 selection:bg-blue-500/20 w-full px-8 sm:px-12 md:px-16 leading-none
+                        opacity-0 animate-[titleAppear_800ms_cubic-bezier(0.22,1,0.36,1)_forwards]`}
+                      placeholder="kasbu"
+                      readOnly={!isEditorMode}
                     />
+                    {isEditorMode && (
+                      <ColorMenu 
+                        value={titleColor}
+                        onChange={(color) => handleTitleChange(title, color)}
+                      />
+                    )}
+                  </div>
+                  {isEditorMode && (
+                    <div className="absolute inset-y-0 right-0 flex items-center z-10">
+                      <button
+                        onClick={() => handleFontChange((currentFontIndex + 1) % fonts.length)}
+                        className="text-gray-400 hover:text-blue-500 transition-colors"
+                      >
+                        <svg className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </button>
+                    </div>
                   )}
                 </div>
-                {isEditorMode && (
-                  <div className="absolute inset-y-0 right-0 flex items-center z-10">
-                    <button
-                      onClick={() => handleFontChange((currentFontIndex + 1) % fonts.length)}
-                      className="text-gray-400 hover:text-blue-500 transition-colors"
-                    >
-                      <svg className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </button>
-                  </div>
-                )}
               </div>
-            </div>
 
-            {/* Subtítulo */}
-            <div className="relative flex-1 max-w-2xl w-full px-4">
-              <div className="min-h-[30px] sm:min-h-[40px] md:min-h-[60px] flex items-center py-1 sm:py-2">
-                {isEditorMode && (
-                  <div className="absolute inset-y-0 left-0 flex items-center">
-                    <button
-                      onClick={() => handleFontChange((currentSubtitleFontIndex - 1 + fonts.length) % fonts.length, true)}
-                      className="text-gray-400 hover:text-blue-500 transition-colors"
-                    >
-                      <svg className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                      </svg>
-                    </button>
-                  </div>
-                )}
-                <div className="relative w-full group">
-                  <textarea
-                    value={subtitle}
-                    onChange={(e) => handleTitleChange(e.target.value, undefined, true)}
-                    className={`peer ${isMobile ? 'text-lg' : 'text-xl sm:text-2xl md:text-3xl'} font-medium text-center bg-transparent border-none outline-none focus:ring-0 bg-gradient-to-r ${subtitleColor} bg-clip-text text-transparent ${fonts[currentSubtitleFontIndex].class}
-                      caret-blue-500 selection:bg-blue-500/20 w-full px-6 sm:px-8 md:px-12 leading-tight resize-none overflow-hidden max-h-[160px]
-                      opacity-0 animate-[subtitleAppear_800ms_cubic-bezier(0.22,1,0.36,1)_forwards_200ms]`}
-                    placeholder="Subtítulo"
-                    rows={1}
-                    style={{ height: 'auto' }}
-                    readOnly={!isEditorMode}
-                    onInput={(e) => {
-                      const target = e.target as HTMLTextAreaElement;
-                      target.style.height = 'auto';
-                      target.style.height = Math.min(target.scrollHeight, 160) + 'px';
-                    }}
-                  />
+              {/* Subtítulo */}
+              <div className="relative flex-1 max-w-2xl w-full px-4">
+                <div className="min-h-[30px] sm:min-h-[40px] md:min-h-[60px] flex items-center py-1 sm:py-2">
                   {isEditorMode && (
-                    <ColorMenu 
-                      value={subtitleColor}
-                      onChange={(color) => handleTitleChange(subtitle, color, true)}
+                    <div className="absolute inset-y-0 left-0 flex items-center">
+                      <button
+                        onClick={() => handleFontChange((currentSubtitleFontIndex - 1 + fonts.length) % fonts.length, true)}
+                        className="text-gray-400 hover:text-blue-500 transition-colors"
+                      >
+                        <svg className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                        </svg>
+                      </button>
+                    </div>
+                  )}
+                  <div className="relative w-full group">
+                    <textarea
+                      value={subtitle}
+                      onChange={(e) => handleTitleChange(e.target.value, undefined, true)}
+                      className={`peer ${isMobile ? 'text-lg' : 'text-xl sm:text-2xl md:text-3xl'} font-medium text-center bg-transparent border-none outline-none focus:ring-0 bg-gradient-to-r ${subtitleColor} bg-clip-text text-transparent ${fonts[currentSubtitleFontIndex].class}
+                        caret-blue-500 selection:bg-blue-500/20 w-full px-6 sm:px-8 md:px-12 leading-tight resize-none overflow-hidden max-h-[160px]
+                        opacity-0 animate-[subtitleAppear_800ms_cubic-bezier(0.22,1,0.36,1)_forwards_200ms]`}
+                      placeholder="Subtítulo"
+                      rows={1}
+                      style={{ height: 'auto' }}
+                      readOnly={!isEditorMode}
+                      onInput={(e) => {
+                        const target = e.target as HTMLTextAreaElement;
+                        target.style.height = 'auto';
+                        target.style.height = Math.min(target.scrollHeight, 160) + 'px';
+                      }}
                     />
+                    {isEditorMode && (
+                      <ColorMenu 
+                        value={subtitleColor}
+                        onChange={(color) => handleTitleChange(subtitle, color, true)}
+                      />
+                    )}
+                  </div>
+                  {isEditorMode && (
+                    <div className="absolute inset-y-0 right-0 flex items-center">
+                      <button
+                        onClick={() => handleFontChange((currentSubtitleFontIndex + 1) % fonts.length, true)}
+                        className="text-gray-400 hover:text-blue-500 transition-colors"
+                      >
+                        <svg className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </button>
+                    </div>
                   )}
                 </div>
-                {isEditorMode && (
-                  <div className="absolute inset-y-0 right-0 flex items-center">
-                    <button
-                      onClick={() => handleFontChange((currentSubtitleFontIndex + 1) % fonts.length, true)}
-                      className="text-gray-400 hover:text-blue-500 transition-colors"
-                    >
-                      <svg className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </button>
-                  </div>
-                )}
               </div>
             </div>
-          </div>
-          <ResponsiveReactGridLayout
-            className="w-full max-w-[800px] mx-auto"
-            breakpoints={{ lg: 800, md: 600, sm: 400, xs: 0 }}
-            cols={{ lg: 4, md: 4, sm: 2, xs: 2 }}
-            rowHeight={180}
-            margin={[12, 12]}
-            containerPadding={[4, 4]}
-            layouts={filteredLayouts}
-            onDragStart={() => setIsDragging(true)}
-            onDragStop={() => {
-              setTimeout(() => {
-                setIsDragging(false);
-                setSelectedCard(null);
-              }, 100);
-            }}
-            useCSSTransforms={false}
-            draggableCancel=".no-drag"
-            isDraggable={isEditorMode && (selectedCard ? true : window.innerWidth >= 600)}
-            draggableHandle={selectedCard ? undefined : ".drag-handle"}
-            preventCollision={false}
-            compactType={null}
-            verticalCompact={false}
-            isDroppable={isEditorMode}
-            onDrop={(layout, item, e) => {
-              e.preventDefault();
-              return item;
-            }}
-            allowOverlap={false}
-            onLayoutChange={onLayoutChange}
-          >
-            {visibleCards.map((key) => (
-              <div
-                key={key}
-                onClick={() => {
-                  if (isEditorMode && window.innerWidth < 600) {
-                    setSelectedCard(prev => prev === key ? null : key);
-                  }
-                }}
-                className={`bg-[#f5f5f7] flex justify-center items-center rounded-[1.5rem] text-2xl text-[#1d1d1f] visible 
-                  ${isEditorMode ? (window.innerWidth < 600 ? (selectedCard === key ? 'cursor-grab ring-4 ring-blue-500 ring-offset-4 ring-offset-white' : 'cursor-pointer') : 'cursor-grab') : 'cursor-default'} 
-                  group relative overflow-hidden ${isEditorMode && window.innerWidth >= 600 ? 'drag-handle' : ''}
-                  shadow-[0_12px_24px_-6px_rgba(0,0,0,0.12),0_6px_12px_-2px_rgba(0,0,0,0.04),0_0_0_1px_rgba(0,0,0,0.05),inset_0_1px_0_rgba(255,255,255,0.3)]
-                  hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.18),0_12px_24px_-6px_rgba(0,0,0,0.06),0_0_0_1px_rgba(0,0,0,0.05),inset_0_1px_0_rgba(255,255,255,0.4)]
-                  ${isEditorMode ? 'active:scale-[0.97]' : ''}
-                  active:shadow-[0_8px_16px_-4px_rgba(0,0,0,0.1),0_3px_6px_-2px_rgba(0,0,0,0.05),0_0_0_1px_rgba(0,0,0,0.05),inset_0_1px_0_rgba(255,255,255,0.2)]
-                  backdrop-blur-[3px]
-                  after:absolute after:inset-0 after:bg-gradient-to-br after:from-white/10 after:to-transparent after:opacity-0
-                  hover:after:opacity-100
-                  before:absolute before:inset-0 before:bg-gradient-to-b before:from-black/[0.01] before:to-black/[0.06]
-                  ${isDragging ? '' : '[transition:box-shadow_300ms_ease-out,transform_300ms_ease-out]'}
-                  ${isInitialLoad ? 'initial-load' : ''}`}
-                style={{
-                  animationDelay: isInitialLoad ? `${Math.floor((currentlayout[isMobile ? 'xs' : 'lg'].find(item => item.i === key)?.y || 0) * 200 + (currentlayout[isMobile ? 'xs' : 'lg'].find(item => item.i === key)?.x || 0) * 100)}ms` : undefined
-                }}
-              >
-                <Block 
-                  keyProp={key} 
-                  onDelete={isEditorMode ? () => handleDeleteCard(key) : undefined}
-                  platform={cards.find(card => card.id === key)?.platform}
-                />
-                {isEditorMode && (
-                  <ResizeMenu 
-                    onResize={(size) => handleResize(key, size)} 
-                    onDelete={() => handleDeleteCard(key)} 
-                    isDragging={isDragging}
-                    currentSize={currentlayout.lg.find(item => item.i === key)}
-                  />
-                )}
-              </div>
-            ))}
-          </ResponsiveReactGridLayout>
-          {!isMobile && (
-            <a
-              href="https://kasbu.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="fixed bottom-4 right-6 text-sm text-gray-400 hover:text-gray-600 transition-all duration-200
-                px-4 py-2 bg-white
-                shadow-[0_2px_4px_rgba(0,0,0,0.02)] hover:shadow-[0_4px_8px_rgba(0,0,0,0.04)]
-                border border-gray-100 rounded-lg z-50"
+            <ResponsiveReactGridLayout
+              className="w-full max-w-[800px] mx-auto"
+              breakpoints={{ lg: 800, md: 600, sm: 400, xs: 0 }}
+              cols={{ lg: 4, md: 4, sm: 2, xs: 2 }}
+              rowHeight={180}
+              margin={[12, 12]}
+              containerPadding={[4, 4]}
+              layouts={filteredLayouts}
+              onDragStart={() => setIsDragging(true)}
+              onDragStop={() => {
+                setTimeout(() => {
+                  setIsDragging(false);
+                  setSelectedCard(null);
+                }, 100);
+              }}
+              useCSSTransforms={false}
+              draggableCancel=".no-drag"
+              isDraggable={isEditorMode && (selectedCard ? true : window.innerWidth >= 600)}
+              draggableHandle={selectedCard ? undefined : ".drag-handle"}
+              preventCollision={false}
+              compactType={null}
+              verticalCompact={false}
+              isDroppable={isEditorMode}
+              onDrop={(layout, item, e) => {
+                e.preventDefault();
+                return item;
+              }}
+              allowOverlap={false}
+              onLayoutChange={onLayoutChange}
             >
-              Made with Kasbu
-            </a>
-          )}
-          <DevSidebar 
-            onSave={handleSave}
-            onLoad={handleLoad}
-            isEditorMode={isEditorMode}
-            onEditorModeChange={(mode) => {
-              // Actualizar la URL sin recargar la página
-              const url = new URL(window.location.href);
-              const params = new URLSearchParams(url.search);
-              if (mode) {
-                params.set('mode', 'editor');
-              } else {
-                params.delete('mode');
-              }
-              url.search = params.toString();
-              window.history.pushState({}, '', url.toString());
-              
-              // Actualizar el estado global
-              onEditorModeChange(mode);
-              
-              // Actualizar el estado local del sidebar
-              if (!mode) {
-                setIsSidebarVisible(false);
-              } else {
-                setIsSidebarVisible(true);
-              }
-              
-              // Disparar el evento popstate para que React actualice la vista
-              window.dispatchEvent(new Event('popstate'));
-            }}
-          />
-          {isEditorMode && (
-            <Sidebar 
-              onAddCard={handleAddCard} 
-              onChangeBackground={handleBackgroundChange} 
-              onTitleChange={handleTitleChange}
-              onFontChange={handleFontChange}
-              onAddSticker={handleAddSticker}
-              currentTitle={title}
-              currentFontIndex={currentFontIndex}
-              onViewModeChange={handleViewModeChange}
-              className={`transform transition-transform duration-[2000ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${isSidebarVisible ? 'translate-y-0' : 'translate-y-[300%]'}`}
+              {visibleCards.map((key) => (
+                <div
+                  key={key}
+                  onClick={() => {
+                    if (isEditorMode && window.innerWidth < 600) {
+                      setSelectedCard(prev => prev === key ? null : key);
+                    }
+                  }}
+                  className={`bg-[#f5f5f7] flex justify-center items-center rounded-[1.5rem] text-2xl text-[#1d1d1f] visible 
+                    ${isEditorMode ? (window.innerWidth < 600 ? (selectedCard === key ? 'cursor-grab ring-4 ring-blue-500 ring-offset-4 ring-offset-white' : 'cursor-pointer') : 'cursor-grab') : 'cursor-default'} 
+                    group relative overflow-hidden ${isEditorMode && window.innerWidth >= 600 ? 'drag-handle' : ''}
+                    shadow-[0_12px_24px_-6px_rgba(0,0,0,0.12),0_6px_12px_-2px_rgba(0,0,0,0.04),0_0_0_1px_rgba(0,0,0,0.05),inset_0_1px_0_rgba(255,255,255,0.3)]
+                    hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.18),0_12px_24px_-6px_rgba(0,0,0,0.06),0_0_0_1px_rgba(0,0,0,0.05),inset_0_1px_0_rgba(255,255,255,0.4)]
+                    ${isEditorMode ? 'active:scale-[0.97]' : ''}
+                    active:shadow-[0_8px_16px_-4px_rgba(0,0,0,0.1),0_3px_6px_-2px_rgba(0,0,0,0.05),0_0_0_1px_rgba(0,0,0,0.05),inset_0_1px_0_rgba(255,255,255,0.2)]
+                    backdrop-blur-[3px]
+                    after:absolute after:inset-0 after:bg-gradient-to-br after:from-white/10 after:to-transparent after:opacity-0
+                    hover:after:opacity-100
+                    before:absolute before:inset-0 before:bg-gradient-to-b before:from-black/[0.01] before:to-black/[0.06]
+                    ${isDragging ? '' : '[transition:box-shadow_300ms_ease-out,transform_300ms_ease-out]'}
+                    ${isInitialLoad ? 'initial-load' : ''}`}
+                  style={{
+                    animationDelay: isInitialLoad ? `${Math.floor((currentlayout[isMobile ? 'xs' : 'lg'].find(item => item.i === key)?.y || 0) * 200 + (currentlayout[isMobile ? 'xs' : 'lg'].find(item => item.i === key)?.x || 0) * 100)}ms` : undefined
+                  }}
+                >
+                  <Block 
+                    keyProp={key} 
+                    onDelete={isEditorMode ? () => handleDeleteCard(key) : undefined}
+                    platform={cards.find(card => card.id === key)?.platform}
+                  />
+                  {isEditorMode && (
+                    <ResizeMenu 
+                      onResize={(size) => handleResize(key, size)} 
+                      onDelete={() => handleDeleteCard(key)} 
+                      isDragging={isDragging}
+                      currentSize={currentlayout.lg.find(item => item.i === key)}
+                    />
+                  )}
+                </div>
+              ))}
+            </ResponsiveReactGridLayout>
+            {!isMobile && (
+              <a
+                href="https://kasbu.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="fixed bottom-4 right-6 text-sm text-gray-400 hover:text-gray-600 transition-all duration-200
+                  px-4 py-2 bg-white
+                  shadow-[0_2px_4px_rgba(0,0,0,0.02)] hover:shadow-[0_4px_8px_rgba(0,0,0,0.04)]
+                  border border-gray-100 rounded-lg z-50"
+              >
+                Made with Kasbu
+              </a>
+            )}
+            <DevSidebar 
+              onSave={handleSave}
+              onLoad={handleLoad}
+              isEditorMode={isEditorMode}
+              onEditorModeChange={(mode) => {
+                // Actualizar la URL sin recargar la página
+                const url = new URL(window.location.href);
+                const params = new URLSearchParams(url.search);
+                if (mode) {
+                  params.set('mode', 'editor');
+                } else {
+                  params.delete('mode');
+                }
+                url.search = params.toString();
+                window.history.pushState({}, '', url.toString());
+                
+                // Actualizar el estado global
+                onEditorModeChange(mode);
+                
+                // Actualizar el estado local del sidebar
+                if (!mode) {
+                  setIsSidebarVisible(false);
+                } else {
+                  setIsSidebarVisible(true);
+                }
+                
+                // Disparar el evento popstate para que React actualice la vista
+                window.dispatchEvent(new Event('popstate'));
+              }}
             />
-          )}
+            {isEditorMode && (
+              <Sidebar 
+                onAddCard={handleAddCard} 
+                onChangeBackground={handleBackgroundChange} 
+                onTitleChange={handleTitleChange}
+                onFontChange={handleFontChange}
+                onAddSticker={handleAddSticker}
+                currentTitle={title}
+                currentFontIndex={currentFontIndex}
+                onViewModeChange={handleViewModeChange}
+                className={`transform transition-transform duration-[2000ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${isSidebarVisible ? 'translate-y-0' : 'translate-y-[300%]'}`}
+              />
+            )}
+          </div>
         </div>
       </div>
     </LayoutContext.Provider>

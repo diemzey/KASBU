@@ -12,7 +12,7 @@ const BetaPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const requestedUsername = location.state?.username;
-  const isDevelopment = true; // Forzamos modo desarrollo
+  const isDevelopment = process.env.NODE_ENV === 'development';
 
   useEffect(() => {
     const getUserData = async () => {
@@ -100,10 +100,6 @@ const BetaPage = () => {
     }
   };
 
-  const handleGoToKasbu = () => {
-    navigate(`/${userUsername}`);
-  };
-
   return (
     <div className={`min-h-screen w-full bg-white relative transition-opacity duration-500
       ${showLoadingModal ? 'opacity-0' : 'opacity-100'}`}>
@@ -140,23 +136,6 @@ const BetaPage = () => {
               <p className="text-green-800 font-medium mt-2">
                 kasbu.com/{userUsername}
               </p>
-              
-              {/* Botón de ir a Kasbu */}
-              <button
-                onClick={handleGoToKasbu}
-                className="mt-4 px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl
-                  font-medium hover:from-blue-700 hover:to-purple-700 transition-all duration-300
-                  shadow-lg shadow-blue-500/25 group relative"
-              >
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300
-                  bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1),transparent_50%)] rounded-xl" />
-                <div className="flex items-center justify-center gap-2">
-                  <span>Ir a tu Kasbu</span>
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                  </svg>
-                </div>
-              </button>
             </div>
           )}
           
@@ -192,4 +171,4 @@ const BetaPage = () => {
   );
 };
 
-export default BetaPage; 
+export default BetaPage;
