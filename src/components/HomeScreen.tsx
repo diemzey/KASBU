@@ -8,6 +8,7 @@ import { motion } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import '../styles/animations.css';
 import LoadingModal from './LoadingModal';
+import { Helmet } from 'react-helmet';
 
 interface FloatingCardProps {
   className?: string;
@@ -343,6 +344,47 @@ const HomeScreen = () => {
 
   return (
     <>
+      <Helmet>
+        <title>Kasbu - Crea tu página personal con un diseño único y moderno</title>
+        <meta name="description" content="Kasbu te permite crear una página personal interactiva y moderna. Comparte tus redes sociales, fotos, ubicación y más con un diseño único y personalizable." />
+        
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://kasbu.com/" />
+        <meta property="og:title" content="Kasbu - Tu página personal con estilo" />
+        <meta property="og:description" content="Crea una página personal única con Kasbu. Comparte tu contenido de forma elegante y moderna." />
+        <meta property="og:image" content="https://kasbu.com/og-image.jpg" />
+
+        {/* Twitter */}
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:url" content="https://kasbu.com/" />
+        <meta property="twitter:title" content="Kasbu - Tu página personal con estilo" />
+        <meta property="twitter:description" content="Crea una página personal única con Kasbu. Comparte tu contenido de forma elegante y moderna." />
+        <meta property="twitter:image" content="https://kasbu.com/twitter-image.jpg" />
+
+        {/* Additional SEO tags */}
+        <meta name="keywords" content="página personal, portafolio digital, redes sociales, diseño web, kasbu, página web personal" />
+        <meta name="author" content="Kasbu" />
+        <meta name="robots" content="index, follow" />
+        <link rel="canonical" href="https://kasbu.com/" />
+
+        {/* Structured Data */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebApplication",
+            "name": "Kasbu",
+            "applicationCategory": "DesignApplication",
+            "description": "Plataforma para crear páginas personales con diseño moderno y personalizable",
+            "operatingSystem": "Web",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD"
+            }
+          })}
+        </script>
+      </Helmet>
       <LoadingModal isOpen={isExiting} />
       
       <div className={`relative min-h-screen w-full bg-white transition-opacity duration-500
