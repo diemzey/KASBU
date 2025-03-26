@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { authClient, signOut } from '../utils/auth-client';
 import { useNavigate, useLocation } from 'react-router-dom';
+import LoadingModal from './LoadingModal';
 
 const BetaPage = () => {
   const [userName, setUserName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showLoadingModal, setShowLoadingModal] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
   const username = location.state?.username;
@@ -42,6 +44,7 @@ const BetaPage = () => {
               return;
             }
           }
+          setShowLoadingModal(false);
         } else {
           navigate('/');
         }
@@ -66,6 +69,10 @@ const BetaPage = () => {
 
   return (
     <div className="min-h-screen w-full bg-white relative">
+      <LoadingModal 
+        isOpen={showLoadingModal} 
+        message="Verificando sesión..."
+      />
       {/* Botón de cerrar sesión */}
       <button
         onClick={handleSignOut}

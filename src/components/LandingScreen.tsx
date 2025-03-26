@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { authClient, emailSignUp, googleSignUp } from "../utils/auth-client";
 import { redirect, useLocation, useNavigate } from "react-router-dom";
+import LoadingModal from "./LoadingModal";
 
 interface AuthError {
   message?: string;
@@ -27,6 +28,7 @@ const LandingScreen = ({ onLogin }: LandingScreenProps) => {
   const [isCheckingUsername, setIsCheckingUsername] = useState(false);
   const checkTimeout = useRef<number | null>(null);
   const [error, setError] = useState("");
+  const [showLoadingModal, setShowLoadingModal] = useState(false);
 
   useEffect(() => {
     const checkSession = async () => {
@@ -90,16 +92,15 @@ const LandingScreen = ({ onLogin }: LandingScreenProps) => {
 
   const handleGoogleSignIn = async () => {
     try {
-      setIsLoading(true);
       if (!username || username.length < 3) {
         setError('El nombre de usuario debe tener al menos 3 caracteres');
-        setIsLoading(false);
         return;
       }
+      setShowLoadingModal(true);
       const result = await googleSignUp(username);
       if (!result) {
         setError('Error durante el inicio de sesión con Google');
-        setIsLoading(false);
+        setShowLoadingModal(false);
         return;
       }
       // Navegamos a la página beta con el username en el estado
@@ -107,7 +108,7 @@ const LandingScreen = ({ onLogin }: LandingScreenProps) => {
     } catch (error) {
       console.error('Error during Google sign up:', error);
       setError('Hubo un problema al iniciar sesión con Google');
-      setIsLoading(false);
+      setShowLoadingModal(false);
     }
   };
 
@@ -141,6 +142,10 @@ const LandingScreen = ({ onLogin }: LandingScreenProps) => {
 
   return (
     <div className="relative min-h-screen w-full bg-white overflow-hidden">
+      <LoadingModal 
+        isOpen={showLoadingModal} 
+        message="Iniciando sesión con Google..."
+      />
       {/* Fondo decorativo */}
       <div className="fixed inset-0 overflow-hidden">
         <div className="absolute -top-1/2 -left-1/2 w-[200%] h-[200%] bg-[radial-gradient(circle_at_50%_50%,rgba(99,102,241,0.05),transparent_50%)]" />

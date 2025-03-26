@@ -32,6 +32,7 @@ export default {
         'bounce-delay-2': 'bounce 1s infinite -0.16s',
         'cardAppear': 'cardAppear 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards',
         'float-slow': 'float 20s ease-in-out infinite',
+        'fade-in': 'fadeIn 0.2s ease-out',
       },
       keyframes: {
         bounce: {
@@ -53,8 +54,12 @@ export default {
           }
         },
         float: {
-          '0%, 100%': { transform: 'translate(-50%, -50%) translate(0, 0)' },
-          '50%': { transform: 'translate(-50%, -50%) translate(40px, 20px)' },
+          '0%, 100%': { transform: 'translate(-50%, -50%)' },
+          '50%': { transform: 'translate(-30%, -70%)' },
+        },
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
         },
       },
     },
