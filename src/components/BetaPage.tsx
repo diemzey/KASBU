@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { authClient, signOut } from '../utils/auth-client';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const BetaPage = () => {
   const [userName, setUserName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const username = location.state?.username;
 
   useEffect(() => {
     const getUserData = async () => {
@@ -13,6 +15,33 @@ const BetaPage = () => {
         const { data } = await authClient.getSession();
         if (data?.user?.name) {
           setUserName(data.user.name);
+
+          // Si tenemos un username pendiente de actualizar, lo intentamos aquí
+          if (username && !data.user.username) {
+            try {
+              const { error: updateError } = await authClient.updateUser({
+                username: username,
+              });
+
+              if (updateError) {
+                console.error("Error updating username:", updateError);
+                navigate('/', { 
+                  state: { 
+                    error: "No se pudo asignar el nombre de usuario. Por favor, intenta con otro." 
+                  } 
+                });
+                return;
+              }
+            } catch (error) {
+              console.error("Error updating username:", error);
+              navigate('/', { 
+                state: { 
+                  error: "Hubo un problema al actualizar tu nombre de usuario. Por favor, intenta de nuevo." 
+                } 
+              });
+              return;
+            }
+          }
         } else {
           navigate('/');
         }
@@ -22,7 +51,7 @@ const BetaPage = () => {
       }
     };
     getUserData();
-  }, [navigate]);
+  }, [navigate, username]);
 
   const handleSignOut = async () => {
     try {

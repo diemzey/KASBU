@@ -26,6 +26,7 @@ const LandingScreen = ({ onLogin }: LandingScreenProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isCheckingUsername, setIsCheckingUsername] = useState(false);
   const checkTimeout = useRef<number | null>(null);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const checkSession = async () => {
@@ -87,80 +88,32 @@ const LandingScreen = ({ onLogin }: LandingScreenProps) => {
     }
   };
 
-  const [errorMessage, setErrorMessage] = useState("");
-
-  const handleGoogleSignIn = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    setErrorMessage("");
-    setIsLoading(true);
-    
+  const handleGoogleSignIn = async () => {
     try {
-      // Validar username primero
+      setIsLoading(true);
       if (!username || username.length < 3) {
-        setErrorMessage("El nombre de usuario debe tener al menos 3 caracteres");
+        setError('El nombre de usuario debe tener al menos 3 caracteres');
         setIsLoading(false);
         return;
       }
-
-      // Verificar disponibilidad del username antes de continuar
-      setIsCheckingUsername(true);
-      try {
-        const response = await fetch(`https://back.kasbu.com/check-username/${username}`);
-        const data = await response.json();
-        const available = !data.exists;
-        setIsAvailable(available);
-        
-        if (!available) {
-          setErrorMessage("Este nombre de usuario no está disponible");
-          setIsLoading(false);
-          setIsCheckingUsername(false);
-          return;
-        }
-      } catch (error) {
-        console.error('Error checking username:', error);
-        setErrorMessage("Error al verificar el nombre de usuario");
-        setIsLoading(false);
-        setIsCheckingUsername(false);
-        return;
-      }
-      setIsCheckingUsername(false);
-
-      // Primero iniciamos sesión con Google
-      const signUpResult = await googleSignUp();
-      
-      if (!signUpResult) {
-        setErrorMessage("Error durante el inicio de sesión con Google");
+      const result = await googleSignUp(username);
+      if (!result) {
+        setError('Error durante el inicio de sesión con Google');
         setIsLoading(false);
         return;
       }
-
-      // Una vez que tenemos la sesión, actualizamos el username
-      const { error: updateError } = await authClient.updateUser({
-        username: username,
-      });
-
-      if (updateError) {
-        console.error("Error updating username:", updateError);
-        setErrorMessage("No se pudo asignar el nombre de usuario. Por favor, intenta con otro.");
-        setIsLoading(false);
-        return;
-      }
-
-      // Todo salió bien, navegamos a beta
-      navigate("/beta");
+      // Navegamos a la página beta con el username en el estado
+      navigate('/beta', { state: { username: username } });
     } catch (error) {
-      const authError = error as AuthError;
-      console.error("Error during Google sign-in:", error);
-      setErrorMessage(
-        authError.message || "Hubo un problema durante el inicio de sesión. Por favor, intenta de nuevo."
-      );
+      console.error('Error during Google sign up:', error);
+      setError('Hubo un problema al iniciar sesión con Google');
       setIsLoading(false);
     }
   };
 
   const handleEmailSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMessage("");
+    setError("");
     if (username && isAvailable && email && password && name) {
       setIsLoading(true);
       try {
@@ -170,11 +123,11 @@ const LandingScreen = ({ onLogin }: LandingScreenProps) => {
         const authError = error as AuthError;
         console.error("Error during email sign-up:", error);
         if (authError.code === "USERNAME_IS_ALREADY_TAKEN_PLEASE_TRY_ANOTHER") {
-          setErrorMessage(
+          setError(
             "Este nombre de usuario ya está en uso. Por favor, elige otro.",
           );
         } else {
-          setErrorMessage(
+          setError(
             authError.message || "Error durante el registro con correo",
           );
         }
@@ -182,7 +135,7 @@ const LandingScreen = ({ onLogin }: LandingScreenProps) => {
         setIsLoading(false);
       }
     } else if (!name) {
-      setErrorMessage("Por favor ingresa tu nombre completo");
+      setError("Por favor ingresa tu nombre completo");
     }
   };
 
@@ -460,7 +413,7 @@ const LandingScreen = ({ onLogin }: LandingScreenProps) => {
         </div>
 
         {/* Error message */}
-        {errorMessage && (
+        {error && (
           <div className="mt-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm max-w-md">
             <div className="flex items-center">
               <svg
@@ -474,7 +427,7 @@ const LandingScreen = ({ onLogin }: LandingScreenProps) => {
                   clipRule="evenodd"
                 />
               </svg>
-              {errorMessage}
+              {error}
             </div>
           </div>
         )}

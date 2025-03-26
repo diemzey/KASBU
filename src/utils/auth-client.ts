@@ -14,11 +14,12 @@ export const authClient = createAuthClient({
     credentials: 'include'
   }
 });
-export const googleSignUp = async () => {
+export const googleSignUp = async (username: string) => {
   const { data, error } = await authClient.signIn.social(
     {
       provider: "google",
       callbackURL: "https://kasbu.com/beta",
+      username: username
     },
     {
       onSuccess: (ctx) => {
