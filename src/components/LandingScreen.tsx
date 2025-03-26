@@ -125,7 +125,16 @@ const LandingScreen = ({ onLogin }: LandingScreenProps) => {
       }
       setIsCheckingUsername(false);
 
-      // Primero actualizamos el username
+      // Primero iniciamos sesión con Google
+      const signUpResult = await googleSignUp();
+      
+      if (!signUpResult) {
+        setErrorMessage("Error durante el inicio de sesión con Google");
+        setIsLoading(false);
+        return;
+      }
+
+      // Una vez que tenemos la sesión, actualizamos el username
       const { error: updateError } = await authClient.updateUser({
         username: username,
       });
@@ -133,15 +142,6 @@ const LandingScreen = ({ onLogin }: LandingScreenProps) => {
       if (updateError) {
         console.error("Error updating username:", updateError);
         setErrorMessage("No se pudo asignar el nombre de usuario. Por favor, intenta con otro.");
-        setIsLoading(false);
-        return;
-      }
-
-      // Si el username se actualizó correctamente, procedemos con Google
-      const signUpResult = await googleSignUp();
-      
-      if (!signUpResult) {
-        setErrorMessage("Error durante el inicio de sesión con Google");
         setIsLoading(false);
         return;
       }
