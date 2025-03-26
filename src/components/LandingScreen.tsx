@@ -98,51 +98,55 @@ const LandingScreen = ({ onLogin }: LandingScreenProps) => {
       // Validar username primero
       if (!username || username.length < 3) {
         setErrorMessage("El nombre de usuario debe tener al menos 3 caracteres");
+        setIsLoading(false);
         return;
       }
 
-      // Si no se ha verificado la disponibilidad, hacerlo ahora
-      if (isAvailable === null) {
-        setIsCheckingUsername(true);
-        try {
-          const response = await fetch(`https://back.kasbu.com/check-username/${username}`);
-          const data = await response.json();
-          const available = !data.exists;
-          setIsAvailable(available);
-          if (!available) {
-            setErrorMessage("Este nombre de usuario no está disponible");
-            setIsCheckingUsername(false);
-            return;
-          }
-        } catch (error) {
-          console.error('Error checking username:', error);
-          setErrorMessage("Error al verificar el nombre de usuario");
+      // Verificar disponibilidad del username antes de continuar
+      setIsCheckingUsername(true);
+      try {
+        const response = await fetch(`https://back.kasbu.com/check-username/${username}`);
+        const data = await response.json();
+        const available = !data.exists;
+        setIsAvailable(available);
+        
+        if (!available) {
+          setErrorMessage("Este nombre de usuario no está disponible");
+          setIsLoading(false);
           setIsCheckingUsername(false);
           return;
         }
-      } else if (!isAvailable) {
-        setErrorMessage("Este nombre de usuario no está disponible");
+      } catch (error) {
+        console.error('Error checking username:', error);
+        setErrorMessage("Error al verificar el nombre de usuario");
+        setIsLoading(false);
+        setIsCheckingUsername(false);
+        return;
+      }
+      setIsCheckingUsername(false);
+
+      // Primero actualizamos el username
+      const { error: updateError } = await authClient.updateUser({
+        username: username,
+      });
+
+      if (updateError) {
+        console.error("Error updating username:", updateError);
+        setErrorMessage("No se pudo asignar el nombre de usuario. Por favor, intenta con otro.");
+        setIsLoading(false);
         return;
       }
 
-      // Si llegamos aquí, el username es válido y está disponible
+      // Si el username se actualizó correctamente, procedemos con Google
       const signUpResult = await googleSignUp();
       
       if (!signUpResult) {
         setErrorMessage("Error durante el inicio de sesión con Google");
+        setIsLoading(false);
         return;
       }
 
-      const { data, error } = await authClient.updateUser({
-        username: username,
-      });
-
-      if (error) {
-        console.error("Error updating username:", error);
-        setErrorMessage("No se pudo asignar el nombre de usuario. Por favor, intenta con otro.");
-        return;
-      }
-
+      // Todo salió bien, navegamos a beta
       navigate("/beta");
     } catch (error) {
       const authError = error as AuthError;
@@ -150,7 +154,6 @@ const LandingScreen = ({ onLogin }: LandingScreenProps) => {
       setErrorMessage(
         authError.message || "Hubo un problema durante el inicio de sesión. Por favor, intenta de nuevo."
       );
-    } finally {
       setIsLoading(false);
     }
   };
