@@ -5,7 +5,6 @@ import LandingScreen from "./components/LandingScreen";
 import HomeScreen from "./components/HomeScreen";
 import BlackHole from "./components/SolarSystem";
 import BetaPage from "./components/BetaPage";
-import UserPage from "./components/UserPage";
 import { authClient } from "./utils/auth-client";
 import { Analytics } from "@vercel/analytics/react";
 
@@ -36,6 +35,13 @@ function App() {
     setIsEditorMode(mode);
   };
 
+  const AppLayout = () => (
+    <div className="relative">
+      <Layout isEditorMode={isEditorMode} onEditorModeChange={handleEditorModeChange} />
+      <div className="fixed bottom-0 left-0 right-0 h-40 pointer-events-none bg-gradient-to-t from-[var(--current-bg,white)] from-30% via-[var(--current-bg,white)]/70 to-transparent" />
+    </div>
+  );
+
   return (
     <BrowserRouter>
       <main className="min-h-screen bg-white scroll-smooth relative">
@@ -47,16 +53,8 @@ function App() {
           />
           <Route path="/solar" element={<BlackHole />} />
           <Route path="/beta" element={<BetaPage />} />
-          <Route path="/:username" element={<UserPage />} />
-          <Route
-            path="/app"
-            element={
-              <div className="relative">
-                <Layout isEditorMode={isEditorMode} onEditorModeChange={handleEditorModeChange} />
-                <div className="fixed bottom-0 left-0 right-0 h-40 pointer-events-none bg-gradient-to-t from-[var(--current-bg,white)] from-30% via-[var(--current-bg,white)]/70 to-transparent" />
-              </div>
-            }
-          />
+          <Route path="/:username" element={<AppLayout />} />
+          <Route path="/app" element={<AppLayout />} />
         </Routes>
         <Analytics />
       </main>
