@@ -35,13 +35,13 @@ const LandingScreen = ({ onLogin }: LandingScreenProps) => {
       try {
         const { data } = await authClient.getSession();
         if (data?.user) {
-          navigate('/beta');
+          navigate("/beta");
           return;
         }
       } catch (error) {
-        console.error('Error checking session:', error);
+        console.error("Error checking session:", error);
       }
-      
+
       setMounted(true);
       if (initialUsername) {
         checkAvailability(initialUsername);
@@ -54,7 +54,7 @@ const LandingScreen = ({ onLogin }: LandingScreenProps) => {
   const handleUsernameChange = (value: string) => {
     const sanitizedValue = value.toLowerCase().replace(/[^a-z0-9-]/g, "");
     setUsername(sanitizedValue);
-    
+
     // Si el valor es menor a 3 caracteres, marcamos como no disponible
     if (sanitizedValue.length < 3) {
       setIsAvailable(false);
@@ -79,11 +79,13 @@ const LandingScreen = ({ onLogin }: LandingScreenProps) => {
 
     setIsCheckingUsername(true);
     try {
-      const response = await fetch(`https://back.kasbu.com/check-username/${value}`);
+      const response = await fetch(
+        `https://back.kasbu.com/check-username/${value}`,
+      );
       const data = await response.json();
       setIsAvailable(!data.exists);
     } catch (error) {
-      console.error('Error checking username:', error);
+      console.error("Error checking username:", error);
       setIsAvailable(false);
     } finally {
       setIsCheckingUsername(false);
@@ -93,21 +95,26 @@ const LandingScreen = ({ onLogin }: LandingScreenProps) => {
   const handleGoogleSignIn = async () => {
     try {
       if (!username || username.length < 3) {
-        setError('El nombre de usuario debe tener al menos 3 caracteres');
+        setError("El nombre de usuario debe tener al menos 3 caracteres");
         return;
       }
       setShowLoadingModal(true);
       const result = await googleSignUp(username);
       if (!result) {
-        setError('Error durante el inicio de sesión con Google');
+        setError("Error durante el inicio de sesión con Google");
         setShowLoadingModal(false);
         return;
       }
+      setTimeout(() => 1000);
+      await authClient.updateUser({
+        username: username,
+      });
+      setError("Una disculpa, hubo un error ");
       // Navegamos a la página beta con el username en el estado
-      navigate('/beta', { state: { username: username } });
+      navigate("/beta", { state: { username: username } });
     } catch (error) {
-      console.error('Error during Google sign up:', error);
-      setError('Hubo un problema al iniciar sesión con Google');
+      console.error("Error during Google sign up:", error);
+      setError("Hubo un problema al iniciar sesión con Google");
       setShowLoadingModal(false);
     }
   };
@@ -128,9 +135,7 @@ const LandingScreen = ({ onLogin }: LandingScreenProps) => {
             "Este nombre de usuario ya está en uso. Por favor, elige otro.",
           );
         } else {
-          setError(
-            authError.message || "Error durante el registro con correo",
-          );
+          setError(authError.message || "Error durante el registro con correo");
         }
       } finally {
         setIsLoading(false);
@@ -141,10 +146,12 @@ const LandingScreen = ({ onLogin }: LandingScreenProps) => {
   };
 
   return (
-    <div className={`relative min-h-screen w-full bg-white overflow-hidden transition-opacity duration-500
-      ${showLoadingModal ? 'opacity-0' : 'opacity-100'}`}>
-      <LoadingModal 
-        isOpen={showLoadingModal} 
+    <div
+      className={`relative min-h-screen w-full bg-white overflow-hidden transition-opacity duration-500
+      ${showLoadingModal ? "opacity-0" : "opacity-100"}`}
+    >
+      <LoadingModal
+        isOpen={showLoadingModal}
         message="Iniciando sesión con Google..."
       />
       {/* Fondo decorativo */}
@@ -185,7 +192,7 @@ const LandingScreen = ({ onLogin }: LandingScreenProps) => {
                 className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 blur-2xl 
                 group-hover:from-blue-600/30 group-hover:to-purple-600/30 transition-all duration-500"
               />
-              <img 
+              <img
                 src="/images/Kasbu.png"
                 alt="Kasbu Logo"
                 className="relative w-24 h-24 object-contain mx-auto transition-all duration-500
@@ -221,12 +228,29 @@ const LandingScreen = ({ onLogin }: LandingScreenProps) => {
                   />
                   <div className="absolute inset-y-0 right-3 flex items-center">
                     {isCheckingUsername ? (
-                      <svg className="animate-spin h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      <svg
+                        className="animate-spin h-5 w-5 text-gray-400"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
                       </svg>
-                    ) : isAvailable !== null && (
-                      isAvailable ? (
+                    ) : (
+                      isAvailable !== null &&
+                      (isAvailable ? (
                         <svg
                           className="w-5 h-5 text-green-500"
                           fill="none"
@@ -254,7 +278,7 @@ const LandingScreen = ({ onLogin }: LandingScreenProps) => {
                             d="M6 18L18 6M6 6l12 12"
                           />
                         </svg>
-                      )
+                      ))
                     )}
                   </div>
                 </div>
@@ -263,16 +287,18 @@ const LandingScreen = ({ onLogin }: LandingScreenProps) => {
                   y guiones.
                 </p>
                 {username.length > 0 && (
-                  <p className={`mt-1 text-xs pl-3 ${isAvailable ? 'text-green-500' : 'text-red-500'}`}>
-                    {username.length < 3 ? (
-                      'El nombre debe tener al menos 3 caracteres'
-                    ) : /[^a-z0-9-]/.test(username) ? (
-                      'Solo puedes usar letras minúsculas, números y guiones'
-                    ) : isAvailable === false ? (
-                      'Este nombre de usuario no está disponible'
-                    ) : isAvailable === true ? (
-                      '¡Este nombre de usuario está disponible!'
-                    ) : null}
+                  <p
+                    className={`mt-1 text-xs pl-3 ${isAvailable ? "text-green-500" : "text-red-500"}`}
+                  >
+                    {username.length < 3
+                      ? "El nombre debe tener al menos 3 caracteres"
+                      : /[^a-z0-9-]/.test(username)
+                        ? "Solo puedes usar letras minúsculas, números y guiones"
+                        : isAvailable === false
+                          ? "Este nombre de usuario no está disponible"
+                          : isAvailable === true
+                            ? "¡Este nombre de usuario está disponible!"
+                            : null}
                   </p>
                 )}
               </div>
@@ -283,7 +309,12 @@ const LandingScreen = ({ onLogin }: LandingScreenProps) => {
                   <button
                     type="button"
                     onClick={handleGoogleSignIn}
-                    disabled={!username || username.length < 3 || isAvailable === false || isCheckingUsername}
+                    disabled={
+                      !username ||
+                      username.length < 3 ||
+                      isAvailable === false ||
+                      isCheckingUsername
+                    }
                     className="w-full bg-white text-gray-700 py-3 px-4 rounded-xl font-medium border border-gray-200 hover:bg-gray-50 transition-all duration-300 shadow-sm
                       flex items-center justify-center gap-3 relative group disabled:opacity-50 disabled:cursor-not-allowed"
                   >
@@ -306,7 +337,9 @@ const LandingScreen = ({ onLogin }: LandingScreenProps) => {
                       />
                     </svg>
                     <span className="relative">
-                      {isCheckingUsername ? 'Verificando usuario...' : 'Continuar con Google'}
+                      {isCheckingUsername
+                        ? "Verificando usuario..."
+                        : "Continuar con Google"}
                     </span>
                   </button>
 
@@ -322,7 +355,12 @@ const LandingScreen = ({ onLogin }: LandingScreenProps) => {
                   <button
                     type="button"
                     onClick={() => setShowEmailForm(true)}
-                    disabled={!username || username.length < 3 || isAvailable === false || isCheckingUsername}
+                    disabled={
+                      !username ||
+                      username.length < 3 ||
+                      isAvailable === false ||
+                      isCheckingUsername
+                    }
                     className="w-full bg-gray-50 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-100 transition-all duration-300
                       disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-gray-50"
                   >
@@ -384,7 +422,16 @@ const LandingScreen = ({ onLogin }: LandingScreenProps) => {
                     className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-xl font-medium 
                       hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg shadow-blue-500/25 
                       disabled:opacity-50 disabled:cursor-not-allowed group relative"
-                    disabled={!username || username.length < 3 || isAvailable === false || !email || !password || !name || isLoading || isCheckingUsername}
+                    disabled={
+                      !username ||
+                      username.length < 3 ||
+                      isAvailable === false ||
+                      !email ||
+                      !password ||
+                      !name ||
+                      isLoading ||
+                      isCheckingUsername
+                    }
                   >
                     <div
                       className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300
@@ -393,9 +440,25 @@ const LandingScreen = ({ onLogin }: LandingScreenProps) => {
                     <div className="flex items-center justify-center gap-2">
                       {isLoading ? (
                         <>
-                          <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          <svg
+                            className="animate-spin h-5 w-5 text-white"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            ></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            ></path>
                           </svg>
                           <span className="relative">Creando cuenta...</span>
                         </>
