@@ -1,35 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Layout from "./components/layout";
-import LandingScreen from "./components/LandingScreen";
-import HomeScreen from "./components/HomeScreen";
-import BlackHole from "./components/SolarSystem";
-import BetaPage from "./components/BetaPage";
-import { authClient } from "./utils/auth-client";
+import Layout from "./components/layout/Layout";
+import HomePage from "./components/pages/home/HomePage";
+import StartPage from "./components/pages/start/StartPage";
+import BetaPage from "./components/pages/beta/BetaPage";
 import { Analytics } from "@vercel/analytics/react";
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isEditorMode, setIsEditorMode] = useState(true);
-
-  useEffect(() => {
-    // Check if the user is already authenticated
-    const checkAuthStatus = async () => {
-      try {
-        const session = await authClient.getSession();
-        setIsAuthenticated(!!session);
-      } catch (error) {
-        console.error("Auth check error:", error);
-        setIsAuthenticated(false);
-      }
-    };
-
-    checkAuthStatus();
-  }, []);
-
-  const handleLogin = () => {
-    setIsAuthenticated(true);
-  };
 
   const handleEditorModeChange = (mode: boolean) => {
     setIsEditorMode(mode);
@@ -46,12 +24,8 @@ function App() {
     <BrowserRouter>
       <main className="min-h-screen bg-white scroll-smooth relative">
         <Routes>
-          <Route path="/" element={<HomeScreen />} />
-          <Route
-            path="/start"
-            element={<LandingScreen onLogin={handleLogin} />}
-          />
-          <Route path="/solar" element={<BlackHole />} />
+          <Route path="/" element={<HomePage />} />
+          <Route path="/start" element={<StartPage />} />
           <Route path="/beta" element={<BetaPage />} />
           <Route path="/:username" element={<AppLayout />} />
           <Route path="/app" element={<AppLayout />} />

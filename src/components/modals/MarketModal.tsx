@@ -9,8 +9,8 @@ import {
   TVCard,
   URLCard,
   ImageCard,
-  VideoCard,
-} from './cards';
+  VideoCard
+} from "../cards";
 
 type CardType = {
   id: Platform;

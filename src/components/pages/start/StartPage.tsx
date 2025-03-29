@@ -1,18 +1,14 @@
 import { useState, useEffect, useRef } from "react";
-import { authClient, emailSignUp, googleSignUp } from "../utils/auth-client";
-import { redirect, useLocation, useNavigate } from "react-router-dom";
-import LoadingModal from "./LoadingModal";
+import { authClient, emailSignUp, googleSignUp } from "../../../utils/auth-client";
+import { useLocation, useNavigate } from "react-router-dom";
+import LoadingModal from "../../common/LoadingModal";
 
 interface AuthError {
   message?: string;
   code?: string;
 }
 
-interface LandingScreenProps {
-  onLogin: () => void;
-}
-
-const LandingScreen = ({ onLogin }: LandingScreenProps) => {
+const StartPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const initialUsername =
@@ -517,4 +513,4 @@ const LandingScreen = ({ onLogin }: LandingScreenProps) => {
   );
 };
 
-export default LandingScreen;
+export default StartPage;

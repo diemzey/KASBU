@@ -1,6 +1,6 @@
 import { memo, useState, useRef, useEffect } from 'react';
 import { BaseURLCardProps } from '../../types';
-import ImageEditor from '../ImageEditor';
+import ImageEditor from '../editor/ImageEditor';
 
 const BaseURLCardComponent = ({ 
   children, 

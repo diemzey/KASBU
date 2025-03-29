@@ -1,113 +1,194 @@
-# Bento Grid Project
+# KASBU ✨
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2F%2Fmoving-bento-grid)
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=flat&logo=vercel)](https://kasbu.com)
+Un editor visual interactivo que permite crear páginas web personalizables con un diseño moderno tipo "Bento". Diseñado específicamente para crear landing pages profesionales, portafolios creativos y páginas de perfil únicas con una experiencia de edición fluida e intuitiva.
 
-## 🚀 Descripción
+> ⚠️ **Nota**: Este es un proyecto privado y propietario. No está disponible para uso público o distribución.
 
-Un proyecto moderno de React que implementa un diseño de tipo Bento Grid con animaciones fluidas y una interfaz de usuario atractiva. Construido con tecnologías modernas y desplegado en Vercel.
+## ✨ Características
 
-## ⚡️ Tecnologías
+- 🎯 Editor visual interactivo con drag & drop
+- 🎨 Personalización completa de la identidad visual
+- 📱 Diseño responsive optimizado (móvil y escritorio)
+- 🔄 Animaciones y transiciones fluidas
+- 🏷️ Widgets profesionales:
+  - Integraciones con redes sociales
+  - Contenido multimedia (imágenes, videos, YouTube)
+  - Bloques de texto personalizables
+  - Mapas interactivos
+  - Códigos QR dinámicos
+  - Enlaces personalizados
+  - Terminal con sintaxis highlighting
+- 🎉 Elementos decorativos y stickers
+- 💾 Sistema de guardado y restauración de diseños
+- 🌈 Temas y estilos predefinidos
 
-- React 18
-- TypeScript
-- Vite
-- Framer Motion
-- Tailwind CSS
-- React Router DOM
-- React Grid Layout
-- Mapbox GL
-- React Google Maps API
-- QR Code Generator
+## 🛠️ Stack Tecnológico
 
-## 🛠 Instalación
+- **React 18** - Framework de UI
+- **TypeScript** - Tipado estático y seguridad de código
+- **Tailwind CSS** - Sistema de diseño y estilos
+- **React Grid Layout** - Sistema de grid interactivo
+- **Vite** - Build system y desarrollo
+- **Canvas Confetti** - Efectos visuales
+- **React Router** - Gestión de rutas
 
-```bash
-# Clonar el repositorio
-git clone <url-del-repositorio>
+## 📁 Estructura del Proyecto
 
-# Instalar dependencias
-npm install
-
-# Iniciar el servidor de desarrollo
-npm run dev
+```
+src/
+├── components/           # Componentes de la aplicación
+│   ├── cards/           # Widgets del editor
+│   ├── common/          # Componentes compartidos
+│   ├── editor/          # Componentes del editor visual
+│   ├── layout/          # Componentes estructurales
+│   ├── modals/          # Ventanas modales
+│   └── pages/           # Páginas de la aplicación
+├── hooks/               # Custom hooks
+├── styles/             # Estilos y temas
+├── types/              # Definiciones de TypeScript
+└── utils/              # Utilidades
+    ├── auth/           # Autenticación
+    ├── constants.ts    # Constantes
+    ├── layout.helper.ts # Helpers del editor
+    └── url-parser.ts   # Parser de URLs
 ```
 
-## 📦 Scripts Disponibles
+## 🚀 Desarrollo Local
 
-- `npm run dev` - Inicia el servidor de desarrollo
-- `npm run build` - Construye la aplicación para producción
-- `npm run lint` - Ejecuta el linter
-- `npm run preview` - Vista previa de la build de producción
+1. **Prerrequisitos**
+   - Node.js 18 o superior
+   - npm 9 o superior
+   - Acceso al repositorio privado
 
-## 🌐 Despliegue
+2. **Configuración Inicial**
+   ```bash
+   # Clonar el repositorio privado (requiere autenticación)
+   git clone https://github.com/tu-organizacion/kasbu.git
+   cd kasbu
 
-El proyecto está desplegado en Vercel y accesible en:
-[https://kasbu.com](https://kasbu.com)
+   # Instalar dependencias
+   npm install
+   ```
 
-## 📝 Características
+3. **Variables de Entorno**
+   ```bash
+   # Crear archivo de variables de entorno
+   cp .env.example .env
 
-- Diseño de tipo Bento Grid responsive
-- Animaciones fluidas con Framer Motion
-- Integración de mapas con Mapbox y Google Maps
-- Generación de códigos QR
-- Enrutamiento dinámico con React Router
-- Estilizado con Tailwind CSS
-- Soporte completo para TypeScript
+   # Configurar variables necesarias:
+   # - API_KEY=tu_api_key
+   # - AUTH_DOMAIN=tu_dominio
+   # - etc...
+   ```
 
-## 🤝 Contribuir
+4. **Desarrollo**
+   ```bash
+   # Iniciar servidor de desarrollo
+   npm run dev
+   ```
 
-Las contribuciones son siempre bienvenidas. Por favor, lee las guías de contribución antes de enviar un pull request.
+5. **Producción**
+   ```bash
+   # Construir para producción
+   npm run build
 
-## 📄 Licencia
+   # Previsualizar build
+   npm run preview
+   ```
 
-Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE.md](LICENSE.md) para más detalles.
+## 🎮 Guía del Editor
 
-# Moving bento grid demo
+### Modo Editor
 
-This is a simple demo of moving bento grid animation on my [personal site](https://mnsh.me/), countless people have asked the source code so I just open sourced the grid part.
+1. **Agregar Widgets**
+   - Accede al Market desde el botón de cuadrícula
+   - Explora las categorías disponibles
+   - Selecciona y añade widgets al lienzo
 
+2. **Personalización de Widgets**
+   - Arrastra para reposicionar
+   - Redimensiona usando las esquinas
+   - Edita contenido con doble clic
+   - Configura opciones específicas de cada widget
 
+3. **Diseño Global**
+   - Personaliza el fondo y patrones
+   - Añade elementos decorativos
+   - Configura título y subtítulo
+   - Selecciona tipografías
 
-https://github.com/user-attachments/assets/c9288ea7-f886-4348-beba-f021c6e1e65b
+4. **Gestión de Diseños**
+   - Guarda diseños como plantillas
+   - Importa diseños existentes
+   - Exporta configuraciones
 
+### Modo Vista Previa
 
+- Previsualización en tiempo real
+- Vista móvil y escritorio
+- Modo presentación sin elementos de edición
+- Compartir vista previa
 
-## How it works?
+## 📝 Guías de Desarrollo
 
-Most of the grid heavy lifting is done by [react-grid-layout](https://github.com/react-grid-layout/react-grid-layout), react helps in changing the grid config when clicking on nav buttons and since ```react-grid-layout``` uses transforms, adding css animation to ```react-grid-item``` allows for smooth transitions.
+### Convenciones
 
-### index.css
-```css
-.react-grid-item.react-grid-placeholder {
-  background: rgba(0, 0, 0, 0.438) none repeat scroll 0% 0%;
-  transition-duration: 100ms;
-  z-index: 2;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  -o-user-select: none;
-  user-select: none;
-  border-radius: 32px;
-  transition: all 500ms ease 0s !important;
-  will-change: transform;
-}
+- **Nomenclatura**
+  - PascalCase para componentes
+  - camelCase para funciones y variables
+  - UPPER_CASE para constantes
 
-.react-grid-item {
-  transition: visibility 500ms ease 0s;
-}
-```
-### Some gotchas
-- You need to import react-grid-layout styles from node_modules in your global CSS.
-- I manually wrote the grid configuration for my site for each of the different layouts. There might be a better way to create or generate this configuration.
----
+- **Arquitectura**
+  - Componentes atómicos
+  - Custom hooks para lógica reutilizable
+  - Context para estado global
+  - Servicios para API calls
 
-## How to run locally
+- **Calidad de Código**
+  - Tests unitarios para componentes críticos
+  - E2E tests para flujos principales
+  - TypeScript strict mode
+  - ESLint + Prettier
 
-- Clone/fork the repo: ```git clone https://github.com/manish-basargekar/moving-bento-grid.git```
+### Performance
 
-- Install ```node_modules``` ```npm i```
+- Lazy loading de componentes pesados
+- Memoización de componentes puros
+- Optimización de assets
+- Code splitting por rutas
 
-- Run the vite app ```npm run dev```
+## 🔒 Seguridad
 
-Feel free to contribute and suggest improvements!
+- Autenticación requerida
+- Rate limiting en APIs
+- Sanitización de inputs
+- Validación de datos
+
+## 📄 Propiedad Intelectual
+
+© 2024 KASBU. Todos los derechos reservados.
+
+Este software es propietario y confidencial. No está permitida su distribución o uso no autorizado.
+
+## 👥 Equipo
+
+- Desarrollo Frontend
+- Diseño UI/UX
+- DevOps
+- QA
+
+## 🤝 Contribuciones
+
+Este es un proyecto privado. Las contribuciones solo están permitidas para miembros autorizados del equipo.
+
+Para contribuir:
+1. Asegúrate de tener acceso al repositorio
+2. Sigue las guías de desarrollo
+3. Crea una rama para tu feature
+4. Somete tu PR para revisión
+
+## 📞 Soporte
+
+Para soporte técnico o consultas:
+- Email: soporte@kasbu.com
+- Slack: #kasbu-dev

@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
-import { fonts } from '../utils/constants';
-import MarketModal from './MarketModal';
-import { Platform } from '../types';
-import { parseUrl, enrichMetadata } from '../utils/url-parser';
+import { fonts } from '../../utils/constants';
+import MarketModal from '../modals/MarketModal';
+import { Platform } from '../../types';
+import { parseUrl, enrichMetadata } from '../../utils/url-parser';
 
 interface SidebarProps {
   onAddCard: (

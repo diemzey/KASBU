@@ -1,13 +1,13 @@
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { SocialCard } from './cards/SocialCard';
-import { ImageCard } from './cards/ImageCard';
-import { MapCard } from './cards/MapCard';
-import type { SocialPlatform } from '../types';
+import { SocialCard } from '../../cards/SocialCard';
+import { ImageCard } from '../../cards/ImageCard';
+import { MapCard } from '../../cards/MapCard';
+import type { SocialPlatform } from '../../../types';
 import { motion } from 'framer-motion';
 import confetti from 'canvas-confetti';
-import '../styles/animations.css';
-import LoadingModal from './LoadingModal';
+import '../../../styles/animations.css';
+import LoadingModal from '../../common/LoadingModal';
 import { Helmet } from 'react-helmet';
 
 interface FloatingCardProps {
@@ -251,8 +251,6 @@ const FloatingCards = ({ startSequence }: { startSequence: boolean }) => {
 const HomeScreen = () => {
   const navigate = useNavigate();
   const [mounted, setMounted] = useState(false);
-  const [username, setUsername] = useState('');
-  const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
   const [showCards, setShowCards] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
@@ -289,20 +287,6 @@ const HomeScreen = () => {
 
     return () => clearInterval(interval);
   }, []);
-
-  const handleUsernameChange = (value: string) => {
-    setUsername(value.toLowerCase().replace(/[^a-z0-9-]/g, ''));
-    setIsAvailable(null);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (username.length >= 3 && isAvailable) {
-      setIsExiting(true);
-      await new Promise(resolve => setTimeout(resolve, 800));
-      navigate('/start', { state: { username } });
-    }
-  };
 
   const handleLogin = async () => {
     // Efecto de confeti

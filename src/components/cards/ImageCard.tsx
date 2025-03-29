@@ -1,6 +1,6 @@
 import { memo, useCallback, useState, useEffect } from 'react';
 import { ImageCardProps } from '../../types';
-import ImageEditor from '../ImageEditor';
+import ImageEditor from '../editor/ImageEditor';
 
 function ImageCardComponent({ children, onDelete, onTextChange, onImageChange, imageUrl: initialImage, isEditing = true }: ImageCardProps & { isEditing?: boolean }) {
   const [image, setImage] = useState<string | null>(initialImage || null);

@@ -1,15 +1,16 @@
 import { useMemo, useState, useCallback, memo, useContext, createContext, useEffect } from "react";
 import { Responsive, WidthProvider } from "react-grid-layout";
-import { HomeLayouts, keys } from "../utils/layout.helper";
-import { fonts, socialPlatforms } from "../utils/constants";
-import { CustomCard, CodeCard, QRCard, MapCard, TVCard, URLCard, ImageCard, SocialCard, VideoCard } from "./cards";
+import { HomeLayouts } from "../../utils/layout.helper";
+import { fonts, socialPlatforms } from "../../utils/constants";
+import { CustomCard, CodeCard, QRCard, MapCard, TVCard, URLCard, ImageCard, SocialCard, VideoCard } from "../cards";
 import Sidebar from "./Sidebar";
 import DevSidebar from "./DevSidebar";
-import ColorMenu from "./ColorMenu";
-import Sticker from "./Sticker";
-import DemoBanner from "./DemoBanner";
-import "../styles/grid.css";
-import { Platform } from "../types";
+import ColorMenu from "../editor/ColorMenu";
+import Sticker from "../editor/Sticker";
+import DemoBanner from "../editor/DemoBanner";
+import MarketModal from "../modals/MarketModal";
+import type { Platform } from "../../types";
+import "../../styles/grid.css";
 
 type CardData = {
   id: string;
