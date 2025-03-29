@@ -1,14 +1,15 @@
 import { useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { SocialCard } from '../../cards/SocialCard';
 import { ImageCard } from '../../cards/ImageCard';
 import { MapCard } from '../../cards/MapCard';
 import type { SocialPlatform } from '../../../types';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import '../../../styles/animations.css';
 import LoadingModal from '../../common/LoadingModal';
 import { Helmet } from 'react-helmet';
+import { authClient, emailSignUp, googleSignUp } from "../../../utils/auth-client";
 
 interface FloatingCardProps {
   className?: string;
@@ -16,9 +17,10 @@ interface FloatingCardProps {
   size?: 'normal' | 'tall';
   children: React.ReactNode;
   index: number;
+  visibleCards: number;
 }
 
-const FloatingCard = ({ className = '', size = 'normal', children, index }: FloatingCardProps) => {
+const FloatingCard = ({ className = '', size = 'normal', children, index, visibleCards }: FloatingCardProps) => {
   const sizeClasses = {
     normal: 'w-48 h-48',
     tall: 'w-48 h-96',
@@ -26,34 +28,46 @@ const FloatingCard = ({ className = '', size = 'normal', children, index }: Floa
 
   const patterns = [
     {
-      y: [0, -40, -15, 40, 0],
-      x: [0, 40, -15, -40, 0],
-      rotate: [-5, 0, 5, 0, -5]
+      y: [0, -35, -15, 25, 0],
+      x: [0, 30, -25, -20, 0],
+      rotate: [-4, 0, 4, 0, -4]
     },
     {
-      y: [-15, -45, 0, -25, -15],
-      x: [-40, 15, 40, -10, -40],
+      y: [-25, -40, 0, -20, -25],
+      x: [-35, 15, 30, -25, -35],
       rotate: [3, -3, 3, -3, 3]
     },
     {
-      y: [10, -30, -50, 25, 10],
-      x: [30, -30, 0, 30, 30],
-      rotate: [0, -3, 0, 3, 0]
+      y: [20, -25, -45, 15, 20],
+      x: [25, -30, 10, 25, 25],
+      rotate: [-3, 3, -3, 3, -3]
+    },
+    {
+      y: [10, -30, 20, -15, 10],
+      x: [-20, 25, -25, 20, -20],
+      rotate: [4, -2, 4, -2, 4]
+    },
+    {
+      y: [-15, 25, -35, 10, -15],
+      x: [30, -20, 15, -30, 30],
+      rotate: [-3, 2, -3, 2, -3]
     }
   ];
 
   const patternIndex = index % patterns.length;
-  const duration = 15 + (index % 3) * 5;
+  const duration = 45 + (index % 5) * 8;
 
   return (
     <motion.div 
       className={`absolute ${sizeClasses} ${className} rounded-2xl overflow-hidden`}
-      animate={patterns[patternIndex]}
+      initial={{ opacity: 0, y: 8 }}
+      animate={visibleCards >= index ? {
+        opacity: 1,
+        ...patterns[patternIndex]
+      } : {}}
       transition={{ 
-        duration: duration,
-        ease: "easeInOut",
-        repeat: Infinity,
-        repeatType: "reverse"
+        opacity: { duration: 0.3 },
+        default: { duration: duration, ease: "easeInOut", repeat: Infinity, repeatType: "reverse" }
       }}
     >
       {children}
@@ -77,7 +91,7 @@ interface CardConfig {
 const CARDS_CONFIG: CardConfig[] = [
   {
     type: 'image',
-    position: 'left-32 bottom-80',
+    position: 'left-8 bottom-[16rem]',
     size: 'tall',
     depth: 15,
     scale: 0.7,
@@ -89,7 +103,7 @@ const CARDS_CONFIG: CardConfig[] = [
   {
     type: 'social',
     platform: 'github',
-    position: 'left-16 top-24',
+    position: 'left-12 top-8',
     size: 'normal',
     depth: 3,
     scale: 1.2,
@@ -99,7 +113,7 @@ const CARDS_CONFIG: CardConfig[] = [
   {
     type: 'social',
     platform: 'instagram',
-    position: 'right-24 top-16',
+    position: 'right-12 top-4',
     size: 'normal',
     depth: 4,
     scale: 1.15,
@@ -109,7 +123,7 @@ const CARDS_CONFIG: CardConfig[] = [
   },
   {
     type: 'map',
-    position: 'right-48 top-64',
+    position: 'right-[-2rem] top-[16rem]',
     size: 'normal',
     depth: 6,
     scale: 1.1,
@@ -120,7 +134,7 @@ const CARDS_CONFIG: CardConfig[] = [
   {
     type: 'social',
     platform: 'youtube',
-    position: 'left-64 top-8',
+    position: 'left-[-2rem] top-[12rem]',
     size: 'normal',
     depth: 8,
     scale: 1,
@@ -131,7 +145,7 @@ const CARDS_CONFIG: CardConfig[] = [
   {
     type: 'social',
     platform: 'spotify',
-    position: 'right-80 top-32',
+    position: 'right-[-4rem] top-[8rem]',
     size: 'normal',
     depth: 9,
     scale: 0.95,
@@ -142,7 +156,7 @@ const CARDS_CONFIG: CardConfig[] = [
   {
     type: 'social',
     platform: 'linkedin',
-    position: 'left-96 bottom-24',
+    position: 'left-[-4rem] bottom-[8rem]',
     size: 'normal',
     depth: 10,
     scale: 0.9,
@@ -153,7 +167,7 @@ const CARDS_CONFIG: CardConfig[] = [
   {
     type: 'social',
     platform: 'discord',
-    position: 'left-32 bottom-16',
+    position: 'left-16 bottom-[-1rem]',
     size: 'normal',
     depth: 12,
     scale: 0.85,
@@ -164,7 +178,7 @@ const CARDS_CONFIG: CardConfig[] = [
   {
     type: 'social',
     platform: 'twitter',
-    position: 'right-16 top-96',
+    position: 'right-16 bottom-[16rem]',
     size: 'normal',
     depth: 13,
     scale: 0.8,
@@ -173,8 +187,19 @@ const CARDS_CONFIG: CardConfig[] = [
   },
   {
     type: 'social',
+    platform: 'tiktok',
+    position: 'right-12 bottom-[6rem]',
+    size: 'normal',
+    depth: 13.5,
+    scale: 0.77,
+    blur: 'blur-[1px]',
+    text: 'Mis videos 👨‍💻',
+    description: '@Diemzey'
+  },
+  {
+    type: 'social',
     platform: 'twitch',
-    position: 'right-48 bottom-8',
+    position: 'right-[-2rem] bottom-[-2rem]',
     size: 'normal',
     depth: 14,
     scale: 0.75,
@@ -200,18 +225,14 @@ const FloatingCards = ({ startSequence }: { startSequence: boolean }) => {
     }
   }, [startSequence]);
 
-  const cardClasses = (index: number) => `
-    transition-[opacity,transform] duration-500 ease-out
-    ${visibleCards >= index ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}
-  `;
-
   const renderCard = (config: CardConfig, index: number) => {
     return (
       <FloatingCard
         key={index}
-        className={`fixed ${config.position} ${cardClasses(index)}`}
+        className={`fixed ${config.position}`}
         size={config.size || 'normal'}
         index={index}
+        visibleCards={visibleCards}
       >
         <div className={`${config.blur || ''} w-full h-full`}>
           {config.type === 'image' ? (
@@ -242,11 +263,16 @@ const FloatingCards = ({ startSequence }: { startSequence: boolean }) => {
   };
 
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none min-w-[1280px] min-h-[800px] hidden md:block">
+    <div className="absolute inset-0 overflow-hidden pointer-events-none min-w-[1440px] min-h-[900px] hidden md:block">
       {CARDS_CONFIG.map((config, index) => renderCard(config, index))}
     </div>
   );
 };
+
+interface AuthError {
+  message?: string;
+  code?: string;
+}
 
 const HomeScreen = () => {
   const navigate = useNavigate();
@@ -254,6 +280,17 @@ const HomeScreen = () => {
   const [showCards, setShowCards] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
+  const [showSignUpModal, setShowSignUpModal] = useState(false);
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
+  const [showEmailForm, setShowEmailForm] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isCheckingUsername, setIsCheckingUsername] = useState(false);
+  const checkTimeout = useRef<number | null>(null);
+  const [error, setError] = useState("");
   const [countdown, setCountdown] = useState({
     days: 0,
     hours: 0,
@@ -288,8 +325,97 @@ const HomeScreen = () => {
     return () => clearInterval(interval);
   }, []);
 
+  const handleUsernameChange = (value: string) => {
+    const sanitizedValue = value.toLowerCase().replace(/[^a-z0-9-]/g, "");
+    setUsername(sanitizedValue);
+
+    if (sanitizedValue.length < 3) {
+      setIsAvailable(false);
+      return;
+    }
+
+    if (checkTimeout.current) {
+      clearTimeout(checkTimeout.current);
+    }
+
+    checkTimeout.current = setTimeout(() => {
+      checkAvailability(sanitizedValue);
+    }, 300);
+  };
+
+  const checkAvailability = async (value: string) => {
+    if (!value || value.length < 3) {
+      setIsAvailable(false);
+      return;
+    }
+
+    setIsCheckingUsername(true);
+    try {
+      const response = await fetch(
+        `https://back.kasbu.com/check-username/${value}`,
+      );
+      const data = await response.json();
+      setIsAvailable(!data.exists);
+    } catch (error) {
+      console.error("Error checking username:", error);
+      setIsAvailable(false);
+    } finally {
+      setIsCheckingUsername(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    try {
+      if (!username || username.length < 3) {
+        setError("El nombre de usuario debe tener al menos 3 caracteres");
+        return;
+      }
+      setIsLoading(true);
+      const result = await googleSignUp(username);
+      if (!result) {
+        setError("Error durante el inicio de sesión con Google");
+        setIsLoading(false);
+        return;
+      }
+      setTimeout(() => 1000);
+      await authClient.updateUser({
+        username: username,
+      });
+      navigate("/beta", { state: { username: username } });
+    } catch (error) {
+      console.error("Error during Google sign up:", error);
+      setError("Hubo un problema al iniciar sesión con Google");
+      setIsLoading(false);
+    }
+  };
+
+  const handleEmailSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    if (username && isAvailable && email && password && name) {
+      setIsLoading(true);
+      try {
+        await emailSignUp(email, password, username, name);
+        navigate("/beta");
+      } catch (error) {
+        const authError = error as AuthError;
+        console.error("Error during email sign-up:", error);
+        if (authError.code === "USERNAME_IS_ALREADY_TAKEN_PLEASE_TRY_ANOTHER") {
+          setError(
+            "Este nombre de usuario ya está en uso. Por favor, elige otro.",
+          );
+        } else {
+          setError(authError.message || "Error durante el registro con correo");
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    } else if (!name) {
+      setError("Por favor ingresa tu nombre completo");
+    }
+  };
+
   const handleLogin = async () => {
-    // Efecto de confeti
     const duration = 2000;
     const animationEnd = Date.now() + duration;
     const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
@@ -307,8 +433,6 @@ const HomeScreen = () => {
 
       const particleCount = 50 * (timeLeft / duration);
 
-      // Ya que estás lanzando partículas en diferentes direcciones
-      // es una buena idea crear una capa de partículas en varias direcciones
       confetti({
         ...defaults,
         particleCount,
@@ -321,9 +445,7 @@ const HomeScreen = () => {
       });
     }, 250);
 
-    setIsExiting(true);
-    await new Promise(resolve => setTimeout(resolve, 800));
-    navigate('/start');
+    setShowSignUpModal(true);
   };
 
   return (
@@ -371,7 +493,7 @@ const HomeScreen = () => {
       </Helmet>
       <LoadingModal isOpen={isExiting} />
       
-      <div className={`relative min-h-screen w-full bg-white transition-opacity duration-500
+      <div className={`fixed inset-0 w-full bg-white transition-opacity duration-500 overflow-hidden
         ${isExiting ? 'opacity-0' : 'opacity-100'}`}>
         {/* Fondo decorativo */}
         <div className="absolute inset-0 overflow-hidden">
@@ -383,82 +505,395 @@ const HomeScreen = () => {
         <FloatingCards startSequence={showCards} />
 
         {/* Contenido principal */}
-        <div className={`relative min-h-screen w-full flex flex-col items-center transition-all duration-1000 ease-out
-          ${showForm ? 'justify-center -translate-y-16' : 'justify-center translate-y-8'}`}>
-          <div className="text-center transform transition-all duration-1000">
-            {/* Logo */}
-            <div className={`relative mb-6 mt-32 group transition-all duration-1000 transform
-              ${mounted ? 'scale-100 opacity-100' : 'scale-50 opacity-0'}`}>
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 blur-2xl 
-                group-hover:from-blue-600/30 group-hover:to-purple-600/30 transition-all duration-500" />
-              <img 
-                src="/images/Kasbu.png" 
-                alt="Kasbu Logo" 
-                className="relative w-32 h-32 object-contain mx-auto transition-all duration-500 
-                  hover:scale-105"
-              />
-            </div>
-
-            {/* Contador y Botón */}
-            <div className={`space-y-8 transition-all duration-1000 delay-300
-              ${showForm ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-              <p className="text-xl text-gray-600">
-                ¡A Linktree no le va gustar esto!
-              </p>
-              
-              <div className="flex gap-8 justify-center">
-                <div className="text-center">
-                  <div className="text-4xl font-bold bg-gradient-to-br from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                    {countdown.days}
-                  </div>
-                  <div className="text-sm text-gray-500 mt-1">Días</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-4xl font-bold bg-gradient-to-br from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                    {countdown.hours}
-                  </div>
-                  <div className="text-sm text-gray-500 mt-1">Horas</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-4xl font-bold bg-gradient-to-br from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                    {countdown.minutes}
-                  </div>
-                  <div className="text-sm text-gray-500 mt-1">Minutos</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-4xl font-bold bg-gradient-to-br from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                    {countdown.seconds}
-                  </div>
-                  <div className="text-sm text-gray-500 mt-1">Segundos</div>
-                </div>
+        <div className={`absolute inset-0 flex flex-col items-center transition-all duration-1000 ease-out
+          ${showForm ? 'justify-center -translate-y-[38px]' : 'justify-center translate-y-8'}`}>
+          <AnimatePresence mode="wait">
+            <motion.div 
+              key={showSignUpModal ? 'form' : 'initial'}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5 }}
+              className="text-center transform"
+            >
+              {/* Logo */}
+              <div className={`relative mb-6 mt-28 group transition-all duration-1000 transform
+                ${mounted ? 'scale-100 opacity-100' : 'scale-50 opacity-0'}`}>
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 blur-2xl 
+                  group-hover:from-blue-600/30 group-hover:to-purple-600/30 transition-all duration-500" />
+                <img 
+                  src="/images/Kasbu.png" 
+                  alt="Kasbu Logo" 
+                  className="relative w-32 h-32 object-contain mx-auto transition-all duration-500 
+                    hover:scale-105"
+                />
               </div>
 
-              <div className="flex flex-col items-center space-y-6">
-                <button 
-                  onClick={handleLogin}
-                  className="px-8 py-3 text-lg font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 
-                    rounded-xl shadow-lg hover:from-blue-500 hover:to-purple-500 
-                    active:from-blue-700 active:to-purple-700 transform hover:scale-105 
-                    transition-all duration-200 ease-out focus:outline-none focus:ring-2 
-                    focus:ring-purple-500 focus:ring-opacity-50"
-                >
-                  Unirse a la lista de espera
-                </button>
+              {/* Contenido dinámico (Contador o Formulario) */}
+              <div className={`space-y-8 transition-all duration-1000 delay-300
+                ${showForm ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+                
+                {!showSignUpModal ? (
+                  <>
+                    <p className="text-xl text-gray-600">
+                      ¡A Linktree no le va gustar esto!
+                    </p>
+                    
+                    <div className="flex gap-8 justify-center">
+                      <div className="text-center">
+                        <div className="text-4xl font-bold bg-gradient-to-br from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                          {countdown.days}
+                        </div>
+                        <div className="text-sm text-gray-500 mt-1">Días</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-4xl font-bold bg-gradient-to-br from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                          {countdown.hours}
+                        </div>
+                        <div className="text-sm text-gray-500 mt-1">Horas</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-4xl font-bold bg-gradient-to-br from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                          {countdown.minutes}
+                        </div>
+                        <div className="text-sm text-gray-500 mt-1">Minutos</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-4xl font-bold bg-gradient-to-br from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                          {countdown.seconds}
+                        </div>
+                        <div className="text-sm text-gray-500 mt-1">Segundos</div>
+                      </div>
+                    </div>
 
-                <p className="text-sm text-gray-500">
-                  Lanzamiento: 1 de Junio, 2025
-                </p>
+                    <div className="flex flex-col items-center space-y-6">
+                      <button 
+                        onClick={handleLogin}
+                        className="px-8 py-3 text-lg font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 
+                          rounded-xl shadow-lg hover:from-blue-500 hover:to-purple-500 
+                          active:from-blue-700 active:to-purple-700 transform hover:scale-105 
+                          transition-all duration-200 ease-out focus:outline-none focus:ring-2 
+                          focus:ring-purple-500 focus:ring-opacity-50"
+                      >
+                        Unirse a la lista de espera
+                      </button>
+
+                      <p className="text-sm text-gray-500">
+                        Lanzamiento: 1 de Junio, 2025
+                      </p>
+                    </div>
+                  </>
+                ) : (
+                  <div className="max-w-md mx-auto space-y-6">
+                    {/* Campo de usuario */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Elige tu nombre de usuario
+                      </label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                          <span className="text-gray-600 font-medium">kasbu.com/</span>
+                        </div>
+                        <input
+                          type="text"
+                          value={username}
+                          onChange={(e) => handleUsernameChange(e.target.value)}
+                          onBlur={() => checkAvailability(username)}
+                          className="block w-full pl-[calc(7.5rem-0.5rem)] pr-10 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                          placeholder="mi-nombre"
+                          required
+                          minLength={3}
+                        />
+                        <div className="absolute inset-y-0 right-3 flex items-center">
+                          {isCheckingUsername ? (
+                            <svg
+                              className="animate-spin h-5 w-5 text-gray-400"
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
+                              <circle
+                                className="opacity-25"
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                strokeWidth="4"
+                              ></circle>
+                              <path
+                                className="opacity-75"
+                                fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                              ></path>
+                            </svg>
+                          ) : (
+                            isAvailable !== null && (
+                              isAvailable ? (
+                                <svg
+                                  className="w-5 h-5 text-green-500"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M5 13l4 4L19 7"
+                                  />
+                                </svg>
+                              ) : (
+                                <svg
+                                  className="w-5 h-5 text-red-500"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M6 18L18 6M6 6l12 12"
+                                  />
+                                </svg>
+                              )
+                            )
+                          )}
+                        </div>
+                      </div>
+                      <p className="mt-1 text-xs text-gray-500 pl-3"> 
+                        Esta será tu URL personal. Usa solo minúsculas, números y guiones.
+                      </p>
+                      {username.length > 0 && (
+                        <p className={`mt-1 text-xs pl-3 ${isAvailable ? "text-green-500" : "text-red-500"}`}>
+                          {username.length < 3
+                            ? "El nombre debe tener al menos 3 caracteres"
+                            : /[^a-z0-9-]/.test(username)
+                              ? "Solo puedes usar letras minúsculas, números y guiones"
+                              : isAvailable === false
+                                ? "Este nombre de usuario no está disponible"
+                                : isAvailable === true
+                                  ? "¡Este nombre de usuario está disponible!"
+                                  : null}
+                        </p>
+                      )}
+                    </div>
+
+                    {!showEmailForm ? (
+                      <>
+                        {/* Botón de Google */}
+                        <button
+                          type="button"
+                          onClick={handleGoogleSignIn}
+                          disabled={!username || username.length < 3 || isAvailable === false || isCheckingUsername}
+                          className="w-full bg-white text-gray-700 py-3 px-4 rounded-xl font-medium border border-gray-200 hover:bg-gray-50 transition-all duration-300 shadow-sm
+                            flex items-center justify-center gap-3 relative group disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <svg className="w-5 h-5" viewBox="0 0 24 24">
+                            <path
+                              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                              fill="#4285F4"
+                            />
+                            <path
+                              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                              fill="#34A853"
+                            />
+                            <path
+                              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                              fill="#FBBC05"
+                            />
+                            <path
+                              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                              fill="#EA4335"
+                            />
+                          </svg>
+                          <span className="relative">
+                            {isCheckingUsername ? "Verificando usuario..." : "Continuar con Google"}
+                          </span>
+                        </button>
+
+                        <div className="relative">
+                          <div className="absolute inset-0 flex items-center">
+                            <div className="w-full border-t border-gray-200"></div>
+                          </div>
+                          <div className="relative flex justify-center text-sm">
+                            <span className="px-4 bg-white text-gray-500">O</span>
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => setShowEmailForm(true)}
+                          disabled={!username || username.length < 3 || isAvailable === false || isCheckingUsername}
+                          className="w-full bg-gray-50 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-100 transition-all duration-300
+                            disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-gray-50"
+                        >
+                          Continuar con correo
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setShowSignUpModal(false)}
+                          className="w-full text-gray-600 py-2 rounded-xl font-medium hover:text-gray-800 transition-all duration-300"
+                        >
+                          Volver
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        {/* Campo de nombre */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Nombre completo
+                          </label>
+                          <input
+                            type="text"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            className="block w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                            placeholder="Tu nombre completo"
+                            required
+                          />
+                        </div>
+
+                        {/* Campo de correo */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Correo electrónico
+                          </label>
+                          <input
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            className="block w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                            placeholder="tu@email.com"
+                            required
+                          />
+                        </div>
+
+                        {/* Campo de contraseña */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Contraseña
+                          </label>
+                          <input
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            className="block w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                            placeholder="••••••••"
+                            required
+                            minLength={6}
+                          />
+                        </div>
+
+                        {/* Botón de registro */}
+                        <button
+                          type="button"
+                          onClick={handleEmailSignUp}
+                          className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-xl font-medium 
+                            hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg shadow-blue-500/25 
+                            disabled:opacity-50 disabled:cursor-not-allowed group relative"
+                          disabled={
+                            !username ||
+                            username.length < 3 ||
+                            isAvailable === false ||
+                            !email ||
+                            !password ||
+                            !name ||
+                            isLoading ||
+                            isCheckingUsername
+                          }
+                        >
+                          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300
+                            bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1),transparent_50%)] rounded-xl" />
+                          <div className="flex items-center justify-center gap-2">
+                            {isLoading ? (
+                              <>
+                                <svg
+                                  className="animate-spin h-5 w-5 text-white"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <circle
+                                    className="opacity-25"
+                                    cx="12"
+                                    cy="12"
+                                    r="10"
+                                    stroke="currentColor"
+                                    strokeWidth="4"
+                                  ></circle>
+                                  <path
+                                    className="opacity-75"
+                                    fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                  ></path>
+                                </svg>
+                                <span className="relative">Creando cuenta...</span>
+                              </>
+                            ) : (
+                              <span className="relative">Crear mi Kasbu</span>
+                            )}
+                          </div>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setShowEmailForm(false)}
+                          className="w-full text-gray-600 py-2 rounded-xl font-medium hover:text-gray-800 transition-all duration-300"
+                        >
+                          Volver
+                        </button>
+                      </>
+                    )}
+
+                    {/* Error message */}
+                    {error && (
+                      <div className="mt-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm">
+                        <div className="flex items-center">
+                          <svg
+                            className="w-5 h-5 mr-2 flex-shrink-0"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                          {error}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </AnimatePresence>
         </div>
 
         {/* Footer */}
-        <div className={`absolute bottom-8 left-0 right-0 text-center transition-all duration-1000
+        <div className={`fixed bottom-0 left-0 right-0 text-center transition-all duration-1000
+          bg-gradient-to-t from-white/95 via-white/80 to-transparent pb-4 pt-8
           ${showForm ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-          <p className="text-sm text-gray-500">
-            Diseña · Comparte · Conecta
-          </p>
+          {!showSignUpModal ? (
+            <p className="text-sm text-gray-500">
+              Diseña · Comparte · Conecta
+            </p>
+          ) : (
+            <p className="text-xs text-gray-400">
+              Al registrarte, aceptas nuestros{" "}
+              <a href="#" className="text-blue-600 hover:text-blue-700">
+                Términos y condiciones
+              </a>{" "}
+              y{" "}
+              <a href="#" className="text-blue-600 hover:text-blue-700">
+                Política de privacidad
+              </a>
+            </p>
+          )}
         </div>
       </div>
     </>
