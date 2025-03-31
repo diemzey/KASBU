@@ -278,12 +278,83 @@ interface AuthError {
   code?: string;
 }
 
+// Constantes de animación
+const getAnimationProps = (delay = 0) => ({
+  initial: { opacity: 0, scale: 1.8, filter: "blur(8px)", y: 40 },
+  animate: { opacity: 1, scale: 1, filter: "blur(0px)", y: 0 },
+  transition: { 
+    duration: 0.8,
+    delay,
+    type: "spring",
+    stiffness: 50,
+    damping: 15
+  }
+});
+
+// Constantes para el carrusel
+const COMPANY_LOGOS = [
+  { name: '/pixel_ninja' },
+  { name: '/crypto_wizard' },
+  { name: '/code_master' },
+  { name: '/design_guru' },
+  { name: '/web_explorer' },
+  { name: '/tech_nomad' },
+  { name: '/data_voyager' },
+  { name: '/cloud_surfer' },
+  { name: '/dev_dreamer' },
+  { name: '/byte_wanderer' }
+];
+
+const LogoCarousel = () => {
+  return (
+    <div className="w-full overflow-hidden">
+      <p className="text-sm text-gray-400 text-center mb-4">Recién se unieron</p>
+      <div className="relative max-w-xl mx-auto overflow-hidden">
+        {/* Gradientes de desvanecimiento más opacos */}
+        <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-white via-white to-transparent z-10" />
+        <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-white via-white to-transparent z-10" />
+        
+        {/* Contenedor del carrusel con overflow-hidden */}
+        <div className="flex animate-[scroll_15s_linear_infinite] hover:[animation-play-state:paused]">
+          <div className="flex shrink-0 items-center gap-6">
+            {COMPANY_LOGOS.map((company, index) => (
+              <div key={index} className="flex-none w-28 h-8 flex items-center justify-center bg-gray-100 rounded-lg">
+                <span className="text-gray-400 text-sm font-medium">{company.name}</span>
+              </div>
+            ))}
+          </div>
+          <div className="flex shrink-0 items-center gap-6">
+            {COMPANY_LOGOS.map((company, index) => (
+              <div key={index} className="flex-none w-28 h-8 flex items-center justify-center bg-gray-100 rounded-lg">
+                <span className="text-gray-400 text-sm font-medium">{company.name}</span>
+              </div>
+            ))}
+          </div>
+          <div className="flex shrink-0 items-center gap-6">
+            {COMPANY_LOGOS.map((company, index) => (
+              <div key={index} className="flex-none w-28 h-8 flex items-center justify-center bg-gray-100 rounded-lg">
+                <span className="text-gray-400 text-sm font-medium">{company.name}</span>
+              </div>
+            ))}
+          </div>
+          <div className="flex shrink-0 items-center gap-6">
+            {COMPANY_LOGOS.map((company, index) => (
+              <div key={index} className="flex-none w-28 h-8 flex items-center justify-center bg-gray-100 rounded-lg">
+                <span className="text-gray-400 text-sm font-medium">{company.name}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const HomeScreen = () => {
   const navigate = useNavigate();
   const [mounted, setMounted] = useState(false);
   const [showCards, setShowCards] = useState(false);
   const [showForm, setShowForm] = useState(false);
-  const [isExiting, setIsExiting] = useState(false);
   const [showSignUpModal, setShowSignUpModal] = useState(false);
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -295,38 +366,19 @@ const HomeScreen = () => {
   const [isCheckingUsername, setIsCheckingUsername] = useState(false);
   const checkTimeout = useRef<NodeJS.Timeout | null>(null);
   const [error, setError] = useState("");
-  const [countdown, setCountdown] = useState({
-    days: 0,
-    hours: 0,
-    minutes: 0,
-    seconds: 0
-  });
+  const hasAnimated = useRef(false);
 
   useEffect(() => {
-    setTimeout(() => setMounted(true), 100);
-    setTimeout(() => setShowCards(true), 100);
-    setTimeout(() => setShowForm(true), 1500);
-  }, []);
-
-  useEffect(() => {
-    const targetDate = new Date('2025-06-01T00:00:00');
-
-    const updateCountdown = () => {
-      const now = new Date();
-      const difference = targetDate.getTime() - now.getTime();
-
-      const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-
-      setCountdown({ days, hours, minutes, seconds });
-    };
-
-    updateCountdown();
-    const interval = setInterval(updateCountdown, 1000);
-
-    return () => clearInterval(interval);
+    if (!hasAnimated.current) {
+      setTimeout(() => setMounted(true), 100);
+      setTimeout(() => setShowCards(true), 100);
+      setTimeout(() => setShowForm(true), 1500);
+      hasAnimated.current = true;
+    } else {
+      setMounted(true);
+      setShowCards(true);
+      setShowForm(true);
+    }
   }, []);
 
   const handleUsernameChange = (value: string) => {
@@ -458,21 +510,14 @@ const HomeScreen = () => {
         <title>Kasbu - Crea tu página personal con un diseño único y moderno</title>
         <meta name="description" content="Kasbu te permite crear una página personal interactiva y moderna. Comparte tus redes sociales, fotos, ubicación y más con un diseño único y personalizable." />
         
-        {/* Open Graph / Facebook */}
+        {/* Open Graph / Social Media */}
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://kasbu.com/" />
         <meta property="og:title" content="Kasbu - Tu página personal con estilo" />
         <meta property="og:description" content="Crea una página personal única con Kasbu. Comparte tu contenido de forma elegante y moderna." />
         <meta property="og:image" content="https://kasbu.com/og-image.jpg" />
-
-        {/* Twitter */}
-        <meta property="twitter:card" content="summary_large_image" />
-        <meta property="twitter:url" content="https://kasbu.com/" />
-        <meta property="twitter:title" content="Kasbu - Tu página personal con estilo" />
-        <meta property="twitter:description" content="Crea una página personal única con Kasbu. Comparte tu contenido de forma elegante y moderna." />
-        <meta property="twitter:image" content="https://kasbu.com/twitter-image.jpg" />
-
-        {/* Additional SEO tags */}
+        
+        {/* SEO tags */}
         <meta name="keywords" content="página personal, portafolio digital, redes sociales, diseño web, kasbu, página web personal" />
         <meta name="author" content="Kasbu" />
         <meta name="robots" content="index, follow" />
@@ -495,22 +540,21 @@ const HomeScreen = () => {
           })}
         </script>
       </Helmet>
-      <LoadingModal isOpen={isExiting} />
       
       <div className={`fixed inset-0 w-full bg-white transition-opacity duration-500 overflow-hidden
-        ${isExiting ? 'opacity-0' : 'opacity-100'}`}>
+        ${mounted ? 'opacity-100' : 'opacity-0'}`}>
         {/* Fondo decorativo */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-1/2 -left-1/2 w-[200%] h-[200%] bg-[radial-gradient(circle_at_50%_50%,rgba(99,102,241,0.05),transparent_50%)]" />
           <div className="absolute top-0 left-0 w-full h-full bg-[linear-gradient(to_right,transparent,rgba(255,255,255,0.8),transparent)]" />
-          <div className="absolute bottom-0 left-0 w-full h-[70vh] bg-[linear-gradient(to_top,rgba(255,255,255,1),rgba(255,255,255,0.8),transparent)]" />
+          <div className="absolute bottom-0 left-0 w-full h-[40vh] bg-[linear-gradient(to_top,rgba(255,255,255,1),rgba(255,255,255,0.8),transparent)]" />
         </div>
 
         <FloatingCards startSequence={showCards} />
 
         {/* Contenido principal */}
         <div className={`absolute inset-0 flex flex-col items-center transition-all duration-1000 ease-out
-          ${showForm ? 'justify-center -translate-y-[38px]' : 'justify-center translate-y-8'}`}>
+          ${showForm ? 'justify-center' : 'justify-center translate-y-8'}`}>
           <AnimatePresence mode="wait">
             <motion.div 
               key={showSignUpModal ? 'form' : 'initial'}
@@ -521,7 +565,7 @@ const HomeScreen = () => {
               className="text-center transform"
             >
               {/* Logo */}
-              <div className={`relative mb-6 mt-32 group transition-all duration-1000 transform
+              <div className={`relative mb-6 group transition-all duration-1000 transform
                 ${mounted ? 'scale-100 opacity-100' : 'scale-50 opacity-0'}`}>
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-gradient-to-r from-blue-600/20 to-purple-600/20 blur-2xl 
                   transition-all duration-500" />
@@ -533,81 +577,68 @@ const HomeScreen = () => {
                 />
               </div>
 
-              {/* Contenido dinámico (Contador o Formulario) */}
+              {/* Contenido dinámico */}
               <div className={`space-y-8 transition-all duration-1000 delay-300
                 ${showForm ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
                 
                 {!showSignUpModal ? (
                   <>
                     <h1 className="text-4xl font-bold tracking-tight flex items-center justify-center gap-2">
-                      <motion.span
-                        initial={{ opacity: 0, scale: 1.8, filter: "blur(8px)", y: 40 }}
-                        animate={{ opacity: 1, scale: 1, filter: "blur(0px)", y: 0 }}
-                        transition={{ 
-                          duration: 0.8,
-                          delay: 1.6,
-                          type: "spring",
-                          stiffness: 50,
-                          damping: 15
-                        }}
-                      >
+                      <motion.span {...getAnimationProps(hasAnimated.current ? 0 : 1.6)}>
                         <span className="text-gray-900">El </span>
                         <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">Hogar </span>
                         <span className="text-gray-900">de tus enlaces</span>
                       </motion.span>
-                      <motion.span
-                        initial={{ opacity: 0, scale: 1.8, filter: "blur(8px)", y: 40 }}
-                        animate={{ opacity: 1, scale: 1, filter: "blur(0px)", y: 0 }}
-                        transition={{ 
-                          duration: 0.8,
-                          delay: 1.7,
-                          type: "spring",
-                          stiffness: 50,
-                          damping: 15
-                        }}
+                      <motion.span 
+                        {...getAnimationProps(hasAnimated.current ? 0 : 1.7)} 
                         className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 bg-clip-text text-transparent"
                       >
                         .
                       </motion.span>
                     </h1>
-                    <motion.h3
-                      initial={{ opacity: 0, scale: 1.8, filter: "blur(8px)", y: 40 }}
-                      animate={{ opacity: 1, scale: 1, filter: "blur(0px)", y: 0 }}
-                      transition={{ 
-                        duration: 0.8,
-                        delay: 2.0,
-                        type: "spring",
-                        stiffness: 50,
-                        damping: 15
-                      }}
-                      className="heading-14 text-[22px] font-light text-[#636363] leading-[40px] flex justify-center -mt-1 [transform-style:preserve-3d] [transform:translate3d(0px,0px,0px)_scale3d(1,1,1)_rotateX(0deg)_rotateY(0deg)_rotateZ(0deg)_skew(0deg)]"
+                    <motion.h3 
+                      {...getAnimationProps(hasAnimated.current ? 0 : 2.0)} 
+                      className="heading-14 text-[22px] font-light text-[#636363] leading-[40px] flex justify-center -mt-1"
                     >
                       Tu Página Personal donde compartes todo lo que creas.
                     </motion.h3>
                     
                     <div className="flex flex-col items-center space-y-6 mt-12">
-                      <button 
-                        onClick={handleLogin}
-                        className="px-8 py-3 text-lg font-bold text-white bg-gradient-to-r from-blue-600 to-purple-600 
-                          rounded-xl shadow-lg hover:from-blue-500 hover:to-purple-500 
-                          active:from-blue-700 active:to-purple-700 transform hover:scale-105 
-                          transition-all duration-200 ease-out focus:outline-none focus:ring-2 
-                          focus:ring-purple-500 focus:ring-opacity-50 relative overflow-hidden group"
+                      <motion.div
+                        initial={hasAnimated.current ? false : { opacity: 0, scale: 1.8, filter: "blur(8px)", y: 40 }}
+                        animate={{ opacity: 1, scale: 1, filter: "blur(0px)", y: 0 }}
+                        transition={{ 
+                          duration: 0.8,
+                          delay: hasAnimated.current ? 0 : 2.2,
+                          type: "spring",
+                          stiffness: 50,
+                          damping: 15
+                        }}
+                        className="flex flex-col items-center space-y-6"
                       >
-                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300
-                          bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1),transparent_50%)] rounded-xl" />
-                        <div className="absolute top-0 -left-[100%] w-[120%] h-full bg-gradient-to-r from-transparent via-white/30 to-transparent 
-                          animate-[shine_3s_ease-in-out_infinite] pointer-events-none" />
-                        Aparta tu espacio ahora
-                      </button>
+                        <button 
+                          onClick={handleLogin}
+                          className="px-8 py-3 text-lg font-bold text-white bg-gradient-to-r from-blue-600 to-purple-600 
+                            rounded-xl shadow-lg hover:from-blue-500 hover:to-purple-500 
+                            active:from-blue-700 active:to-purple-700 transform hover:scale-105 
+                            transition-all duration-200 ease-out focus:outline-none focus:ring-2 
+                            focus:ring-purple-500 focus:ring-opacity-50 relative overflow-hidden group"
+                        >
+                          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300
+                            bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1),transparent_50%)] rounded-xl" />
+                          <div className="absolute top-0 -left-[100%] w-[120%] h-full bg-gradient-to-r from-transparent via-white/30 to-transparent 
+                            animate-[shine_3s_ease-in-out_infinite] pointer-events-none" />
+                          Aparta tu espacio ahora
+                        </button>
 
-                      <button
-                        onClick={() => navigate('/login')}
-                        className="px-6 py-2 text-sm font-medium text-gray-600 hover:text-gray-900
-                          transition-all duration-200 ease-out rounded-lg hover:bg-gray-100"
-                      >
-                        Ya tengo una cuenta
-                      </button>
+                        <button
+                          onClick={() => navigate('/login')}
+                          className="px-6 py-2 text-sm font-medium text-gray-600 hover:text-gray-900
+                            transition-all duration-200 ease-out rounded-lg hover:bg-gray-100"
+                        >
+                          Ya tengo una cuenta
+                        </button>
+                      </motion.div>
                     </div>
                   </>
                 ) : (
@@ -901,16 +932,18 @@ const HomeScreen = () => {
           </AnimatePresence>
         </div>
 
-        {/* Footer */}
-        <div className={`fixed bottom-0 left-0 right-0 text-center transition-all duration-1000
-          bg-gradient-to-t from-white/95 via-white/80 to-transparent pb-4 pt-8
+        {/* Footer con carrusel */}
+        <div className={`fixed bottom-0 left-0 right-0 transition-all duration-1000
           ${showForm ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           {!showSignUpModal ? (
-            <p className="text-sm text-gray-500">
-              Diseña · Comparte · Conecta
-            </p>
+            <div className="space-y-8 pb-4 bg-gradient-to-b from-transparent to-white">
+              <LogoCarousel />
+              <p className="text-sm text-gray-500 text-center">
+                Diseña · Comparte · Conecta
+              </p>
+            </div>
           ) : (
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-gray-400 text-center pb-4">
               Al registrarte, aceptas nuestros{" "}
               <a href="#" className="text-blue-600 hover:text-blue-700">
                 Términos y condiciones
@@ -925,15 +958,13 @@ const HomeScreen = () => {
       </div>
       <style>{`
         @keyframes shine {
-          0% {
-            transform: translateX(0);
-          }
-          20% {
-            transform: translateX(200%);
-          }
-          100% {
-            transform: translateX(200%);
-          }
+          0% { transform: translateX(0); }
+          20% { transform: translateX(200%); }
+          100% { transform: translateX(200%); }
+        }
+        @keyframes scroll {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-25%); }
         }
       `}</style>
     </>
