@@ -60,13 +60,17 @@ const FloatingCard = ({ className = '', size = 'normal', children, index, visibl
   return (
     <motion.div 
       className={`absolute ${sizeClasses} ${className} rounded-2xl overflow-hidden`}
-      initial={{ opacity: 0, y: 8 }}
+      initial={{ opacity: 0, y: 40, scale: 1.4, filter: "blur(20px)" }}
       animate={visibleCards >= index ? {
         opacity: 1,
+        scale: 1,
+        filter: "blur(0px)",
         ...patterns[patternIndex]
       } : {}}
       transition={{ 
-        opacity: { duration: 0.3 },
+        opacity: { duration: 0.5 },
+        scale: { duration: 0.8, type: "spring", stiffness: 100, damping: 12 },
+        filter: { duration: 0.6 },
         default: { duration: duration, ease: "easeInOut", repeat: Infinity, repeatType: "reverse" }
       }}
     >
@@ -289,7 +293,7 @@ const HomeScreen = () => {
   const [showEmailForm, setShowEmailForm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isCheckingUsername, setIsCheckingUsername] = useState(false);
-  const checkTimeout = useRef<number | null>(null);
+  const checkTimeout = useRef<NodeJS.Timeout | null>(null);
   const [error, setError] = useState("");
   const [countdown, setCountdown] = useState({
     days: 0,
@@ -300,7 +304,7 @@ const HomeScreen = () => {
 
   useEffect(() => {
     setTimeout(() => setMounted(true), 100);
-    setTimeout(() => setShowCards(true), 800);
+    setTimeout(() => setShowCards(true), 100);
     setTimeout(() => setShowForm(true), 1500);
   }, []);
 
@@ -517,10 +521,10 @@ const HomeScreen = () => {
               className="text-center transform"
             >
               {/* Logo */}
-              <div className={`relative mb-6 mt-28 group transition-all duration-1000 transform
+              <div className={`relative mb-6 mt-32 group transition-all duration-1000 transform
                 ${mounted ? 'scale-100 opacity-100' : 'scale-50 opacity-0'}`}>
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 blur-2xl 
-                  group-hover:from-blue-600/30 group-hover:to-purple-600/30 transition-all duration-500" />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-gradient-to-r from-blue-600/20 to-purple-600/20 blur-2xl 
+                  transition-all duration-500" />
                 <img 
                   src="/images/Kasbu.png" 
                   alt="Kasbu Logo" 
@@ -535,52 +539,75 @@ const HomeScreen = () => {
                 
                 {!showSignUpModal ? (
                   <>
-                    <p className="text-xl text-gray-600">
-                      ¡A Linktree no le va gustar esto!
-                    </p>
+                    <h1 className="text-4xl font-bold tracking-tight flex items-center justify-center gap-2">
+                      <motion.span
+                        initial={{ opacity: 0, scale: 1.8, filter: "blur(8px)", y: 40 }}
+                        animate={{ opacity: 1, scale: 1, filter: "blur(0px)", y: 0 }}
+                        transition={{ 
+                          duration: 0.8,
+                          delay: 1.6,
+                          type: "spring",
+                          stiffness: 50,
+                          damping: 15
+                        }}
+                      >
+                        <span className="text-gray-900">El </span>
+                        <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">Hogar </span>
+                        <span className="text-gray-900">de tus enlaces</span>
+                      </motion.span>
+                      <motion.span
+                        initial={{ opacity: 0, scale: 1.8, filter: "blur(8px)", y: 40 }}
+                        animate={{ opacity: 1, scale: 1, filter: "blur(0px)", y: 0 }}
+                        transition={{ 
+                          duration: 0.8,
+                          delay: 1.7,
+                          type: "spring",
+                          stiffness: 50,
+                          damping: 15
+                        }}
+                        className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 bg-clip-text text-transparent"
+                      >
+                        .
+                      </motion.span>
+                    </h1>
+                    <motion.h3
+                      initial={{ opacity: 0, scale: 1.8, filter: "blur(8px)", y: 40 }}
+                      animate={{ opacity: 1, scale: 1, filter: "blur(0px)", y: 0 }}
+                      transition={{ 
+                        duration: 0.8,
+                        delay: 2.0,
+                        type: "spring",
+                        stiffness: 50,
+                        damping: 15
+                      }}
+                      className="heading-14 text-[22px] font-light text-[#636363] leading-[40px] flex justify-center -mt-1 [transform-style:preserve-3d] [transform:translate3d(0px,0px,0px)_scale3d(1,1,1)_rotateX(0deg)_rotateY(0deg)_rotateZ(0deg)_skew(0deg)]"
+                    >
+                      Tu Página Personal donde compartes todo lo que creas.
+                    </motion.h3>
                     
-                    <div className="flex gap-8 justify-center">
-                      <div className="text-center">
-                        <div className="text-4xl font-bold bg-gradient-to-br from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                          {countdown.days}
-                        </div>
-                        <div className="text-sm text-gray-500 mt-1">Días</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-4xl font-bold bg-gradient-to-br from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                          {countdown.hours}
-                        </div>
-                        <div className="text-sm text-gray-500 mt-1">Horas</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-4xl font-bold bg-gradient-to-br from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                          {countdown.minutes}
-                        </div>
-                        <div className="text-sm text-gray-500 mt-1">Minutos</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-4xl font-bold bg-gradient-to-br from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                          {countdown.seconds}
-                        </div>
-                        <div className="text-sm text-gray-500 mt-1">Segundos</div>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col items-center space-y-6">
+                    <div className="flex flex-col items-center space-y-6 mt-12">
                       <button 
                         onClick={handleLogin}
-                        className="px-8 py-3 text-lg font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 
+                        className="px-8 py-3 text-lg font-bold text-white bg-gradient-to-r from-blue-600 to-purple-600 
                           rounded-xl shadow-lg hover:from-blue-500 hover:to-purple-500 
                           active:from-blue-700 active:to-purple-700 transform hover:scale-105 
                           transition-all duration-200 ease-out focus:outline-none focus:ring-2 
-                          focus:ring-purple-500 focus:ring-opacity-50"
+                          focus:ring-purple-500 focus:ring-opacity-50 relative overflow-hidden group"
                       >
-                        Unirse a la lista de espera
+                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300
+                          bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1),transparent_50%)] rounded-xl" />
+                        <div className="absolute top-0 -left-[100%] w-[120%] h-full bg-gradient-to-r from-transparent via-white/30 to-transparent 
+                          animate-[shine_3s_ease-in-out_infinite] pointer-events-none" />
+                        Aparta tu espacio ahora
                       </button>
 
-                      <p className="text-sm text-gray-500">
-                        Lanzamiento: 1 de Junio, 2025
-                      </p>
+                      <button
+                        onClick={() => navigate('/login')}
+                        className="px-6 py-2 text-sm font-medium text-gray-600 hover:text-gray-900
+                          transition-all duration-200 ease-out rounded-lg hover:bg-gray-100"
+                      >
+                        Ya tengo una cuenta
+                      </button>
                     </div>
                   </>
                 ) : (
@@ -896,6 +923,19 @@ const HomeScreen = () => {
           )}
         </div>
       </div>
+      <style>{`
+        @keyframes shine {
+          0% {
+            transform: translateX(0);
+          }
+          20% {
+            transform: translateX(200%);
+          }
+          100% {
+            transform: translateX(200%);
+          }
+        }
+      `}</style>
     </>
   );
 };
