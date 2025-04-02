@@ -35,6 +35,9 @@ export interface BaseURLCardProps {
   onImageChange?: (imageUrl: string | null) => void;
   isEditorMode?: boolean;
   url?: string;
+  command?: string;
+  text?: string;
+  language?: string;
 }
 
 export interface CardProps {
@@ -44,4 +47,5 @@ export interface CardProps {
   onTextChange?: (text: string) => void;
   onTitleChange?: (title: string) => void;
   title?: string;
+  text?: string;
 } 

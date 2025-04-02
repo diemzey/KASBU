@@ -44,4 +44,9 @@ export interface VideoCardProps extends CardProps {
   videoUrl?: string;
   onVideoChange?: (videoUrl: string) => void;
   isEditorMode?: boolean;
+}
+
+export interface ShopCardProps extends CardProps {
+  productId?: string;
+  platform?: 'amazon' | 'amazon-product';
 } 
